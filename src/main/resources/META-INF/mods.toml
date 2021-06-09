@@ -1,0 +1,26 @@
+modLoader="javafml"
+loaderVersion="[34,)"
+issueTrackerURL="https://github.com/ochotonida/caldera/issues"
+license="MIT"
+
+[[mods]]
+modId = "caldera"
+version = "1.16.5-0.0.0"
+displayName = "Caldera"
+displayURL="https://www.curseforge.com/minecraft/mc-mods/caldera"
+# logoFile = "logo.png"
+description = '''Magic much'''
+
+[[dependencies.caldera]]
+    modId="forge"
+    mandatory=true
+    versionRange="[34.1.0,)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.caldera]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.16.5,1.17)"
+    ordering="NONE"
+    side="BOTH"
