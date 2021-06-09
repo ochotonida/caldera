@@ -1,0 +1,153 @@
+{
+  "texture_size": [
+    64,
+    64
+  ],
+  "textures": {
+    "cauldron": "caldera:block/large_cauldron",
+    "particle": "minecraft:block/anvil"
+  },
+  "elements": [
+    {
+      "from": [
+        2,
+        2,
+        0
+      ],
+      "to": [
+        16,
+        16,
+        2
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            4,
+            2,
+            7.5,
+            5.5
+          ],
+          "texture": "#cauldron"
+        },
+        "south": {
+          "uv": [
+            8.5,
+            2,
+            12,
+            5.5
+          ],
+          "texture": "#cauldron"
+        },
+        "down": {
+          "uv": [
+            0.5,
+            13.5,
+            4,
+            14
+          ],
+          "texture": "#cauldron"
+        }
+      }
+    },
+    {
+      "from": [
+        0,
+        2,
+        0
+      ],
+      "to": [
+        2,
+        16,
+        16
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.5,
+            2,
+            8,
+            5.5
+          ],
+          "texture": "#cauldron"
+        },
+        "east": {
+          "uv": [
+            12,
+            2,
+            16,
+            5.5
+          ],
+          "texture": "#cauldron"
+        },
+        "west": {
+          "uv": [
+            0,
+            2,
+            4,
+            5.5
+          ],
+          "texture": "#cauldron"
+        },
+        "down": {
+          "uv": [
+            0,
+            10,
+            0.5,
+            14
+          ],
+          "texture": "#cauldron"
+        }
+      }
+    },
+    {
+      "from": [
+        1,
+        0,
+        1
+      ],
+      "to": [
+        16,
+        2,
+        16
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            4,
+            5.5,
+            7.75,
+            6
+          ],
+          "texture": "#cauldron"
+        },
+        "west": {
+          "uv": [
+            0.25,
+            5.5,
+            4,
+            6
+          ],
+          "texture": "#cauldron"
+        },
+        "up": {
+          "uv": [
+            0.25,
+            6.25,
+            4,
+            10
+          ],
+          "texture": "#cauldron"
+        },
+        "down": {
+          "uv": [
+            0.25,
+            10,
+            4,
+            13.75
+          ],
+          "texture": "#cauldron"
+        }
+      }
+    }
+  ]
+}

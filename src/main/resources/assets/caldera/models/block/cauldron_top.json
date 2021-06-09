@@ -1,0 +1,285 @@
+{
+  "texture_size": [
+    64,
+    64
+  ],
+  "textures": {
+    "cauldron": "caldera:block/large_cauldron",
+    "particle": "minecraft:block/anvil"
+  },
+  "elements": [
+    {
+      "from": [
+        2,
+        0,
+        0
+      ],
+      "to": [
+        16,
+        2,
+        2
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            4,
+            1.5,
+            7.5,
+            2
+          ],
+          "texture": "#cauldron"
+        },
+        "south": {
+          "uv": [
+            8.5,
+            1.5,
+            12,
+            2
+          ],
+          "texture": "#cauldron"
+        },
+        "up": {
+          "uv": [
+            4.5,
+            6,
+            8,
+            6.5
+          ],
+          "texture": "#cauldron"
+        }
+      }
+    },
+    {
+      "from": [
+        2,
+        2,
+        1
+      ],
+      "to": [
+        16,
+        5,
+        2
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            4,
+            0.75,
+            7.5,
+            1.5
+          ],
+          "texture": "#cauldron"
+        },
+        "south": {
+          "uv": [
+            8.5,
+            0.75,
+            12,
+            1.5
+          ],
+          "texture": "#cauldron"
+        }
+      }
+    },
+    {
+      "from": [
+        2,
+        5,
+        0
+      ],
+      "to": [
+        16,
+        8,
+        2
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            4,
+            0,
+            7.5,
+            0.75
+          ],
+          "texture": "#cauldron"
+        },
+        "south": {
+          "uv": [
+            8.5,
+            0,
+            12,
+            0.75
+          ],
+          "texture": "#cauldron"
+        },
+        "up": {
+          "uv": [
+            0.5,
+            6,
+            4,
+            6.5
+          ],
+          "texture": "#cauldron"
+        },
+        "down": {
+          "uv": [
+            4.5,
+            13.5,
+            8,
+            14
+          ],
+          "texture": "#cauldron"
+        }
+      }
+    },
+    {
+      "from": [
+        0,
+        5,
+        0
+      ],
+      "to": [
+        2,
+        8,
+        16
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.5,
+            0,
+            8,
+            0.75
+          ],
+          "texture": "#cauldron"
+        },
+        "east": {
+          "uv": [
+            12,
+            0,
+            16,
+            0.75
+          ],
+          "texture": "#cauldron"
+        },
+        "west": {
+          "uv": [
+            0,
+            0,
+            4,
+            0.75
+          ],
+          "texture": "#cauldron"
+        },
+        "up": {
+          "uv": [
+            0,
+            6,
+            0.5,
+            10
+          ],
+          "texture": "#cauldron"
+        },
+        "down": {
+          "uv": [
+            4,
+            10,
+            4.5,
+            14
+          ],
+          "texture": "#cauldron"
+        }
+      }
+    },
+    {
+      "from": [
+        1,
+        2,
+        1
+      ],
+      "to": [
+        2,
+        5,
+        16
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.5,
+            0.75,
+            7.75,
+            1.5
+          ],
+          "texture": "#cauldron"
+        },
+        "east": {
+          "uv": [
+            12,
+            0.75,
+            15.75,
+            1.5
+          ],
+          "texture": "#cauldron"
+        },
+        "west": {
+          "uv": [
+            0.25,
+            0.75,
+            4,
+            1.5
+          ],
+          "texture": "#cauldron"
+        }
+      }
+    },
+    {
+      "from": [
+        0,
+        0,
+        0
+      ],
+      "to": [
+        2,
+        2,
+        16
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7.5,
+            1.5,
+            8,
+            2
+          ],
+          "texture": "#cauldron"
+        },
+        "east": {
+          "uv": [
+            12,
+            1.5,
+            16,
+            2
+          ],
+          "texture": "#cauldron"
+        },
+        "west": {
+          "uv": [
+            0,
+            1.5,
+            4,
+            2
+          ],
+          "texture": "#cauldron"
+        },
+        "up": {
+          "uv": [
+            4,
+            6,
+            4.5,
+            10
+          ],
+          "texture": "#cauldron"
+        }
+      }
+    }
+  ]
+}
