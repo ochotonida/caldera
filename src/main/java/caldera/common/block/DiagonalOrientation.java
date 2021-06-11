@@ -15,7 +15,11 @@ public enum DiagonalOrientation implements IStringSerializable {
 
     DiagonalOrientation(String name, Direction.AxisDirection axisDirectionX, Direction.AxisDirection axisDirectionZ) {
         this.name = name;
-        this.offset = new Vector3i(axisDirectionX == Direction.AxisDirection.POSITIVE ? 1 : 0, 0, axisDirectionZ == Direction.AxisDirection.POSITIVE ? 1 : 0);
+        this.offset = new Vector3i(axisDirectionX == Direction.AxisDirection.POSITIVE ? -1 : 0, 0, axisDirectionZ == Direction.AxisDirection.POSITIVE ? -1 : 0);
+    }
+
+    public static DiagonalOrientation defaultOrientation() {
+        return NORTH_WEST;
     }
 
     public static DiagonalOrientation fromDirections(Direction.AxisDirection axisDirectionX, Direction.AxisDirection axisDirectionZ) {

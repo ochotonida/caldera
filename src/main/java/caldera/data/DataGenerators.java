@@ -18,5 +18,8 @@ public class DataGenerators {
             BlockStates blockStates = new BlockStates(generator, helper);
             generator.addProvider(blockStates);
         }
+        if (event.includeServer()) {
+            generator.addProvider(new LootTables(generator));
+        }
     }
 }
