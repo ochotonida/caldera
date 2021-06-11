@@ -1,8 +1,8 @@
 package caldera.data;
 
 import caldera.Caldera;
+import caldera.common.block.LargeCauldronBlock;
 import caldera.common.init.ModBlocks;
-import net.minecraft.block.DoorBlock;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.state.properties.DoubleBlockHalf;
@@ -26,7 +26,7 @@ public class BlockStates extends BlockStateProvider {
 
         getVariantBuilder(ModBlocks.LARGE_CAULDRON.get()).forAllStates(state ->
                 ConfiguredModel.builder().modelFile(state.getValue(BlockStateProperties.DOUBLE_BLOCK_HALF) == DoubleBlockHalf.LOWER ? cauldronBottom : cauldronTop)
-                        .rotationY((int) state.getValue(DoorBlock.FACING).toYRot())
+                        .rotationY((int) state.getValue(LargeCauldronBlock.ORIENTATION).getClockWiseDirection().toYRot())
                         .build());
     }
 }
