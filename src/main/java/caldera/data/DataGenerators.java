@@ -17,6 +17,7 @@ public class DataGenerators {
         if (event.includeClient()) {
             BlockStates blockStates = new BlockStates(generator, helper);
             generator.addProvider(blockStates);
+            generator.addProvider(new ItemModels(generator, event.getExistingFileHelper()));
         }
         if (event.includeServer()) {
             generator.addProvider(new LootTables(generator));

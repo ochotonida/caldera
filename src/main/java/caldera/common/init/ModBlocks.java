@@ -15,7 +15,8 @@ public class ModBlocks {
 
     public static final RegistryObject<LargeCauldronBlock> LARGE_CAULDRON = REGISTRY.register("large_cauldron", () -> new LargeCauldronBlock(
             Block.Properties.of(Material.HEAVY_METAL)
-                    .strength(1.5F)
+                    .strength(6.5F)
+                    .sound(ModSoundTypes.CAULDRON)
                     .harvestTool(ToolType.PICKAXE)
                     .requiresCorrectToolForDrops()
     ));
