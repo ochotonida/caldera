@@ -21,16 +21,20 @@ public class LargeCauldronBlock extends CubeMultiBlock {
 
     static {
         VoxelShape lowerShape = VoxelShapes.join(
+                // start with a slab and a slightly wider cube on top
                 VoxelShapes.or(
                         Block.box(0, 2, 0, 16, 16, 16),
                         Block.box(0, 0, 0, 15, 2, 15)
                 ),
-                Block.box(0, 2, 0, 14, 16, 14),
+                // subtract the basin from the first two shapes
+                Block.box(0, 4, 0, 14, 16, 14),
                 IBooleanFunction.ONLY_FIRST
         );
 
         VoxelShape upperShape = VoxelShapes.join(
+                // start with a slab
                 Block.box(0, 0, 0, 16, 8, 16),
+                // subtract the horizontal slits and the basin from the first shape
                 VoxelShapes.or(
                         Block.box(0, 0, 0, 14, 8, 14),
                         Block.box(15, 2, 0, 16, 5, 16),
