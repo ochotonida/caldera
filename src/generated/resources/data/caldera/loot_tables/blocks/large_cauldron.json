@@ -12,7 +12,7 @@
               "block": "caldera:large_cauldron",
               "properties": {
                 "half": "lower",
-                "orientation": "north_west"
+                "facing": "south"
               }
             }
           ],

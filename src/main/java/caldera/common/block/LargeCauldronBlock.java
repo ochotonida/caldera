@@ -4,6 +4,7 @@ import caldera.common.util.VoxelShapeHelper;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.state.properties.DoubleBlockHalf;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.shapes.IBooleanFunction;
 import net.minecraft.util.math.shapes.ISelectionContext;
@@ -16,8 +17,8 @@ import java.util.Map;
 
 public class LargeCauldronBlock extends CubeMultiBlock {
 
-    private static final Map<DiagonalOrientation, VoxelShape> LOWER_SHAPES = new HashMap<>();
-    private static final Map<DiagonalOrientation, VoxelShape> UPPER_SHAPES = new HashMap<>();
+    private static final Map<Direction, VoxelShape> LOWER_SHAPES = new HashMap<>();
+    private static final Map<Direction, VoxelShape> UPPER_SHAPES = new HashMap<>();
 
     static {
         VoxelShape lowerShape = VoxelShapes.join(
@@ -43,10 +44,10 @@ public class LargeCauldronBlock extends CubeMultiBlock {
                 IBooleanFunction.ONLY_FIRST
         );
 
-        for (DiagonalOrientation orientation : DiagonalOrientation.values()) {
-            LOWER_SHAPES.put(orientation, VoxelShapeHelper.rotateShape(lowerShape, orientation.getClockWiseDirection()));
-            UPPER_SHAPES.put(orientation, VoxelShapeHelper.rotateShape(upperShape, orientation.getClockWiseDirection()));
-        }
+        Direction.Plane.HORIZONTAL.forEach(facing -> {
+            LOWER_SHAPES.put(facing, VoxelShapeHelper.rotateShape(lowerShape, facing));
+            UPPER_SHAPES.put(facing, VoxelShapeHelper.rotateShape(upperShape, facing));
+        });
     }
 
     public LargeCauldronBlock(Properties properties) {
@@ -57,9 +58,9 @@ public class LargeCauldronBlock extends CubeMultiBlock {
     @SuppressWarnings("deprecation")
     public VoxelShape getShape(BlockState state, IBlockReader level, BlockPos pos, ISelectionContext selectionContext) {
         if (state.getValue(HALF) == DoubleBlockHalf.LOWER) {
-            return LOWER_SHAPES.get(state.getValue(ORIENTATION));
+            return LOWER_SHAPES.get(state.getValue(FACING));
         } else {
-            return UPPER_SHAPES.get(state.getValue(ORIENTATION));
+            return UPPER_SHAPES.get(state.getValue(FACING));
         }
     }
 }

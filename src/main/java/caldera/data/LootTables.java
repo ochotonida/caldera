@@ -1,6 +1,5 @@
 package caldera.data;
 
-import caldera.common.block.DiagonalOrientation;
 import caldera.common.block.LargeCauldronBlock;
 import caldera.common.init.ModBlocks;
 import com.mojang.datafixers.util.Pair;
@@ -12,6 +11,7 @@ import net.minecraft.loot.*;
 import net.minecraft.loot.conditions.BlockStateProperty;
 import net.minecraft.loot.conditions.SurvivesExplosion;
 import net.minecraft.state.properties.DoubleBlockHalf;
+import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 
 import java.util.ArrayList;
@@ -35,7 +35,7 @@ public class LootTables extends LootTableProvider {
                 StatePropertiesPredicate.Builder
                         .properties()
                         .hasProperty(LargeCauldronBlock.HALF, DoubleBlockHalf.LOWER)
-                        .hasProperty(LargeCauldronBlock.ORIENTATION, DiagonalOrientation.defaultOrientation())
+                        .hasProperty(LargeCauldronBlock.FACING, Direction.SOUTH)
         );
 
         return lootTables;

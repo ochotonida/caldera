@@ -26,7 +26,7 @@ public class BlockStates extends BlockStateProvider {
 
         getVariantBuilder(ModBlocks.LARGE_CAULDRON.get()).forAllStates(state ->
                 ConfiguredModel.builder().modelFile(state.getValue(BlockStateProperties.DOUBLE_BLOCK_HALF) == DoubleBlockHalf.LOWER ? cauldronBottom : cauldronTop)
-                        .rotationY((int) state.getValue(LargeCauldronBlock.ORIENTATION).getClockWiseDirection().toYRot())
+                        .rotationY((int) state.getValue(LargeCauldronBlock.FACING).toYRot())
                         .build());
     }
 }
