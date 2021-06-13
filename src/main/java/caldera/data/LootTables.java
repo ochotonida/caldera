@@ -1,17 +1,12 @@
 package caldera.data;
 
-import caldera.common.block.LargeCauldronBlock;
 import caldera.common.init.ModBlocks;
 import com.mojang.datafixers.util.Pair;
-import net.minecraft.advancements.criterion.StatePropertiesPredicate;
 import net.minecraft.block.Block;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.LootTableProvider;
 import net.minecraft.loot.*;
-import net.minecraft.loot.conditions.BlockStateProperty;
 import net.minecraft.loot.conditions.SurvivesExplosion;
-import net.minecraft.state.properties.DoubleBlockHalf;
-import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 
 import java.util.ArrayList;
@@ -31,12 +26,7 @@ public class LootTables extends LootTableProvider {
 
     @Override
     protected List<Pair<Supplier<Consumer<BiConsumer<ResourceLocation, LootTable.Builder>>>, LootParameterSet>> getTables() {
-        blockDropsWithProperties(ModBlocks.LARGE_CAULDRON.get(),
-                StatePropertiesPredicate.Builder
-                        .properties()
-                        .hasProperty(LargeCauldronBlock.HALF, DoubleBlockHalf.LOWER)
-                        .hasProperty(LargeCauldronBlock.FACING, Direction.SOUTH)
-        );
+        blockDropsWithProperties(ModBlocks.LARGE_CAULDRON.get());
 
         return lootTables;
     }
@@ -46,7 +36,7 @@ public class LootTables extends LootTableProvider {
         map.forEach((location, lootTable) -> LootTableManager.validate(validationtracker, location, lootTable));
     }
 
-    private void blockDropsWithProperties(Block block, StatePropertiesPredicate.Builder properties) {
+    private void blockDropsWithProperties(Block block) {
         blockDrops(block,
                 LootTable.lootTable()
                         .withPool(LootPool
@@ -55,10 +45,6 @@ public class LootTables extends LootTableProvider {
                                 .setRolls(ConstantRange.exactly(1))
                                 .add(ItemLootEntry
                                         .lootTableItem(block)
-                                        .when(BlockStateProperty
-                                                .hasBlockStateProperties(block)
-                                                .setProperties(properties)
-                                        )
                                 )
                         )
         );

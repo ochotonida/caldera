@@ -6,16 +6,6 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "conditions": [
-            {
-              "condition": "minecraft:block_state_property",
-              "block": "caldera:large_cauldron",
-              "properties": {
-                "half": "lower",
-                "facing": "south"
-              }
-            }
-          ],
           "name": "caldera:large_cauldron"
         }
       ],

@@ -4,8 +4,6 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.fluid.FluidState;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.state.EnumProperty;
@@ -17,7 +15,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.math.vector.Vector3i;
-import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -53,15 +50,15 @@ public abstract class CubeMultiBlock extends Block {
         }
     }
 
-    public static BlockPos getRootPosition(BlockState state, BlockPos pos) {
-        return pos.subtract(getOffsetFromRoot(state));
+    public static BlockPos getOrigin(BlockState state, BlockPos pos) {
+        return pos.subtract(getOffsetFromOrigin(state));
     }
 
-    public static Stream<BlockPos> streamShape(BlockPos root) {
-        return BlockPos.betweenClosedStream(root, root.offset(1, 1, 1));
+    public static Stream<BlockPos> streamShape(BlockPos origin) {
+        return BlockPos.betweenClosedStream(origin, origin.offset(1, 1, 1));
     }
 
-    public static Vector3i getOffsetFromRoot(BlockState state) {
+    public static Vector3i getOffsetFromOrigin(BlockState state) {
         Direction facing = state.getValue(FACING);
 
         Direction.AxisDirection axisDirectionX = facing.getAxis() == Direction.Axis.X
@@ -134,54 +131,43 @@ public abstract class CubeMultiBlock extends Block {
 
     @Override
     @SuppressWarnings("deprecation")
-    public BlockState updateShape(BlockState state, Direction neighborDirection, BlockState neighborState, IWorld level, BlockPos pos, BlockPos neighborPos) {
-        Direction facing = state.getValue(FACING);
-        DoubleBlockHalf half = state.getValue(HALF);
-
-        Direction facingX = getFacing(state, Direction.Axis.X);
-        Direction facingY = getFacing(state, Direction.Axis.Y);
-        Direction facingZ = getFacing(state, Direction.Axis.Z);
-
-        if (neighborDirection == facingY) {
-            if (!neighborState.is(this)
-                    || neighborState.getValue(HALF) == half
-                    || neighborState.getValue(FACING) != facing
-            ) {
-                return Blocks.AIR.defaultBlockState();
-            }
-        } else if (neighborDirection == facingX) {
-            if (!neighborState.is(this)
-                    || neighborState.getValue(HALF) != half
-                    || getFacing(neighborState, Direction.Axis.X) != facingX.getOpposite()
-                    || getFacing(neighborState, Direction.Axis.Z) != facingZ
-            ) {
-                return Blocks.AIR.defaultBlockState();
-            }
-        } else if (neighborDirection == facingZ) {
-            if (!neighborState.is(this)
-                    || neighborState.getValue(HALF) != half
-                    || getFacing(neighborState, Direction.Axis.X) != facingX
-                    || getFacing(neighborState, Direction.Axis.Z) != facingZ.getOpposite()
-            ) {
-                return Blocks.AIR.defaultBlockState();
-            }
+    public void onRemove(BlockState currentState, World level, BlockPos replacedPos, BlockState newState, boolean isMoving) {
+        if (level.isClientSide() || newState.is(this) || !currentState.is(this)) {
+            return;
         }
 
-        return super.updateShape(state, neighborDirection, neighborState, level, pos, neighborPos);
+        replaceWithAir(level, replacedPos.relative(getFacing(currentState, Direction.Axis.X)));
+        replaceWithAir(level, replacedPos.relative(getFacing(currentState, Direction.Axis.Y)));
+        replaceWithAir(level, replacedPos.relative(getFacing(currentState, Direction.Axis.Z)));
+
+        super.onRemove(newState, level, replacedPos, currentState, isMoving);
+    }
+
+    private void replaceWithAir(World level, BlockPos pos) {
+        BlockState state = level.getBlockState(pos);
+        if (state.is(this)) {
+            Vector3i offset = getOffsetFromOrigin(state);
+            if (state.getValue(FACING) == getFacingFromOffset(offset)
+                    && state.getValue(HALF) == getHalfFromOffset(offset)
+            ) {
+                level.setBlock(pos, Blocks.AIR.defaultBlockState(), Constants.BlockFlags.DEFAULT);
+                level.levelEvent(Constants.WorldEvents.BREAK_BLOCK_EFFECTS, pos, Block.getId(state));
+            }
+        }
     }
 
     @Nullable
     public BlockState getStateForPlacement(BlockItemUseContext blockPlaceContext) {
-        BlockPos root = getPosForPlacement(blockPlaceContext);
+        BlockPos origin = getPosForPlacement(blockPlaceContext);
 
-        if (root.getY() < 0 || root.getY() > 254 || streamShape(root)
+        if (origin.getY() < 0 || origin.getY() > 254 || streamShape(origin)
                 .map(blockPlaceContext.getLevel()::getBlockState)
                 .anyMatch(state -> !state.canBeReplaced(blockPlaceContext))
         ) {
             return null;
         }
 
-        Vector3i offset = blockPlaceContext.getClickedPos().subtract(root);
+        Vector3i offset = blockPlaceContext.getClickedPos().subtract(origin);
         return defaultBlockState()
                 .setValue(FACING, getFacingFromOffset(offset))
                 .setValue(BlockStateProperties.DOUBLE_BLOCK_HALF, getHalfFromOffset(offset));
@@ -189,12 +175,12 @@ public abstract class CubeMultiBlock extends Block {
 
     @Override
     public void setPlacedBy(World level, BlockPos clickedPos, BlockState placedState, LivingEntity entity, ItemStack stack) {
-        BlockPos root = getRootPosition(placedState, clickedPos);
+        BlockPos origin = getOrigin(placedState, clickedPos);
 
-        streamShape(root)
+        streamShape(origin)
                 .filter(pos -> !pos.equals(clickedPos))
                 .forEach(pos -> {
-                    Vector3i offset = pos.subtract(root);
+                    Vector3i offset = pos.subtract(origin);
                     BlockState stateForPlacement = placedState
                             .setValue(FACING, getFacingFromOffset(offset))
                             .setValue(BlockStateProperties.DOUBLE_BLOCK_HALF, getHalfFromOffset(offset));
@@ -203,27 +189,9 @@ public abstract class CubeMultiBlock extends Block {
     }
 
     @Override
-    public boolean removedByPlayer(BlockState state, World level, BlockPos pos, PlayerEntity player, boolean willHarvest, FluidState fluid) {
-        if (!level.isClientSide && (player.isCreative() || !willHarvest)) {
-            if (state.getValue(FACING) != Direction.SOUTH || state.getValue(HALF) != DoubleBlockHalf.LOWER) {
-                BlockPos root = getRootPosition(state, pos);
-                BlockState rootState = level.getBlockState(root);
-
-                if (rootState.is(this)
-                        && rootState.getValue(FACING) == Direction.SOUTH
-                        && rootState.getValue(HALF) == DoubleBlockHalf.LOWER) {
-                    level.setBlock(root, Blocks.AIR.defaultBlockState(), Constants.BlockFlags.DEFAULT | Constants.BlockFlags.NO_NEIGHBOR_DROPS);
-                    level.levelEvent(player, Constants.WorldEvents.BREAK_BLOCK_EFFECTS, root, Block.getId(rootState));
-                }
-            }
-        }
-        return super.removedByPlayer(state, level, pos, player, willHarvest, fluid);
-    }
-
-    @Override
     @OnlyIn(Dist.CLIENT)
     @SuppressWarnings("deprecation")
     public long getSeed(BlockState state, BlockPos pos) {
-        return MathHelper.getSeed(getRootPosition(state, pos));
+        return MathHelper.getSeed(getOrigin(state, pos));
     }
 }
