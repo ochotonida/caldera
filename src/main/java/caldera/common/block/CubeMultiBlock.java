@@ -170,7 +170,7 @@ public abstract class CubeMultiBlock extends Block {
         Vector3i offset = blockPlaceContext.getClickedPos().subtract(origin);
         return defaultBlockState()
                 .setValue(FACING, getFacingFromOffset(offset))
-                .setValue(BlockStateProperties.DOUBLE_BLOCK_HALF, getHalfFromOffset(offset));
+                .setValue(HALF, getHalfFromOffset(offset));
     }
 
     @Override
@@ -183,7 +183,7 @@ public abstract class CubeMultiBlock extends Block {
                     Vector3i offset = pos.subtract(origin);
                     BlockState stateForPlacement = placedState
                             .setValue(FACING, getFacingFromOffset(offset))
-                            .setValue(BlockStateProperties.DOUBLE_BLOCK_HALF, getHalfFromOffset(offset));
+                            .setValue(HALF, getHalfFromOffset(offset));
                     level.setBlock(pos, stateForPlacement, Constants.BlockFlags.DEFAULT);
                 });
     }
