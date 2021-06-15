@@ -4,6 +4,7 @@ import caldera.common.util.VoxelShapeHelper;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.state.properties.DoubleBlockHalf;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.shapes.IBooleanFunction;
@@ -11,7 +12,9 @@ import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.world.IBlockReader;
+import net.minecraft.world.World;
 
+import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -52,6 +55,31 @@ public class LargeCauldronBlock extends CubeMultiBlock {
 
     public LargeCauldronBlock(Properties properties) {
         super(properties);
+    }
+
+    @Nullable
+    public static CauldronBlockEntity getController(BlockState state, BlockPos pos, World level) {
+        BlockPos origin = getOrigin(state, pos);
+        BlockState originState = level.getBlockState(origin);
+
+        if (originState.getValue(FACING) == Direction.SOUTH && originState.getValue(HALF) == DoubleBlockHalf.LOWER) {
+            TileEntity blockEntity = level.getBlockEntity(origin);
+            if (blockEntity instanceof CauldronBlockEntity) {
+                return ((CauldronBlockEntity) blockEntity);
+            }
+        }
+
+        return null;
+    }
+
+    @Override
+    public boolean hasTileEntity(BlockState state) {
+        return true;
+    }
+
+    @Override
+    public TileEntity createTileEntity(BlockState state, IBlockReader world) {
+        return new CauldronBlockEntity();
     }
 
     @Override
