@@ -1,7 +1,7 @@
 package caldera.common.init;
 
 import caldera.Caldera;
-import caldera.common.block.LargeCauldronBlock;
+import caldera.common.block.cauldron.LargeCauldronBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraftforge.common.ToolType;

@@ -1,7 +1,7 @@
 package caldera.data;
 
 import caldera.Caldera;
-import caldera.common.block.LargeCauldronBlock;
+import caldera.common.block.cauldron.LargeCauldronBlock;
 import caldera.common.init.ModBlocks;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.state.properties.BlockStateProperties;

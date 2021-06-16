@@ -1,8 +1,10 @@
-package caldera.common.block;
+package caldera.common.block.cauldron;
 
+import caldera.common.block.CubeMultiBlock;
 import caldera.common.util.VoxelShapeHelper;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.entity.Entity;
 import net.minecraft.state.properties.DoubleBlockHalf;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
@@ -89,6 +91,46 @@ public class LargeCauldronBlock extends CubeMultiBlock {
             return LOWER_SHAPES.get(state.getValue(FACING));
         } else {
             return UPPER_SHAPES.get(state.getValue(FACING));
+        }
+    }
+
+    @Override
+    @SuppressWarnings("deprecation")
+    public void entityInside(BlockState state, World level, BlockPos pos, Entity entity) {
+        // only handle this for the block that contains the center of the entity,
+        // to prevent this from being called multiple times per tick
+        if (!entity.blockPosition().equals(pos)) {
+            return;
+        }
+
+        // only consider entities that are actually in the basin part of the cauldron
+        double xOffset = entity.position().x % 1;
+        double yOffset = entity.position().y % 1;
+        double zOffset = entity.position().z % 1;
+        double minOffset = 1.99 / 16D;
+
+        if (state.getValue(HALF) == DoubleBlockHalf.LOWER) {
+            if (yOffset < minOffset) {
+                return;
+            }
+        } else {
+            Direction.AxisDirection facingX = CubeMultiBlock.getFacing(state, Direction.Axis.X).getAxisDirection();
+            Direction.AxisDirection facingZ = CubeMultiBlock.getFacing(state, Direction.Axis.Z).getAxisDirection();
+
+            if (facingX == Direction.AxisDirection.NEGATIVE && xOffset > 1 - minOffset
+                    || facingX == Direction.AxisDirection.POSITIVE && xOffset < minOffset) {
+                return;
+            }
+            if (facingZ == Direction.AxisDirection.NEGATIVE && zOffset > 1 - minOffset
+                    || facingZ == Direction.AxisDirection.POSITIVE && zOffset < minOffset) {
+                return;
+            }
+
+        }
+
+        CauldronBlockEntity controller = getController(state, pos, level);
+        if (controller != null) {
+            controller.onEntityInside(entity);
         }
     }
 }
