@@ -132,6 +132,8 @@ public abstract class CubeMultiBlock extends Block {
     @Override
     @SuppressWarnings("deprecation")
     public void onRemove(BlockState currentState, World level, BlockPos replacedPos, BlockState newState, boolean isMoving) {
+        super.onRemove(currentState, level, replacedPos, newState, isMoving);
+
         if (level.isClientSide() || newState.is(this) || !currentState.is(this)) {
             return;
         }
@@ -139,8 +141,6 @@ public abstract class CubeMultiBlock extends Block {
         replaceWithAir(level, replacedPos.relative(getFacing(currentState, Direction.Axis.X)));
         replaceWithAir(level, replacedPos.relative(getFacing(currentState, Direction.Axis.Y)));
         replaceWithAir(level, replacedPos.relative(getFacing(currentState, Direction.Axis.Z)));
-
-        super.onRemove(newState, level, replacedPos, currentState, isMoving);
     }
 
     private void replaceWithAir(World level, BlockPos pos) {
@@ -157,6 +157,7 @@ public abstract class CubeMultiBlock extends Block {
     }
 
     @Nullable
+    @Override
     public BlockState getStateForPlacement(BlockItemUseContext blockPlaceContext) {
         BlockPos origin = getPosForPlacement(blockPlaceContext);
 
