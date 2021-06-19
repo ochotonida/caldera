@@ -56,7 +56,7 @@ public class CauldronBlockEntityRenderer extends TileEntityRenderer<CauldronBloc
                 .apply(fluidAttributes.getStillTexture(fluidStack));
 
         int color = fluidAttributes.getColor(fluidStack);
-        IVertexBuilder builder = buffer.getBuffer(RenderType.translucent());
+        IVertexBuilder builder = buffer.getBuffer(RenderType.translucentMovingBlock());
 
         int blockLight = (light >> 4) & 0xf;
         int luminosity = Math.max(blockLight, fluidAttributes.getLuminosity(fluidStack));
