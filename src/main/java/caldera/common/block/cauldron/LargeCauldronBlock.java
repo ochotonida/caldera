@@ -80,7 +80,7 @@ public class LargeCauldronBlock extends CubeMultiBlock {
     }
 
     public static boolean isOrigin(BlockState state) {
-        return state.getValue(LargeCauldronBlock.FACING) == Direction.SOUTH
+        return state.getBlock() instanceof LargeCauldronBlock && state.getValue(LargeCauldronBlock.FACING) == Direction.SOUTH
                 && state.getValue(LargeCauldronBlock.HALF) == DoubleBlockHalf.LOWER;
     }
 
