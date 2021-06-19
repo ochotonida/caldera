@@ -11,17 +11,29 @@ import java.util.Stack;
 public class CauldronItemHandler implements IItemHandler {
 
     private final Stack<ItemStack> items;
+    private final CauldronBlockEntity cauldron;
 
-    public CauldronItemHandler() {
+    public CauldronItemHandler(CauldronBlockEntity cauldron) {
         items = new Stack<>();
+        this.cauldron = cauldron;
+    }
+
+    public boolean isEmpty() {
+        return items.isEmpty();
     }
 
     public void addItem(ItemStack stack) {
         items.push(stack.split(1));
+        onContentsChanged();
     }
 
     public void clear() {
         items.clear();
+        onContentsChanged();
+    }
+
+    protected void onContentsChanged() {
+        cauldron.setChanged();
     }
 
     public void readFromNBT(INBT nbt) {

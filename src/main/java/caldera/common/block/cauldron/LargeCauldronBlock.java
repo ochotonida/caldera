@@ -5,14 +5,19 @@ import caldera.common.util.VoxelShapeHelper;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.state.properties.DoubleBlockHalf;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Direction;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.shapes.IBooleanFunction;
 import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
 
@@ -64,7 +69,7 @@ public class LargeCauldronBlock extends CubeMultiBlock {
         BlockPos origin = getOrigin(state, pos);
         BlockState originState = level.getBlockState(origin);
 
-        if (originState.getValue(FACING) == Direction.SOUTH && originState.getValue(HALF) == DoubleBlockHalf.LOWER) {
+        if (isOrigin(originState)) {
             TileEntity blockEntity = level.getBlockEntity(origin);
             if (blockEntity instanceof CauldronBlockEntity) {
                 return ((CauldronBlockEntity) blockEntity);
@@ -72,6 +77,36 @@ public class LargeCauldronBlock extends CubeMultiBlock {
         }
 
         return null;
+    }
+
+    public static boolean isOrigin(BlockState state) {
+        return state.getValue(LargeCauldronBlock.FACING) == Direction.SOUTH
+                && state.getValue(LargeCauldronBlock.HALF) == DoubleBlockHalf.LOWER;
+    }
+
+    private static boolean isInsideCauldron(BlockState state, double x, double y, double z) {
+        double wallWidth = 1.99 / 16D;
+        double floorHeight = 3.99 / 16D;
+
+        Direction.AxisDirection facingX = CubeMultiBlock.getFacing(state, Direction.Axis.X).getAxisDirection();
+        Direction.AxisDirection facingZ = CubeMultiBlock.getFacing(state, Direction.Axis.Z).getAxisDirection();
+
+        if (facingX == Direction.AxisDirection.NEGATIVE && x > 1 - wallWidth) {
+            return false;
+        } else if (facingX == Direction.AxisDirection.POSITIVE && x < wallWidth) {
+            return false;
+        }
+
+        if (facingZ == Direction.AxisDirection.NEGATIVE && z > 1 - wallWidth) {
+            return false;
+        } else if (facingZ == Direction.AxisDirection.POSITIVE && z < wallWidth) {
+            return false;
+        }
+
+        if (state.getValue(HALF) == DoubleBlockHalf.LOWER) {
+            return y > floorHeight;
+        }
+        return true;
     }
 
     @Override
@@ -98,7 +133,7 @@ public class LargeCauldronBlock extends CubeMultiBlock {
     @SuppressWarnings("deprecation")
     public void entityInside(BlockState state, World level, BlockPos pos, Entity entity) {
         // only handle this for the block that contains the center of the entity,
-        // to prevent this from being called multiple times per tick
+        // to prevent this from being called multiple times per tick per cauldron
         if (!entity.blockPosition().equals(pos)) {
             return;
         }
@@ -107,30 +142,28 @@ public class LargeCauldronBlock extends CubeMultiBlock {
         double xOffset = entity.position().x % 1;
         double yOffset = entity.position().y % 1;
         double zOffset = entity.position().z % 1;
-        double minOffset = 1.99 / 16D;
-
-        if (state.getValue(HALF) == DoubleBlockHalf.LOWER) {
-            if (yOffset < minOffset) {
-                return;
-            }
-        } else {
-            Direction.AxisDirection facingX = CubeMultiBlock.getFacing(state, Direction.Axis.X).getAxisDirection();
-            Direction.AxisDirection facingZ = CubeMultiBlock.getFacing(state, Direction.Axis.Z).getAxisDirection();
-
-            if (facingX == Direction.AxisDirection.NEGATIVE && xOffset > 1 - minOffset
-                    || facingX == Direction.AxisDirection.POSITIVE && xOffset < minOffset) {
-                return;
-            }
-            if (facingZ == Direction.AxisDirection.NEGATIVE && zOffset > 1 - minOffset
-                    || facingZ == Direction.AxisDirection.POSITIVE && zOffset < minOffset) {
-                return;
-            }
-
+        if (!isInsideCauldron(state, xOffset, yOffset, zOffset)) {
+            return;
         }
 
         CauldronBlockEntity controller = getController(state, pos, level);
         if (controller != null) {
             controller.onEntityInside(entity);
         }
+    }
+
+    @Override
+    @SuppressWarnings("deprecation")
+    public ActionResultType use(BlockState state, World level, BlockPos pos, PlayerEntity player, Hand hand, BlockRayTraceResult rayTraceResult) {
+        Vector3d hitOffset = rayTraceResult.getLocation().subtract(pos.getX(), pos.getY(), pos.getZ());
+
+        if (isInsideCauldron(state, hitOffset.x, hitOffset.y, hitOffset.z)) {
+            CauldronBlockEntity controller = getController(state, pos, level);
+            if (controller != null) {
+                return controller.onUse(player, hand);
+            }
+        }
+
+        return super.use(state, level, pos, player, hand, rayTraceResult);
     }
 }

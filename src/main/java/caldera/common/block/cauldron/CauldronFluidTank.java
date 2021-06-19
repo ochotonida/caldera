@@ -1,6 +1,7 @@
 package caldera.common.block.cauldron;
 
 import net.minecraftforge.fluids.FluidAttributes;
+import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.templates.FluidTank;
 
 public class CauldronFluidTank extends FluidTank {
@@ -8,20 +9,35 @@ public class CauldronFluidTank extends FluidTank {
     private final CauldronBlockEntity cauldron;
 
     public CauldronFluidTank(CauldronBlockEntity cauldron) {
-        super(FluidAttributes.BUCKET_VOLUME * 2);
+        super(FluidAttributes.BUCKET_VOLUME * 2, CauldronFluidTank::isValid);
         this.cauldron = cauldron;
     }
 
+    private static boolean isValid(FluidStack fluid) {
+        // TODO replace this with a fluid tag maybe
+        FluidAttributes attributes = fluid.getFluid().getAttributes();
+        return !attributes.isLighterThanAir() && !attributes.isGaseous();
+    }
+
     @Override
-    public int getCapacity() {
-        // noinspection ConstantConditions
-        if (cauldron.hasBrew()
-                || !cauldron.itemHandler.isPresent()
-                || !cauldron.itemHandler.orElse(null).getStackInSlot(0).isEmpty()
-        ) {
-            // only allow pumping fluids in & out if the cauldron does not contain a brew or items
-            return 0;
+    public int fill(FluidStack resource, FluidAction action) {
+        if (cauldron.canTransferFluids()) {
+            return super.fill(resource, action);
         }
-        return super.getCapacity();
+        return 0;
+    }
+
+    @Override
+    public FluidStack drain(int maxDrain, FluidAction action) {
+        if (cauldron.canTransferFluids()) {
+            return super.drain(maxDrain, action);
+        }
+        return FluidStack.EMPTY;
+    }
+
+    @Override
+    protected void onContentsChanged() {
+        cauldron.sendUpdatePacket();
+        cauldron.setChanged();
     }
 }
