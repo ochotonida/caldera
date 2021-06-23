@@ -1,5 +1,7 @@
 package caldera.common.block.cauldron;
 
+import caldera.Caldera;
+import caldera.common.recipe.Brew;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 import net.minecraft.client.Minecraft;
@@ -11,6 +13,7 @@ import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.inventory.container.PlayerContainer;
 import net.minecraft.util.Direction;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.vector.Vector3i;
 import net.minecraftforge.fluids.FluidAttributes;
 import net.minecraftforge.fluids.FluidStack;
@@ -39,16 +42,13 @@ public class CauldronBlockEntityRenderer extends TileEntityRenderer<CauldronBloc
 
         for (int x = 0; x <= 1; x++) {
             for (int z = 0; z <= 1; z++) {
-                float xMin = x == 0 ? 2 / 16F : 1;
-                float zMin = z == 0 ? 2 / 16F : 1;
-                float xMax = x == 0 ? 1 : 2 - 2 / 16F;
-                float zMax = z == 0 ? 1 : 2 - 2 / 16F;
-                renderHorizontalFluidFace(fluid, fluidHeight, xMin, zMin, xMax, zMax, buffer, matrixStack, light);
+                renderFluid(fluid, fluidHeight, x, z, buffer, matrixStack, light);
+                renderBrew(null, fluidHeight, x, z, buffer, matrixStack, light);
             }
         }
     }
 
-    public static void renderHorizontalFluidFace(FluidStack fluidStack, float height, float xMin, float zMin, float xMax, float zMax, IRenderTypeBuffer buffer, MatrixStack matrixStack, int light) {
+    public static void renderFluid(FluidStack fluidStack, float height, int x, int z, IRenderTypeBuffer buffer, MatrixStack matrixStack, int light) {
         Fluid fluid = fluidStack.getFluid();
         FluidAttributes fluidAttributes = fluid.getAttributes();
         TextureAtlasSprite fluidTexture = Minecraft.getInstance()
@@ -62,10 +62,34 @@ public class CauldronBlockEntityRenderer extends TileEntityRenderer<CauldronBloc
         int luminosity = Math.max(blockLight, fluidAttributes.getLuminosity(fluidStack));
         light = (light & 0xf00000) | luminosity << 4;
 
-        float u1 = fluidTexture.getU(xMin - (int) xMin);
-        float v1 = fluidTexture.getV(zMin - (int) zMin);
-        float u2 = fluidTexture.getU(xMax - (int) xMax == 0 ? 16 : (xMax - (int) xMax) * 16);
-        float v2 = fluidTexture.getV(zMax - (int) zMax == 0 ? 16 : (zMax - (int) zMax) * 16);
+        float u1 = fluidTexture.getU(x == 0 ? 2 : 0);
+        float v1 = fluidTexture.getV(z == 0 ? 2 : 0);
+        float u2 = fluidTexture.getU(x == 0 ? 16 : 14);
+        float v2 = fluidTexture.getV(z == 0 ? 16 : 14);
+
+        buildVertices(builder, matrixStack, height, x, z, u1, v1, u2, v2, light, color);
+    }
+
+    public void renderBrew(Brew brew, float height, int x, int z, IRenderTypeBuffer buffer, MatrixStack matrixStack, int light) {
+        TextureAtlasSprite fluidTexture = Minecraft.getInstance()
+                .getTextureAtlas(PlayerContainer.BLOCK_ATLAS)
+                .apply(new ResourceLocation(Caldera.MODID, "block/brew"));
+
+        IVertexBuilder builder = buffer.getBuffer(RenderType.translucentMovingBlock());
+
+        float u1 = fluidTexture.getU(x == 0 ? 1 : 8);
+        float v1 = fluidTexture.getV(z == 0 ? 1 : 8);
+        float u2 = fluidTexture.getU(x == 0 ? 8 : 15);
+        float v2 = fluidTexture.getV(z == 0 ? 8 : 15);
+
+        buildVertices(builder, matrixStack, height, x, z, u1, v1, u2, v2, light, 0xFFFF5724);
+    }
+
+    private static void buildVertices(IVertexBuilder builder, MatrixStack matrixStack, float height, int x, int z, float u1, float v1, float u2, float v2, int light, int color) {
+        float xMin = x == 0 ? 2 / 16F : 1;
+        float zMin = z == 0 ? 2 / 16F : 1;
+        float xMax = x == 0 ? 1 : 2 - 2 / 16F;
+        float zMax = z == 0 ? 1 : 2 - 2 / 16F;
 
         matrixStack.pushPose();
         putVertex(builder, matrixStack, xMin, height, zMax, color, u1, v2, light);
