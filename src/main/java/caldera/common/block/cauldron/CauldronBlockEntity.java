@@ -1,6 +1,7 @@
 package caldera.common.block.cauldron;
 
 import caldera.common.init.ModBlockEntityTypes;
+import caldera.common.init.ModSoundEvents;
 import caldera.common.init.ModTags;
 import caldera.common.recipe.Brew;
 import net.minecraft.block.BlockState;
@@ -191,7 +192,7 @@ public class CauldronBlockEntity extends TileEntity implements ITickableTileEnti
                     itemEntity.getX(),
                     itemEntity.getY(),
                     itemEntity.getZ(),
-                    SoundEvents.BLAZE_SHOOT,
+                    ModSoundEvents.CAULDRON_RETURN_INERT_INGREDIENT.get(),
                     SoundCategory.BLOCKS,
                     0.5F,
                     1

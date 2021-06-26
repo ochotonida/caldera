@@ -1,9 +1,6 @@
 package caldera;
 
-import caldera.common.init.ModBlockEntityTypes;
-import caldera.common.init.ModBlocks;
-import caldera.common.init.ModItems;
-import caldera.common.init.ModRecipeTypes;
+import caldera.common.init.*;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.DistExecutor;
@@ -24,5 +21,6 @@ public class Caldera {
         ModBlockEntityTypes.REGISTRY.register(modEventBus);
         ModItems.REGISTRY.register(modEventBus);
         ModRecipeTypes.REGISTRY.register(modEventBus);
+        ModSoundEvents.REGISTRY.register(modEventBus);
     }
 }

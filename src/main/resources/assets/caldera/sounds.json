@@ -1,0 +1,161 @@
+{
+  "block.cauldron.break": {
+    "sounds": [
+      {
+        "name": "block/lantern/break1",
+        "volume": 1,
+        "pitch": 0.6
+      },
+      {
+        "name": "block/lantern/break2",
+        "volume": 1,
+        "pitch": 0.6
+      },
+      {
+        "name": "block/lantern/break3",
+        "volume": 1,
+        "pitch": 0.6
+      },
+      {
+        "name": "block/lantern/break4",
+        "volume": 1,
+        "pitch": 0.6
+      },
+      {
+        "name": "block/lantern/break5",
+        "volume": 1,
+        "pitch": 0.6
+      },
+      {
+        "name": "block/lantern/break6",
+        "volume": 1,
+        "pitch": 0.6
+      }
+    ],
+    "subtitle": "subtitles.block.generic.break"
+  },
+  "block.cauldron.fall": {
+    "sounds": [
+      {
+        "name": "block/lantern/break1",
+        "volume": 1,
+        "pitch": 0.6
+      },
+      {
+        "name": "block/lantern/break2",
+        "volume": 1,
+        "pitch": 0.6
+      },
+      {
+        "name": "block/lantern/break3",
+        "volume": 1,
+        "pitch": 0.6
+      },
+      {
+        "name": "block/lantern/break4",
+        "volume": 1,
+        "pitch": 0.6
+      },
+      {
+        "name": "block/lantern/break5",
+        "volume": 1,
+        "pitch": 0.6
+      },
+      {
+        "name": "block/lantern/break6",
+        "volume": 1,
+        "pitch": 0.6
+      }
+    ]
+  },
+  "block.cauldron.hit": {
+    "sounds": [
+      {
+        "name": "block/lantern/place1",
+        "volume": 1,
+        "pitch": 0.6
+      },
+      {
+        "name": "block/lantern/place2",
+        "volume": 1,
+        "pitch": 0.6
+      },
+      {
+        "name": "block/lantern/place3",
+        "volume": 1,
+        "pitch": 0.6
+      },
+      {
+        "name": "block/lantern/place4",
+        "volume": 1,
+        "pitch": 0.6
+      },
+      {
+        "name": "block/lantern/place5",
+        "volume": 1,
+        "pitch": 0.6
+      },
+      {
+        "name": "block/lantern/place6",
+        "volume": 1,
+        "pitch": 0.6
+      }
+    ],
+    "subtitle": "subtitles.block.generic.hit"
+  },
+  "block.cauldron.place": {
+    "sounds": [
+      {
+        "name": "random/anvil_land",
+        "volume": 1,
+        "pitch": 0.6
+      }
+    ],
+    "subtitle": "subtitles.block.generic.place"
+  },
+  "block.cauldron.step": {
+    "sounds": [
+      {
+        "name": "block/lantern/break1",
+        "volume": 1,
+        "pitch": 0.6
+      },
+      {
+        "name": "block/lantern/break2",
+        "volume": 1,
+        "pitch": 0.6
+      },
+      {
+        "name": "block/lantern/break3",
+        "volume": 1,
+        "pitch": 0.6
+      },
+      {
+        "name": "block/lantern/break4",
+        "volume": 1,
+        "pitch": 0.6
+      },
+      {
+        "name": "block/lantern/break5",
+        "volume": 1,
+        "pitch": 0.6
+      },
+      {
+        "name": "block/lantern/break6",
+        "volume": 1,
+        "pitch": 0.6
+      }
+    ],
+    "subtitle": "subtitles.block.generic.footsteps"
+  },
+  "block.cauldron.return_inert_ingredient": {
+    "sounds": [
+      {
+        "name": "mob/ghast/fireball4",
+        "volume": 1,
+        "pitch": 0.9
+      }
+    ],
+    "subtitle": "subtitles.caldera.block.cauldron.return_inert_ingredient"
+  }
+}

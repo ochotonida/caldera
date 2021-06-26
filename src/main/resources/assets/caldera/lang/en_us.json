@@ -1,4 +1,6 @@
 {
   "itemGroup.caldera": "Caldera",
-  "block.caldera.large_cauldron": "Large Cauldron"
+  "block.caldera.large_cauldron": "Large Cauldron",
+
+  "subtitles.caldera.block.cauldron.return_inert_ingredient": "Cauldron rejects ingredient"
 }
