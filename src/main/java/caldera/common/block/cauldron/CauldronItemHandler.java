@@ -1,69 +1,57 @@
 package caldera.common.block.cauldron;
 
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.INBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.ItemStackHandler;
 
-import java.util.Stack;
+public class CauldronItemHandler extends ItemStackHandler {
 
-public class CauldronItemHandler implements IItemHandler {
-
-    private final Stack<ItemStack> items;
     private final CauldronBlockEntity cauldron;
 
     public CauldronItemHandler(CauldronBlockEntity cauldron) {
-        items = new Stack<>();
         this.cauldron = cauldron;
     }
 
     public boolean isEmpty() {
-        return items.isEmpty();
+        for (int slot = 0; slot < getSlots(); slot++) {
+            if (!getStackInSlot(slot).isEmpty()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public boolean isFull() {
+        return getNextEmptySlot() == getSlots();
+    }
+
+    private int getNextEmptySlot() {
+        for (int slot = 0; slot < getSlots(); slot++) {
+            if (getStackInSlot(slot).isEmpty()) {
+                return slot;
+            }
+        }
+        return getSlots();
     }
 
     public void addItem(ItemStack stack) {
-        items.push(stack.split(1));
+        if (!isFull() && !stack.isEmpty()) {
+            stacks.set(getNextEmptySlot(), stack.split(1));
+        }
         onContentsChanged();
     }
 
     public void clear() {
-        items.clear();
+        stacks.clear();
+        onContentsChanged();
+    }
+
+    @Override
+    protected void onContentsChanged(int slot) {
         onContentsChanged();
     }
 
     protected void onContentsChanged() {
         cauldron.setChanged();
-    }
-
-    public void readFromNBT(INBT nbt) {
-        clear();
-
-        if (nbt instanceof ListNBT) {
-            for (INBT itemNBT : ((ListNBT) nbt)) {
-                if (itemNBT instanceof CompoundNBT) {
-                    items.push(ItemStack.of(((CompoundNBT) itemNBT)));
-                }
-            }
-        }
-    }
-
-    public ListNBT writeToNBT() {
-        ListNBT listNBT = new ListNBT();
-        for (ItemStack item : items) {
-            listNBT.add(item.save(new CompoundNBT()));
-        }
-        return listNBT;
-    }
-
-    @Override
-    public int getSlots() {
-        return items.size();
-    }
-
-    @Override
-    public ItemStack getStackInSlot(int slot) {
-        return items.get(slot);
     }
 
     @Override

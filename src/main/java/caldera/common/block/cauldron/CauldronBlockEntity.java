@@ -6,20 +6,20 @@ import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SUpdateTileEntityPacket;
 import net.minecraft.state.properties.DoubleBlockHalf;
 import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Hand;
+import net.minecraft.util.*;
 import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidUtil;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
@@ -56,6 +56,18 @@ public class CauldronBlockEntity extends TileEntity implements ITickableTileEnti
 
     public boolean isController() {
         return getLevel() != null && LargeCauldronBlock.isOrigin(getBlockState());
+    }
+
+    private Vector3d getCauldronCenter() {
+        CauldronBlockEntity controller = getController();
+
+        if (controller == null) {
+            return Vector3d.ZERO;
+        }
+
+        double floorHeight = 4 / 16D;
+        BlockPos pos = controller.getBlockPos();
+        return new Vector3d(pos.getX() + 1, pos.getY() + floorHeight, pos.getZ() + 1);
     }
 
     public Brew getBrew() {
@@ -106,25 +118,88 @@ public class CauldronBlockEntity extends TileEntity implements ITickableTileEnti
     }
 
     protected void onEntityInside(Entity entity, double yOffset) {
-        if (yOffset < getFluidLevel()) {
-            if (!entity.level.isClientSide()
-                    && !hasBrew()
-                    && entity instanceof ItemEntity
-            ) {
-                addToCauldron((ItemEntity) entity);
-            }
-        } else if (hasBrew()) {
+        if (hasBrew()) {
             getBrew().onEntityInside(entity, yOffset);
+        } else if (!entity.level.isClientSide() && entity instanceof ItemEntity) {
+            onItemInside((ItemEntity) entity, yOffset);
         }
     }
 
-    private void addToCauldron(ItemEntity itemEntity) {
+    private void onItemInside(ItemEntity itemEntity, double yOffset) {
         // TODO add brew inert tag
-        // TODO add item limit
-        FluidStack fluid = fluidTank.getFluid();
-        if (!fluid.isEmpty() && fluid.getAmount() == fluidTank.getCapacity()) {
-            inventory.addItem(itemEntity.getItem());
+        CompoundNBT itemData = itemEntity.getPersistentData();
+
+        if (itemEntity.getDeltaMovement().y() <= 0
+                && !itemData.contains("InitialDeltaMovement", Constants.NBT.TAG_COMPOUND)
+        ) {
+            CompoundNBT nbt = new CompoundNBT();
+            Vector3d deltaMovement = itemEntity.getDeltaMovement();
+
+            nbt.putDouble("X", deltaMovement.x());
+            nbt.putDouble("Y", deltaMovement.y());
+            nbt.putDouble("Z", deltaMovement.z());
+
+            itemData.put("InitialDeltaMovement", nbt);
         }
+
+        if (fluidTank.getSpace() <= 0
+                && itemEntity.getDeltaMovement().y() <= 0
+                && yOffset < 0.2
+        ) {
+            addItemToCauldron(itemEntity);
+        }
+    }
+
+    private void addItemToCauldron(ItemEntity itemEntity) {
+        if (getLevel() == null) {
+            return;
+        }
+
+        CompoundNBT itemData = itemEntity.getPersistentData();
+
+        Vector3d motion;
+        if (itemData.contains("InitialDeltaMovement", Constants.NBT.TAG_COMPOUND)) {
+            CompoundNBT nbt = itemData.getCompound("InitialDeltaMovement");
+            motion = new Vector3d(
+                    nbt.getDouble("X"),
+                    nbt.getDouble("Y"),
+                    nbt.getDouble("Z")
+            );
+        } else {
+            motion = itemEntity.getDeltaMovement();
+        }
+
+        motion = motion
+                .multiply(-1, 0, -1)
+                .normalize()
+                .scale(0.2)
+                .add(0, 0.425, 0);
+
+        ItemStack remainder = itemEntity.getItem();
+        ItemStack stack = remainder.split(1);
+        inventory.addItem(stack);
+
+        spawnInCauldron(remainder, motion);
+        if (stack.hasContainerItem()) {
+            ItemStack containerStack = stack.getContainerItem();
+            spawnInCauldron(containerStack, motion);
+        }
+
+        getLevel().playSound(null, itemEntity.getX(), itemEntity.getY(), itemEntity.getZ(), SoundEvents.GENERIC_SPLASH, SoundCategory.BLOCKS, 1, 1);
+        itemEntity.remove();
+    }
+
+    private void spawnInCauldron(ItemStack stack, Vector3d motion) {
+        if (getLevel() == null) {
+            return;
+        }
+
+        Vector3d position = getCauldronCenter();
+
+        ItemEntity itemEntity = new ItemEntity(getLevel(), position.x(), position.y(), position.z(), stack);
+        itemEntity.setDefaultPickUpDelay();
+        itemEntity.setDeltaMovement(motion);
+        getLevel().addFreshEntity(itemEntity);
     }
 
     protected ActionResultType onUse(PlayerEntity player, Hand hand) {
@@ -142,10 +217,7 @@ public class CauldronBlockEntity extends TileEntity implements ITickableTileEnti
     @Override
     public <T> LazyOptional<T> getCapability(Capability<T> capability, Direction side) {
         if (capability == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY
-                && (side == null
-                        || level != null
-                        && getBlockState().getValue(LargeCauldronBlock.HALF) == DoubleBlockHalf.LOWER
-                )
+                && (side == null || level != null && getBlockState().getValue(LargeCauldronBlock.HALF) == DoubleBlockHalf.LOWER)
         ) {
             return fluidHandler.cast();
         }
@@ -206,13 +278,13 @@ public class CauldronBlockEntity extends TileEntity implements ITickableTileEnti
     public void load(BlockState state, CompoundNBT nbt) {
         super.load(state, nbt);
         fluidTank.readFromNBT(nbt.getCompound("FluidHandler"));
-        inventory.readFromNBT(nbt.getList("ItemHandler", Constants.NBT.TAG_COMPOUND));
+        inventory.deserializeNBT(nbt.getCompound("ItemHandler"));
     }
 
     @Override
     public CompoundNBT save(CompoundNBT nbt) {
         nbt.put("FluidHandler", fluidTank.writeToNBT(new CompoundNBT()));
-        nbt.put("ItemHandler", inventory.writeToNBT());
+        nbt.put("ItemHandler", inventory.serializeNBT());
         return super.save(nbt);
     }
 }
