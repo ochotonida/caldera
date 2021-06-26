@@ -139,16 +139,22 @@ public class LargeCauldronBlock extends CubeMultiBlock {
         }
 
         // only consider entities that are actually in the basin part of the cauldron
-        double xOffset = entity.position().x % 1;
-        double yOffset = entity.position().y % 1;
-        double zOffset = entity.position().z % 1;
+        double xOffset = entity.position().x - pos.getX();
+        double yOffset = entity.position().y - pos.getY();
+        double zOffset = entity.position().z - pos.getZ();
         if (!isInsideCauldron(state, xOffset, yOffset, zOffset)) {
             return;
         }
 
         CauldronBlockEntity controller = getController(state, pos, level);
         if (controller != null) {
-            controller.onEntityInside(entity);
+            double floorHeight = 4 / 16D;
+            double height = entity.position().y - (int) entity.position().y - floorHeight;
+            if (state.getValue(HALF) == DoubleBlockHalf.UPPER) {
+                height += 1;
+            }
+
+            controller.onEntityInside(entity, height);
         }
     }
 

@@ -71,6 +71,16 @@ public class CauldronBlockEntity extends TileEntity implements ITickableTileEnti
         return !hasBrew() && inventory.isEmpty();
     }
 
+    public double getFluidLevel() {
+        if (hasBrew()) {
+            return getBrew().getFluidLevel();
+        } else if (!fluidTank.isEmpty()) {
+            return fluidTank.getFluidAmount() / (double) fluidTank.getCapacity();
+        } else {
+            return 0;
+        }
+    }
+
     private void setupCapabilities() {
         LazyOptional<IItemHandler> oldItemHandler = itemHandler;
         LazyOptional<IFluidHandler> oldFluidHandler = fluidHandler;
@@ -95,28 +105,26 @@ public class CauldronBlockEntity extends TileEntity implements ITickableTileEnti
         }
     }
 
-    protected void onEntityInside(Entity entity) {
-        if (!entity.level.isClientSide()
-                && !hasBrew()
-                && entity instanceof ItemEntity
-        ) {
-            addToCauldron((ItemEntity) entity);
+    protected void onEntityInside(Entity entity, double yOffset) {
+        if (yOffset < getFluidLevel()) {
+            if (!entity.level.isClientSide()
+                    && !hasBrew()
+                    && entity instanceof ItemEntity
+            ) {
+                addToCauldron((ItemEntity) entity);
+            }
+        } else if (hasBrew()) {
+            getBrew().onEntityInside(entity, yOffset);
         }
     }
 
     private void addToCauldron(ItemEntity itemEntity) {
         // TODO add brew inert tag
         // TODO add item limit
-        fluidHandler.ifPresent(fluidTank -> {
-            FluidStack fluidStack = fluidTank.getFluidInTank(0);
-            if (!fluidStack.isEmpty() && fluidStack.getAmount() >= fluidTank.getTankCapacity(0)) {
-                itemHandler.ifPresent(itemHandler -> {
-                    if (itemHandler instanceof CauldronItemHandler) {
-                        ((CauldronItemHandler) itemHandler).addItem(itemEntity.getItem());
-                    }
-                });
-            }
-        });
+        FluidStack fluid = fluidTank.getFluid();
+        if (!fluid.isEmpty() && fluid.getAmount() == fluidTank.getCapacity()) {
+            inventory.addItem(itemEntity.getItem());
+        }
     }
 
     protected ActionResultType onUse(PlayerEntity player, Hand hand) {

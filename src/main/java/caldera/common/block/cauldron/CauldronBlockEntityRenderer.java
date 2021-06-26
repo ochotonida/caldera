@@ -11,6 +11,7 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.fluid.Fluid;
+import net.minecraft.fluid.Fluids;
 import net.minecraft.inventory.container.PlayerContainer;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
@@ -26,63 +27,76 @@ public class CauldronBlockEntityRenderer extends TileEntityRenderer<CauldronBloc
 
     @Override
     public void render(CauldronBlockEntity cauldron, float partialTicks, MatrixStack matrixStack, IRenderTypeBuffer buffer, int light, int overlay) {
+        if (cauldron.getLevel() == null) {
+            return;
+        }
         if (!cauldron.isController()) {
             return;
         }
 
-        FluidStack fluid = cauldron.fluidTank.getFluid();
-
-        if (fluid.isEmpty()) {
-            return;
-        }
-
-        float floorHeight = 4/16F;
-        float maxFluidHeight = 20/16F;
-        float fluidHeight = floorHeight + (maxFluidHeight - floorHeight) * fluid.getAmount() / (float) cauldron.fluidTank.getCapacity();
-
         for (int x = 0; x <= 1; x++) {
             for (int z = 0; z <= 1; z++) {
-                renderFluid(fluid, fluidHeight, x, z, buffer, matrixStack, light);
-                renderBrew(null, fluidHeight, x, z, buffer, matrixStack, light);
+                renderFluid(cauldron, cauldron.fluidTank.getFluid(), x, z, buffer, matrixStack, light);
+                renderBrew(cauldron, cauldron.getBrew(), x, z, buffer, matrixStack, light);
             }
         }
     }
 
-    public static void renderFluid(FluidStack fluidStack, float height, int x, int z, IRenderTypeBuffer buffer, MatrixStack matrixStack, int light) {
+    public static void renderFluid(CauldronBlockEntity cauldron, FluidStack fluidStack, int x, int z, IRenderTypeBuffer buffer, MatrixStack matrixStack, int light) {
+        if (fluidStack.isEmpty()) {
+            return;
+        }
+
         Fluid fluid = fluidStack.getFluid();
         FluidAttributes fluidAttributes = fluid.getAttributes();
         TextureAtlasSprite fluidTexture = Minecraft.getInstance()
                 .getTextureAtlas(PlayerContainer.BLOCK_ATLAS)
                 .apply(fluidAttributes.getStillTexture(fluidStack));
 
-        int color = fluidAttributes.getColor(fluidStack);
         IVertexBuilder builder = buffer.getBuffer(RenderType.translucentMovingBlock());
+
+        int color;
+        if (fluidStack.getFluid() == Fluids.WATER) {
+            color = fluidAttributes.getColor(cauldron.getLevel(), cauldron.getBlockPos());
+        } else {
+            color = fluidAttributes.getColor(fluidStack);
+        }
 
         int blockLight = (light >> 4) & 0xf;
         int luminosity = Math.max(blockLight, fluidAttributes.getLuminosity(fluidStack));
         light = (light & 0xf00000) | luminosity << 4;
+
+        float floorHeight = 4 / 16F;
+        float fluidHeight = (float) cauldron.getFluidLevel() + floorHeight;
 
         float u1 = fluidTexture.getU(x == 0 ? 2 : 0);
         float v1 = fluidTexture.getV(z == 0 ? 2 : 0);
         float u2 = fluidTexture.getU(x == 0 ? 16 : 14);
         float v2 = fluidTexture.getV(z == 0 ? 16 : 14);
 
-        buildVertices(builder, matrixStack, height, x, z, u1, v1, u2, v2, light, color);
+        buildVertices(builder, matrixStack, fluidHeight, x, z, u1, v1, u2, v2, light, color);
     }
 
-    public void renderBrew(Brew brew, float height, int x, int z, IRenderTypeBuffer buffer, MatrixStack matrixStack, int light) {
+    public static void renderBrew(CauldronBlockEntity cauldron, Brew brew, int x, int z, IRenderTypeBuffer buffer, MatrixStack matrixStack, int light) {
+        if (brew == null) {
+            return;
+        }
+
         TextureAtlasSprite fluidTexture = Minecraft.getInstance()
                 .getTextureAtlas(PlayerContainer.BLOCK_ATLAS)
                 .apply(new ResourceLocation(Caldera.MODID, "block/brew"));
 
         IVertexBuilder builder = buffer.getBuffer(RenderType.translucentMovingBlock());
 
+        float floorHeight = 4 / 16F;
+        float fluidHeight = (float) cauldron.getFluidLevel() + floorHeight;
+
         float u1 = fluidTexture.getU(x == 0 ? 1 : 8);
         float v1 = fluidTexture.getV(z == 0 ? 1 : 8);
         float u2 = fluidTexture.getU(x == 0 ? 8 : 15);
         float v2 = fluidTexture.getV(z == 0 ? 8 : 15);
 
-        buildVertices(builder, matrixStack, height, x, z, u1, v1, u2, v2, light, 0xFFFF5724);
+        buildVertices(builder, matrixStack, fluidHeight, x, z, u1, v1, u2, v2, light, brew.getColor());
     }
 
     private static void buildVertices(IVertexBuilder builder, MatrixStack matrixStack, float height, int x, int z, float u1, float v1, float u2, float v2, int light, int color) {
