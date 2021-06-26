@@ -1,6 +1,7 @@
 package caldera.common.block.cauldron;
 
 import caldera.common.init.ModBlockEntityTypes;
+import caldera.common.init.ModTags;
 import caldera.common.recipe.Brew;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
@@ -126,7 +127,6 @@ public class CauldronBlockEntity extends TileEntity implements ITickableTileEnti
     }
 
     private void onItemInside(ItemEntity itemEntity, double yOffset) {
-        // TODO add brew inert tag
         CompoundNBT itemData = itemEntity.getPersistentData();
 
         if (itemEntity.getDeltaMovement().y() <= 0
@@ -176,17 +176,45 @@ public class CauldronBlockEntity extends TileEntity implements ITickableTileEnti
                 .add(0, 0.425, 0);
 
         ItemStack remainder = itemEntity.getItem();
-        ItemStack stack = remainder.split(1);
-        inventory.addItem(stack);
 
-        spawnInCauldron(remainder, motion);
-        if (stack.hasContainerItem()) {
-            ItemStack containerStack = stack.getContainerItem();
-            spawnInCauldron(containerStack, motion);
+        if (isValidIngredient(remainder)) {
+            ItemStack stack = remainder.split(1);
+            inventory.addItem(stack);
+
+            if (stack.hasContainerItem()) {
+                ItemStack containerStack = stack.getContainerItem();
+                spawnInCauldron(containerStack, motion);
+            }
+        } else {
+            getLevel().playSound(
+                    null,
+                    itemEntity.getX(),
+                    itemEntity.getY(),
+                    itemEntity.getZ(),
+                    SoundEvents.BLAZE_SHOOT,
+                    SoundCategory.BLOCKS,
+                    0.5F,
+                    1
+            );
         }
 
-        getLevel().playSound(null, itemEntity.getX(), itemEntity.getY(), itemEntity.getZ(), SoundEvents.GENERIC_SPLASH, SoundCategory.BLOCKS, 1, 1);
+        spawnInCauldron(remainder, motion);
+
+        getLevel().playSound(
+                null,
+                itemEntity.getX(),
+                itemEntity.getY(),
+                itemEntity.getZ(),
+                SoundEvents.GENERIC_SPLASH,
+                SoundCategory.BLOCKS,
+                1,
+                1
+        );
         itemEntity.remove();
+    }
+
+    private boolean isValidIngredient(ItemStack stack) {
+        return !ModTags.INERT.contains(stack.getItem());
     }
 
     private void spawnInCauldron(ItemStack stack, Vector3d motion) {

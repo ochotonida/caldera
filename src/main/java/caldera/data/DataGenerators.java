@@ -14,12 +14,18 @@ public class DataGenerators {
     public static void gatherData(GatherDataEvent event) {
         DataGenerator generator = event.getGenerator();
         ExistingFileHelper helper = event.getExistingFileHelper();
+
         if (event.includeClient()) {
             BlockStates blockStates = new BlockStates(generator, helper);
+
             generator.addProvider(blockStates);
-            generator.addProvider(new ItemModels(generator, event.getExistingFileHelper()));
+            generator.addProvider(new ItemModels(generator, helper));
         }
         if (event.includeServer()) {
+            BlockTags blockTags = new BlockTags(generator, helper);
+
+            generator.addProvider(blockTags);
+            generator.addProvider(new ItemTags(generator, blockTags, helper));
             generator.addProvider(new LootTables(generator));
         }
     }

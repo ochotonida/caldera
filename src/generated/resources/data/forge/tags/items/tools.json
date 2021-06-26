@@ -1,0 +1,14 @@
+{
+  "replace": false,
+  "values": [
+    "#forge:tools/axes",
+    "#forge:tools/hoes",
+    "#forge:tools/pickaxes",
+    "#forge:tools/shovels",
+    "#forge:tools/swords",
+    "minecraft:shield",
+    "minecraft:shears",
+    "minecraft:bow",
+    "minecraft:crossbow"
+  ]
+}
