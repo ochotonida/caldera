@@ -5,9 +5,12 @@ import net.minecraftforge.items.ItemStackHandler;
 
 public class CauldronItemHandler extends ItemStackHandler {
 
+    public static final int CAPACITY = 8;
+
     private final CauldronBlockEntity cauldron;
 
     public CauldronItemHandler(CauldronBlockEntity cauldron) {
+        super(CAPACITY);
         this.cauldron = cauldron;
     }
 
@@ -36,6 +39,7 @@ public class CauldronItemHandler extends ItemStackHandler {
     public void addItem(ItemStack stack) {
         if (!isFull() && !stack.isEmpty()) {
             stacks.set(getNextEmptySlot(), stack.split(1));
+            cauldron.onIngredientsUpdated();
         }
         onContentsChanged();
     }

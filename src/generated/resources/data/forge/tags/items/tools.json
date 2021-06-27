@@ -6,9 +6,15 @@
     "#forge:tools/pickaxes",
     "#forge:tools/shovels",
     "#forge:tools/swords",
+    "minecraft:bow",
+    "minecraft:carrot_on_a_stick",
+    "minecraft:crossbow",
+    "minecraft:fishing_rod",
+    "minecraft:flint_and_steel",
     "minecraft:shield",
     "minecraft:shears",
-    "minecraft:bow",
-    "minecraft:crossbow"
+    "minecraft:totem_of_undying",
+    "minecraft:trident",
+    "minecraft:warped_fungus_on_a_stick"
   ]
 }

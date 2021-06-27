@@ -1,9 +1,12 @@
 package caldera.common.block.cauldron;
 
+import caldera.Caldera;
 import caldera.common.init.ModBlockEntityTypes;
 import caldera.common.init.ModSoundEvents;
 import caldera.common.init.ModTags;
 import caldera.common.recipe.Brew;
+import caldera.common.recipe.BrewType;
+import caldera.common.util.RecipeHelper;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.ItemEntity;
@@ -32,6 +35,8 @@ import net.minecraftforge.items.wrapper.EmptyHandler;
 import javax.annotation.Nullable;
 
 public class CauldronBlockEntity extends TileEntity implements ITickableTileEntity  {
+
+    private static final ResourceLocation SLUDGE_TYPE = new ResourceLocation(Caldera.MODID, "brew_types/sludge");
 
     protected LazyOptional<IItemHandler> itemHandler = LazyOptional.of(() -> EmptyHandler.INSTANCE);
     protected LazyOptional<IFluidHandler> fluidHandler = LazyOptional.of(() -> EmptyFluidHandler.INSTANCE);
@@ -180,12 +185,13 @@ public class CauldronBlockEntity extends TileEntity implements ITickableTileEnti
 
         if (isValidIngredient(remainder)) {
             ItemStack stack = remainder.split(1);
-            inventory.addItem(stack);
 
             if (stack.hasContainerItem()) {
                 ItemStack containerStack = stack.getContainerItem();
                 spawnInCauldron(containerStack, motion);
             }
+
+            inventory.addItem(stack);
         } else {
             getLevel().playSound(
                     null,
@@ -229,6 +235,31 @@ public class CauldronBlockEntity extends TileEntity implements ITickableTileEnti
         itemEntity.setDefaultPickUpDelay();
         itemEntity.setDeltaMovement(motion);
         getLevel().addFreshEntity(itemEntity);
+    }
+
+    protected void onIngredientsUpdated() {
+        // TODO check for recipes from current ingredients
+
+        if (inventory.isFull()) {
+            setBrewToSludge();
+        }
+    }
+
+    protected void setBrewToSludge() {
+        BrewType<?> brewType = RecipeHelper.getBrewType(SLUDGE_TYPE);
+
+        if (brewType == null) {
+            Caldera.LOGGER.error("Failed to load brew type {} for cauldron at {}", SLUDGE_TYPE.toString(), getBlockPos());
+            return;
+        }
+
+        createBrew(brewType);
+    }
+
+    protected void createBrew(BrewType<?> brewType) {
+        brew = brewType.createBrew(fluidTank.getFluid(), inventory, this);
+        sendUpdatePacket();
+        setChanged();
     }
 
     protected ActionResultType onUse(PlayerEntity player, Hand hand) {
@@ -283,9 +314,7 @@ public class CauldronBlockEntity extends TileEntity implements ITickableTileEnti
     // sync client on block update
     @Override
     public void onDataPacket(NetworkManager networkManager, SUpdateTileEntityPacket updatePacket) {
-        if (level != null) {
-            readUpdateTag(updatePacket.getTag());
-        }
+        readUpdateTag(updatePacket.getTag());
     }
 
     @Override
@@ -296,10 +325,13 @@ public class CauldronBlockEntity extends TileEntity implements ITickableTileEnti
     // load data sent to client
     protected void readUpdateTag(CompoundNBT nbt) {
         fluidTank.readFromNBT(nbt.getCompound("FluidHandler"));
+        loadBrew(nbt);
     }
 
     protected CompoundNBT createUpdateTag(CompoundNBT nbt) {
         nbt.put("FluidHandler", fluidTank.writeToNBT(new CompoundNBT()));
+        saveBrew(nbt);
+
         return nbt;
     }
 
@@ -308,12 +340,54 @@ public class CauldronBlockEntity extends TileEntity implements ITickableTileEnti
         super.load(state, nbt);
         fluidTank.readFromNBT(nbt.getCompound("FluidHandler"));
         inventory.deserializeNBT(nbt.getCompound("ItemHandler"));
+        loadBrew(nbt);
     }
 
     @Override
     public CompoundNBT save(CompoundNBT nbt) {
         nbt.put("FluidHandler", fluidTank.writeToNBT(new CompoundNBT()));
         nbt.put("ItemHandler", inventory.serializeNBT());
+        saveBrew(nbt);
+
         return super.save(nbt);
+    }
+
+    private void loadBrew(CompoundNBT nbt) {
+        brew = null;
+
+        if (nbt.contains("Brew", Constants.NBT.TAG_COMPOUND)) {
+            String rawBrewTypeId = nbt.getString("BrewType");
+            ResourceLocation brewTypeId = ResourceLocation.tryParse(rawBrewTypeId);
+
+            if (brewTypeId == null) {
+                Caldera.LOGGER.error("The cauldron at {} has invalid brew type {}. " +
+                        "The brew will be discarded.", getBlockPos(), rawBrewTypeId
+                );
+                return;
+            }
+
+            BrewType<?> brewType = RecipeHelper.getBrewType(brewTypeId);
+            if (brewType == null) {
+                Caldera.LOGGER.error("The cauldron at {} has brew type {} which no longer exists. " +
+                        "The brew will be discarded.", getBlockPos(), rawBrewTypeId
+                );
+                return;
+            }
+
+            brew = brewType.loadBrew(nbt.getCompound("Brew"), this);
+        }
+    }
+
+    private void saveBrew(CompoundNBT nbt) {
+        if (getLevel() == null) {
+            throw new IllegalArgumentException();
+        }
+
+        if (hasBrew()) {
+            CompoundNBT brewNBT = new CompoundNBT();
+            brew.writeBrew(brewNBT);
+            nbt.put("Brew", brewNBT);
+            nbt.putString("BrewType", brew.getType().getId().toString());
+        }
     }
 }

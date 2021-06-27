@@ -1,16 +1,23 @@
 buildscript {
     repositories {
         maven { url = 'https://maven.minecraftforge.net' }
+        maven { url = 'https://repo.spongepowered.org/repository/maven-public/' }
         mavenCentral()
     }
     dependencies {
         classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '4.1.+', changing: true
+        classpath group: 'org.spongepowered', name: 'mixingradle', version: '0.7-SNAPSHOT'
     }
 }
 
 apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
+apply plugin: 'org.spongepowered.mixin'
+
+mixin {
+    add sourceSets.main, "caldera.refmap.json"
+}
 
 version = '1.16.5-0.0.0'
 group = 'caldera'
@@ -23,8 +30,11 @@ minecraft {
     runs {
         client {
             workingDirectory project.file('run')
+            arg "-mixin.config=caldera.mixins.json"
             property 'forge.logging.markers', ''
             property 'forge.logging.console.level', 'debug'
+            property 'mixin.env.remapRefMap', 'true'
+            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
 
             mods {
                 caldera {
@@ -35,8 +45,11 @@ minecraft {
 
         server {
             workingDirectory project.file('run')
+            arg "-mixin.config=caldera.mixins.json"
             property 'forge.logging.markers', ''
             property 'forge.logging.console.level', 'debug'
+            property 'mixin.env.remapRefMap', 'true'
+            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
 
             mods {
                 caldera {
@@ -47,8 +60,11 @@ minecraft {
 
         data {
             workingDirectory project.file('run')
+            arg "-mixin.config=caldera.mixins.json"
             property 'forge.logging.markers', ''
             property 'forge.logging.console.level', 'debug'
+            property 'mixin.env.remapRefMap', 'true'
+            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
 
             args '--mod', 'caldera', '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
 

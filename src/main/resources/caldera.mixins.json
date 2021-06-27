@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "package": "caldera.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "refmap": "caldera.refmap.json",
+  "mixins": [
+    "accessor.RecipeManagerAccessor"
+  ],
+  "client": [],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "minVersion": "0.8"
+}

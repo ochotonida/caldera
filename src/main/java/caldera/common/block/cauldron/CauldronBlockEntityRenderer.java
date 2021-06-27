@@ -37,7 +37,7 @@ public class CauldronBlockEntityRenderer extends TileEntityRenderer<CauldronBloc
         for (int x = 0; x <= 1; x++) {
             for (int z = 0; z <= 1; z++) {
                 renderFluid(cauldron, cauldron.fluidTank.getFluid(), x, z, buffer, matrixStack, light);
-                renderBrew(cauldron, cauldron.getBrew(), x, z, buffer, matrixStack, light);
+                renderBrew(cauldron, cauldron.getBrew(), x, z, partialTicks, buffer, matrixStack, light);
             }
         }
     }
@@ -77,7 +77,7 @@ public class CauldronBlockEntityRenderer extends TileEntityRenderer<CauldronBloc
         buildVertices(builder, matrixStack, fluidHeight, x, z, u1, v1, u2, v2, light, color);
     }
 
-    public static void renderBrew(CauldronBlockEntity cauldron, Brew brew, int x, int z, IRenderTypeBuffer buffer, MatrixStack matrixStack, int light) {
+    public static void renderBrew(CauldronBlockEntity cauldron, Brew brew, int x, int z, float partialTicks, IRenderTypeBuffer buffer, MatrixStack matrixStack, int light) {
         if (brew == null) {
             return;
         }
@@ -96,7 +96,7 @@ public class CauldronBlockEntityRenderer extends TileEntityRenderer<CauldronBloc
         float u2 = fluidTexture.getU(x == 0 ? 8 : 15);
         float v2 = fluidTexture.getV(z == 0 ? 8 : 15);
 
-        buildVertices(builder, matrixStack, fluidHeight, x, z, u1, v1, u2, v2, light, brew.getColor());
+        buildVertices(builder, matrixStack, fluidHeight, x, z, u1, v1, u2, v2, light, brew.getColorAndAlpha(partialTicks));
     }
 
     private static void buildVertices(IVertexBuilder builder, MatrixStack matrixStack, float height, int x, int z, float u1, float v1, float u2, float v2, int light, int color) {
