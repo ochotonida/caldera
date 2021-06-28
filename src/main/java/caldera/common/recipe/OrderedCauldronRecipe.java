@@ -65,10 +65,11 @@ public abstract class OrderedCauldronRecipe<RESULT> implements CauldronRecipe<RE
     }
 
     public boolean matchesOrdered(IItemHandler inventory) {
-        int slot = 0;
+        int slot = -1;
 
         for (Ingredient ingredient : getIngredients()) {
             ItemStack stack;
+
             do {
                 if (++slot >= inventory.getSlots()) {
                     return false;
@@ -80,6 +81,13 @@ public abstract class OrderedCauldronRecipe<RESULT> implements CauldronRecipe<RE
                 return false;
             }
         }
+
+        while (++slot < inventory.getSlots()) {
+            if (!inventory.getStackInSlot(slot).isEmpty()) {
+                return false;
+            }
+        }
+
         return true;
     }
 

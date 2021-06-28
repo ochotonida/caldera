@@ -21,6 +21,10 @@ public class CauldronFluidTank extends FluidTank {
         return !attributes.isLighterThanAir() && !attributes.isGaseous();
     }
 
+    public void clear() {
+        setFluid(FluidStack.EMPTY);
+    }
+
     @Override
     public int fill(FluidStack resource, FluidAction action) {
         if (cauldron.canTransferFluids()) {

@@ -2,8 +2,10 @@ package caldera.common.block.cauldron;
 
 import caldera.Caldera;
 import caldera.common.init.ModBlockEntityTypes;
+import caldera.common.init.ModRecipeTypes;
 import caldera.common.init.ModSoundEvents;
 import caldera.common.init.ModTags;
+import caldera.common.recipe.CauldronRecipe;
 import caldera.common.recipe.brew.Brew;
 import caldera.common.recipe.brew.BrewType;
 import caldera.common.util.RecipeHelper;
@@ -12,6 +14,8 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.IRecipeType;
+import net.minecraft.item.crafting.RecipeManager;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SUpdateTileEntityPacket;
@@ -34,6 +38,7 @@ import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.wrapper.EmptyHandler;
 
 import javax.annotation.Nullable;
+import java.util.Collection;
 
 public class CauldronBlockEntity extends TileEntity implements ITickableTileEntity  {
 
@@ -239,15 +244,78 @@ public class CauldronBlockEntity extends TileEntity implements ITickableTileEnti
     }
 
     protected void onIngredientsUpdated() {
-        // TODO check for recipes from current ingredients
+        if (getLevel() == null) {
+            return;
+        }
+
+        RecipeManager manager = getLevel().getRecipeManager();
+
+        CauldronRecipe<ItemStack> itemRecipe = findMatchingRecipe(manager, ModRecipeTypes.CAULDRON_ITEM_CRAFTING);
+
+        if (itemRecipe != null) {
+            craftItem(itemRecipe);
+            return;
+        }
+
+        CauldronRecipe<FluidStack> fluidRecipe = findMatchingRecipe(manager, ModRecipeTypes.CAULDRON_FLUID_CRAFTING);
+
+        if (fluidRecipe != null) {
+            craftFluid(fluidRecipe);
+            return;
+        }
+
+        BrewType<?> brewType = findMatchingRecipe(manager, ModRecipeTypes.BREW_TYPE);
+
+        if (brewType != null) {
+            createBrew(brewType);
+            return;
+        }
 
         if (inventory.isFull()) {
             setBrewToSludge();
         }
     }
 
+    @Nullable
+    private <RECIPE extends CauldronRecipe<?>> RECIPE findMatchingRecipe(RecipeManager manager, IRecipeType<RECIPE> type) {
+        Collection<RECIPE> itemRecipes = RecipeHelper.byType(manager, type).values();
+        for (RECIPE recipe : itemRecipes) {
+            if (matchesRecipe(recipe)) {
+                return recipe;
+            }
+        }
+        return null;
+    }
+
+    private boolean matchesRecipe(CauldronRecipe<?> recipe) {
+        return recipe.matches(fluidTank.getFluid(), inventory, this);
+    }
+
+    private <RESULT> RESULT assembleRecipe(CauldronRecipe<RESULT> recipe) {
+        return recipe.assemble(fluidTank.getFluid(), inventory, this);
+    }
+
+    private void craftItem(CauldronRecipe<ItemStack> recipe) {
+        ItemStack result = assembleRecipe(recipe);
+        spawnInCauldron(result, new Vector3d(0, 0.5, 0));
+
+        inventory.clear();
+        fluidTank.clear();
+        sendUpdatePacket();
+        setChanged();
+    }
+
+    private void craftFluid(CauldronRecipe<FluidStack> recipe) {
+        FluidStack result = assembleRecipe(recipe);
+
+        inventory.clear();
+        fluidTank.setFluid(result);
+        sendUpdatePacket();
+        setChanged();
+    }
+
     protected void setBrewToSludge() {
-        BrewType<?> brewType = RecipeHelper.getBrewType(SLUDGE_TYPE);
+        BrewType<?> brewType = RecipeHelper.byType(ModRecipeTypes.BREW_TYPE).get(SLUDGE_TYPE);
 
         if (brewType == null) {
             Caldera.LOGGER.error("Failed to load brew type {} for cauldron at {}", SLUDGE_TYPE.toString(), getBlockPos());
@@ -258,9 +326,10 @@ public class CauldronBlockEntity extends TileEntity implements ITickableTileEnti
     }
 
     protected void createBrew(BrewType<?> brewType) {
-        brew = brewType.assemble(fluidTank.getFluid(), inventory, this);
+        brew = assembleRecipe(brewType);
+
         inventory.clear();
-        fluidTank.setFluid(FluidStack.EMPTY);
+        fluidTank.clear();
         sendUpdatePacket();
         setChanged();
     }
@@ -369,7 +438,7 @@ public class CauldronBlockEntity extends TileEntity implements ITickableTileEnti
                 return;
             }
 
-            BrewType<?> brewType = RecipeHelper.getBrewType(brewTypeId);
+            BrewType<?> brewType = RecipeHelper.byType(ModRecipeTypes.BREW_TYPE).get(brewTypeId);
             if (brewType == null) {
                 Caldera.LOGGER.error("The cauldron at {} has brew type {} which no longer exists. " +
                         "The brew will be discarded.", getBlockPos(), rawBrewTypeId

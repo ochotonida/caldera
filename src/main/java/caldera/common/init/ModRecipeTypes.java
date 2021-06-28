@@ -4,6 +4,7 @@ import caldera.Caldera;
 import caldera.common.recipe.CauldronFluidRecipe;
 import caldera.common.recipe.CauldronItemRecipe;
 import caldera.common.recipe.CauldronRecipe;
+import caldera.common.recipe.brew.Brew;
 import caldera.common.recipe.brew.BrewType;
 import caldera.common.recipe.brew.sludge.SludgeBrewType;
 import net.minecraft.item.ItemStack;
@@ -21,7 +22,7 @@ public class ModRecipeTypes {
 
     public static final IRecipeType<CauldronRecipe<ItemStack>> CAULDRON_ITEM_CRAFTING = IRecipeType.register(new ResourceLocation(Caldera.MODID, "cauldron_item").toString());
     public static final IRecipeType<CauldronRecipe<FluidStack>> CAULDRON_FLUID_CRAFTING = IRecipeType.register(new ResourceLocation(Caldera.MODID, "cauldron_fluid").toString());
-    public static final IRecipeType<BrewType<?>> BREW_TYPE = IRecipeType.register(new ResourceLocation(Caldera.MODID, "brew_type").toString());
+    public static final IRecipeType<BrewType<Brew>> BREW_TYPE = IRecipeType.register(new ResourceLocation(Caldera.MODID, "brew_type").toString());
 
     public static final RegistryObject<IRecipeSerializer<?>> CAULDRON_ITEM_CRAFTING_SERIALIZER = REGISTRY.register("cauldron_item", CauldronItemRecipe.Serializer::new);
     public static final RegistryObject<IRecipeSerializer<?>> CAULDRON_FLUID_CRAFTING_SERIALIZER = REGISTRY.register("cauldron_fluid", CauldronFluidRecipe.Serializer::new);

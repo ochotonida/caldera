@@ -1,15 +1,16 @@
 package caldera.common.util;
 
-import caldera.common.init.ModRecipeTypes;
-import caldera.common.recipe.brew.BrewType;
 import caldera.mixin.accessor.RecipeManagerAccessor;
 import net.minecraft.client.Minecraft;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.item.crafting.IRecipe;
+import net.minecraft.item.crafting.IRecipeType;
 import net.minecraft.item.crafting.RecipeManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.thread.EffectiveSide;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
 
-import javax.annotation.Nullable;
+import java.util.Map;
 
 public class RecipeHelper {
 
@@ -22,9 +23,18 @@ public class RecipeHelper {
         }
     }
 
-    @Nullable
-    public static BrewType<?> getBrewType(ResourceLocation id) {
-        return (BrewType<?>) ((RecipeManagerAccessor) getManager()).caldera$callByType(ModRecipeTypes.BREW_TYPE).get(id);
+    public static <RECIPE extends IRecipe<IInventory>> Map<ResourceLocation, RECIPE> byType(
+            RecipeManager manager,
+            IRecipeType<RECIPE> type
+    ) {
+        // noinspection unchecked
+        return (Map<ResourceLocation, RECIPE>) ((RecipeManagerAccessor) getManager()).caldera$callByType(type);
+    }
+
+    public static <RECIPE extends IRecipe<IInventory>> Map<ResourceLocation, RECIPE> byType(
+            IRecipeType<RECIPE> type
+    ) {
+        return byType(getManager(), type);
     }
 }
 
