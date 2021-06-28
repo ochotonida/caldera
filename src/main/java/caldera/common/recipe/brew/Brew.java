@@ -1,4 +1,4 @@
-package caldera.common.recipe;
+package caldera.common.recipe.brew;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.CompoundNBT;

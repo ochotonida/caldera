@@ -4,8 +4,8 @@ import caldera.Caldera;
 import caldera.common.init.ModBlockEntityTypes;
 import caldera.common.init.ModSoundEvents;
 import caldera.common.init.ModTags;
-import caldera.common.recipe.Brew;
-import caldera.common.recipe.BrewType;
+import caldera.common.recipe.brew.Brew;
+import caldera.common.recipe.brew.BrewType;
 import caldera.common.util.RecipeHelper;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
@@ -25,6 +25,7 @@ import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidUtil;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
@@ -257,7 +258,9 @@ public class CauldronBlockEntity extends TileEntity implements ITickableTileEnti
     }
 
     protected void createBrew(BrewType<?> brewType) {
-        brew = brewType.createBrew(fluidTank.getFluid(), inventory, this);
+        brew = brewType.assemble(fluidTank.getFluid(), inventory, this);
+        inventory.clear();
+        fluidTank.setFluid(FluidStack.EMPTY);
         sendUpdatePacket();
         setChanged();
     }

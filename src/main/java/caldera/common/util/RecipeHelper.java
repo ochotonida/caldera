@@ -1,7 +1,7 @@
 package caldera.common.util;
 
 import caldera.common.init.ModRecipeTypes;
-import caldera.common.recipe.BrewType;
+import caldera.common.recipe.brew.BrewType;
 import caldera.mixin.accessor.RecipeManagerAccessor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.item.crafting.RecipeManager;
@@ -24,7 +24,7 @@ public class RecipeHelper {
 
     @Nullable
     public static BrewType<?> getBrewType(ResourceLocation id) {
-        return (BrewType<?>) ((RecipeManagerAccessor) getManager()).caldera$callByType(ModRecipeTypes.BREW).get(id);
+        return (BrewType<?>) ((RecipeManagerAccessor) getManager()).caldera$callByType(ModRecipeTypes.BREW_TYPE).get(id);
     }
 }
 

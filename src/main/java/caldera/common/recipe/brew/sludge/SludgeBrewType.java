@@ -1,7 +1,7 @@
-package caldera.common.recipe.sludge;
+package caldera.common.recipe.brew.sludge;
 
 import caldera.common.init.ModRecipeTypes;
-import caldera.common.recipe.BrewType;
+import caldera.common.recipe.brew.BrewType;
 import caldera.common.util.ColorHelper;
 import com.google.gson.JsonObject;
 import net.minecraft.item.crafting.IRecipeSerializer;
@@ -13,13 +13,19 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.registries.ForgeRegistryEntry;
 
-public class SludgeBrewType extends BrewType<SludgeBrew> {
+public class SludgeBrewType implements BrewType<SludgeBrew> {
 
+    private final ResourceLocation id;
     private final SludgeBrew instance;
 
     public SludgeBrewType(ResourceLocation id, int color) {
-        super(id);
+        this.id = id;
         instance = new SludgeBrew(this, color);
+    }
+
+    @Override
+    public ResourceLocation getId() {
+        return id;
     }
 
     @Override
@@ -28,7 +34,7 @@ public class SludgeBrewType extends BrewType<SludgeBrew> {
     }
 
     @Override
-    public SludgeBrew createBrew(FluidStack fluid, IItemHandler inventory, TileEntity blockEntity) {
+    public SludgeBrew assemble(FluidStack fluid, IItemHandler inventory, TileEntity blockEntity) {
         return instance;
     }
 

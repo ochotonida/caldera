@@ -6,10 +6,12 @@ import net.minecraftforge.fluids.capability.templates.FluidTank;
 
 public class CauldronFluidTank extends FluidTank {
 
+    public static final int CAPACITY = FluidAttributes.BUCKET_VOLUME * 2;
+
     private final CauldronBlockEntity cauldron;
 
     public CauldronFluidTank(CauldronBlockEntity cauldron) {
-        super(FluidAttributes.BUCKET_VOLUME * 2, CauldronFluidTank::isValid);
+        super(CAPACITY, CauldronFluidTank::isValid);
         this.cauldron = cauldron;
     }
 

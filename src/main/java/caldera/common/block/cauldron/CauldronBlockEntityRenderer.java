@@ -1,7 +1,7 @@
 package caldera.common.block.cauldron;
 
 import caldera.Caldera;
-import caldera.common.recipe.Brew;
+import caldera.common.recipe.brew.Brew;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 import net.minecraft.client.Minecraft;

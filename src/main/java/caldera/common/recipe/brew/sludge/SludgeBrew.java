@@ -1,6 +1,6 @@
-package caldera.common.recipe.sludge;
+package caldera.common.recipe.brew.sludge;
 
-import caldera.common.recipe.Brew;
+import caldera.common.recipe.brew.Brew;
 import net.minecraft.nbt.CompoundNBT;
 
 public class SludgeBrew implements Brew {
