@@ -21,11 +21,29 @@ public class CraftingHelper {
 
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
 
-    public static ResourceLocation getAsResourceLocation(JsonObject object, String memberName) {
+    public static ResourceLocation readResourceLocation(JsonObject object, String memberName) {
         return new ResourceLocation(JSONUtils.getAsString(object, memberName));
     }
 
-    public static List<Ingredient> getIngredients(JsonObject object, String memberName) {
+    public static JsonArray writeIngredients(List<Ingredient> ingredients) {
+        JsonArray array = new JsonArray();
+
+        for (Ingredient ingredient : ingredients) {
+            array.add(ingredient.toJson());
+        }
+
+        return array;
+    }
+
+    public static void writeIngredients(PacketBuffer buffer, List<Ingredient> ingredients) {
+        buffer.writeByte(ingredients.size());
+
+        for (Ingredient ingredient : ingredients) {
+            ingredient.toNetwork(buffer);
+        }
+    }
+
+    public static List<Ingredient> readIngredients(JsonObject object, String memberName) {
         JsonArray ingredients = JSONUtils.getAsJsonArray(object, memberName);
         List<Ingredient> result = new ArrayList<>(ingredients.size());
 
@@ -36,7 +54,7 @@ public class CraftingHelper {
         return result;
     }
 
-    public static List<Ingredient> readIngredientsFromBuffer(PacketBuffer buffer) {
+    public static List<Ingredient> readIngredients(PacketBuffer buffer) {
         int size = buffer.readByte();
         ArrayList<Ingredient> result = new ArrayList<>(size);
 
@@ -47,12 +65,18 @@ public class CraftingHelper {
         return result;
     }
 
-    public static void writeIngredientsToBuffer(PacketBuffer buffer, List<Ingredient> ingredients) {
-        buffer.writeByte(ingredients.size());
+    public static JsonObject writeItemStack(ItemStack stack) {
+        JsonObject object = new JsonObject();
 
-        for (Ingredient ingredient : ingredients) {
-            ingredient.toNetwork(buffer);
+        // noinspection ConstantConditions
+        object.addProperty("item", stack.getItem().getRegistryName().toString());
+        object.addProperty("count", stack.getCount());
+        if (stack.hasTag()) {
+            // noinspection ConstantConditions
+            object.addProperty("nbt", stack.getTag().toString());
         }
+
+        return object;
     }
 
     public static ItemStack readItemStack(JsonObject object, String memberName, boolean readNbt) {
@@ -84,7 +108,7 @@ public class CraftingHelper {
     }
 
     public static FluidStack readFluidStack(JsonObject object, boolean readNbt, boolean readAmount) {
-        ResourceLocation fluidName = getAsResourceLocation(object, "fluid");
+        ResourceLocation fluidName = readResourceLocation(object, "fluid");
 
         Fluid fluid = ForgeRegistries.FLUIDS.getValue(fluidName);
 

@@ -124,7 +124,7 @@ public abstract class OrderedCauldronRecipe<RESULT> implements CauldronRecipe<RE
 
         @Override
         public RECIPE fromJson(ResourceLocation id, JsonObject object) {
-            List<Ingredient> ingredients = CraftingHelper.getIngredients(object, "ingredients");
+            List<Ingredient> ingredients = CraftingHelper.readIngredients(object, "ingredients");
             FluidIngredient fluidIngredient = FluidIngredient.fromJson(object, "fluid");
             RESULT result = readResult(object);
             boolean isOrdered = JSONUtils.getAsBoolean(object, "ordered");
@@ -134,7 +134,7 @@ public abstract class OrderedCauldronRecipe<RESULT> implements CauldronRecipe<RE
 
         @Override
         public RECIPE fromNetwork(ResourceLocation id, PacketBuffer buffer) {
-            List<Ingredient> ingredients = CraftingHelper.readIngredientsFromBuffer(buffer);
+            List<Ingredient> ingredients = CraftingHelper.readIngredients(buffer);
             FluidIngredient fluidIngredient = FluidIngredient.fromBuffer(buffer);
             RESULT result = readResult(buffer);
             boolean isOrdered = buffer.readBoolean();
@@ -144,7 +144,7 @@ public abstract class OrderedCauldronRecipe<RESULT> implements CauldronRecipe<RE
 
         @Override
         public void toNetwork(PacketBuffer buffer, RECIPE recipe) {
-            CraftingHelper.writeIngredientsToBuffer(buffer, recipe.getIngredients());
+            CraftingHelper.writeIngredients(buffer, recipe.getIngredients());
             recipe.getFluidIngredient().toBuffer(buffer);
             writeResult(buffer, recipe);
             buffer.writeBoolean(recipe.isOrdered());

@@ -42,7 +42,7 @@ public class FluidIngredient implements Predicate<FluidStack> {
         JsonObject ingredient = JSONUtils.getAsJsonObject(object, name);
 
         if (ingredient.has("tag")) {
-            ResourceLocation tagName = CraftingHelper.getAsResourceLocation(ingredient, "tag");
+            ResourceLocation tagName = CraftingHelper.readResourceLocation(ingredient, "tag");
             ITag<Fluid> fluidTag = TagCollectionManager.getInstance().getFluids().getTagOrEmpty(tagName);
             return of(fluidTag);
         } else {
