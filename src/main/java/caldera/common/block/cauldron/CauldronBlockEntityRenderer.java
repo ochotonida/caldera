@@ -35,7 +35,7 @@ public class CauldronBlockEntityRenderer extends TileEntityRenderer<CauldronBloc
             return;
         }
 
-        float floorHeight = 4.001F / 16;
+        float floorHeight = (4 + 0.001F) / 16;
         float fluidLevel = floorHeight + cauldron.fluidLevel.get(partialTicks);
 
         for (int x = 0; x <= 1; x++) {
@@ -71,7 +71,7 @@ public class CauldronBlockEntityRenderer extends TileEntityRenderer<CauldronBloc
             color = fluidAttributes.getColor(fluidStack);
         }
 
-        color = ColorHelper.mixAlpha(color, alpha);
+        color = ColorHelper.applyAlpha(color, alpha);
 
         int blockLight = (light >> 4) & 0xf;
         int luminosity = Math.max(blockLight, fluidAttributes.getLuminosity(fluidStack));
@@ -96,7 +96,7 @@ public class CauldronBlockEntityRenderer extends TileEntityRenderer<CauldronBloc
 
         IVertexBuilder builder = buffer.getBuffer(RenderType.translucentMovingBlock());
 
-        int color = ColorHelper.mixAlpha(brew.getColorAndAlpha(partialTicks), alpha);
+        int color = ColorHelper.applyAlpha(brew.getColorAndAlpha(partialTicks), alpha);
 
         float u1 = fluidTexture.getU(x == 0 ? 1 : 8);
         float v1 = fluidTexture.getV(z == 0 ? 1 : 8);
@@ -124,10 +124,10 @@ public class CauldronBlockEntityRenderer extends TileEntityRenderer<CauldronBloc
         Vector3i normal = Direction.UP.getNormal();
         MatrixStack.Entry peek = matrixStack.last();
 
-        int a = color >> 24 & 0xFF;
-        int r = color >> 16 & 0xFF;
-        int g = color >> 8 & 0xFF;
-        int b = color & 0xFF;
+        int a = ColorHelper.getAlpha(color);
+        int r = ColorHelper.getRed(color);
+        int g = ColorHelper.getGreen(color);
+        int b = ColorHelper.getBlue(color);
 
         builder.vertex(peek.pose(), x, y, z)
                 .color(r, g, b, a)
