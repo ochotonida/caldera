@@ -3,6 +3,7 @@ package caldera.common.util;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import net.minecraft.util.JSONUtils;
+import net.minecraft.util.math.MathHelper;
 
 public class ColorHelper {
 
@@ -25,6 +26,13 @@ public class ColorHelper {
         object.addProperty("green", colors[1]);
         object.addProperty("blue", colors[2]);
         return object;
+    }
+
+    public static int mixAlpha(int color, float alpha) {
+        int a = (int) (alpha * 256 * (color >> 24 & 0xFF) / 0xFF);
+        a = MathHelper.clamp(a, 0, 0xFF);
+        return (color & 0xFFFFFF) | a << 24;
+
     }
 
     public static int fromRGB(int red, int green, int blue) {

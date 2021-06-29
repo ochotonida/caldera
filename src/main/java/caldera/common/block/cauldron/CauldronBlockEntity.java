@@ -9,6 +9,7 @@ import caldera.common.recipe.CauldronRecipe;
 import caldera.common.recipe.brew.Brew;
 import caldera.common.recipe.brew.BrewType;
 import caldera.common.util.RecipeHelper;
+import caldera.common.util.rendering.InterpolatedChasingValue;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.ItemEntity;
@@ -44,16 +45,31 @@ public class CauldronBlockEntity extends TileEntity implements ITickableTileEnti
 
     private static final ResourceLocation SLUDGE_TYPE = new ResourceLocation(Caldera.MODID, "brew_types/sludge");
 
-    protected LazyOptional<IItemHandler> itemHandler = LazyOptional.of(() -> EmptyHandler.INSTANCE);
-    protected LazyOptional<IFluidHandler> fluidHandler = LazyOptional.of(() -> EmptyFluidHandler.INSTANCE);
+    private LazyOptional<IItemHandler> itemHandler = LazyOptional.of(() -> EmptyHandler.INSTANCE);
+    private LazyOptional<IFluidHandler> fluidHandler = LazyOptional.of(() -> EmptyFluidHandler.INSTANCE);
     protected final CauldronFluidTank fluidTank;
     protected final CauldronItemHandler inventory;
     private Brew brew;
+
+    // Exclusively used for rendering
+    protected final InterpolatedChasingValue fluidLevel;
+    protected final InterpolatedChasingValue previousFluidAlpha;
+    protected final InterpolatedChasingValue fluidAlpha;
+    private boolean fluidOrBrewChanged;
+    private FluidStack previousFluid;
+    private Brew previousBrew;
 
     public CauldronBlockEntity() {
         super(ModBlockEntityTypes.LARGE_CAULDRON.get());
         fluidTank = new CauldronFluidTank(this);
         inventory = new CauldronItemHandler(this);
+
+        fluidLevel = new InterpolatedChasingValue().withSpeed(1/2F).start(0);
+        previousFluidAlpha = new InterpolatedChasingValue().withSpeed(1/8F).start(0);
+        fluidAlpha = new InterpolatedChasingValue().withSpeed(1/8F).start(1);
+
+        previousFluid = FluidStack.EMPTY;
+        previousBrew = null;
     }
 
     @Nullable
@@ -87,8 +103,28 @@ public class CauldronBlockEntity extends TileEntity implements ITickableTileEnti
         return brew;
     }
 
+    public FluidStack getFluid() {
+        return fluidTank.getFluid();
+    }
+
+    public Brew getPreviousBrew() {
+        return previousBrew;
+    }
+
+    public FluidStack getPreviousFluid() {
+        return previousFluid;
+    }
+
     public boolean hasBrew() {
         return getBrew() != null;
+    }
+
+    public boolean hasFluid() {
+        return !getFluid().isEmpty();
+    }
+
+    public boolean isEmpty() {
+        return !hasBrew() && !hasFluid();
     }
 
     protected boolean canTransferFluids() {
@@ -99,7 +135,7 @@ public class CauldronBlockEntity extends TileEntity implements ITickableTileEnti
     public double getFluidLevel() {
         if (hasBrew()) {
             return getBrew().getFluidLevel();
-        } else if (!fluidTank.isEmpty()) {
+        } else if (hasFluid()) {
             return fluidTank.getFluidAmount() / (double) fluidTank.getCapacity();
         } else {
             return 0;
@@ -125,8 +161,20 @@ public class CauldronBlockEntity extends TileEntity implements ITickableTileEnti
 
     @Override
     public void tick() {
+        if (getLevel() == null) {
+            return;
+        }
+
         if (!fluidHandler.isPresent()) {
             setupCapabilities();
+        }
+
+        if (getLevel().isClientSide()) {
+            fluidLevel.tick();
+            fluidAlpha.tick();
+            if (Math.abs(fluidAlpha.getTarget() - fluidAlpha.value) < 1 / 3D) {
+                previousFluidAlpha.tick();
+            }
         }
     }
 
@@ -288,11 +336,11 @@ public class CauldronBlockEntity extends TileEntity implements ITickableTileEnti
     }
 
     private boolean matchesRecipe(CauldronRecipe<?> recipe) {
-        return recipe.matches(fluidTank.getFluid(), inventory, this);
+        return recipe.matches(getFluid(), inventory, this);
     }
 
     private <RESULT> RESULT assembleRecipe(CauldronRecipe<RESULT> recipe) {
-        return recipe.assemble(fluidTank.getFluid(), inventory, this);
+        return recipe.assemble(getFluid(), inventory, this);
     }
 
     private void craftItem(CauldronRecipe<ItemStack> recipe) {
@@ -330,8 +378,13 @@ public class CauldronBlockEntity extends TileEntity implements ITickableTileEnti
 
         inventory.clear();
         fluidTank.clear();
+        setFluidOrBrewChanged();
         sendUpdatePacket();
         setChanged();
+    }
+
+    protected void setFluidOrBrewChanged() {
+        fluidOrBrewChanged = true;
     }
 
     protected ActionResultType onUse(PlayerEntity player, Hand hand) {
@@ -396,11 +449,41 @@ public class CauldronBlockEntity extends TileEntity implements ITickableTileEnti
 
     // load data sent to client
     protected void readUpdateTag(CompoundNBT nbt) {
+        float previousFluidLevel = (float) getFluidLevel();
+        boolean wasEmpty = isEmpty();
+
+        boolean fluidOrBrewChanged = nbt.getBoolean("FluidOrBrewChanged");
+        if (fluidOrBrewChanged) {
+            previousFluid = getFluid().copy();
+            previousBrew = getBrew();
+        }
+
         fluidTank.readFromNBT(nbt.getCompound("FluidHandler"));
         loadBrew(nbt);
+
+        if (fluidOrBrewChanged) {
+            if (isEmpty()) {
+                previousBrew = null;
+                previousFluid = FluidStack.EMPTY;
+                fluidLevel.start(0);
+                previousFluidAlpha.start(0);
+                fluidAlpha.start(1);
+            } else {
+                fluidLevel.start(previousFluidLevel).target((float) getFluidLevel());
+                if (!wasEmpty) {
+                    previousFluidAlpha.start(1).target(0);
+                    fluidAlpha.start(0).target(1);
+                }
+            }
+        } else {
+            fluidLevel.target((float) getFluidLevel());
+        }
     }
 
     protected CompoundNBT createUpdateTag(CompoundNBT nbt) {
+        nbt.putBoolean("FluidOrBrewChanged", fluidOrBrewChanged);
+        fluidOrBrewChanged = false;
+
         nbt.put("FluidHandler", fluidTank.writeToNBT(new CompoundNBT()));
         saveBrew(nbt);
 

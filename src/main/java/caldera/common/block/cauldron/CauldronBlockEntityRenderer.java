@@ -2,6 +2,7 @@ package caldera.common.block.cauldron;
 
 import caldera.Caldera;
 import caldera.common.recipe.brew.Brew;
+import caldera.common.util.ColorHelper;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 import net.minecraft.client.Minecraft;
@@ -34,15 +35,23 @@ public class CauldronBlockEntityRenderer extends TileEntityRenderer<CauldronBloc
             return;
         }
 
+        float floorHeight = 4.001F / 16;
+        float fluidLevel = floorHeight + cauldron.fluidLevel.get(partialTicks);
+
         for (int x = 0; x <= 1; x++) {
             for (int z = 0; z <= 1; z++) {
-                renderFluid(cauldron, cauldron.fluidTank.getFluid(), x, z, buffer, matrixStack, light);
-                renderBrew(cauldron, cauldron.getBrew(), x, z, partialTicks, buffer, matrixStack, light);
+                float previousAlpha = cauldron.previousFluidAlpha.get(partialTicks);
+                renderFluid(cauldron, cauldron.getPreviousFluid(), fluidLevel, x, z, buffer, matrixStack, light, previousAlpha);
+                renderBrew(cauldron, cauldron.getPreviousBrew(), fluidLevel, x, z, partialTicks, buffer, matrixStack, light, previousAlpha);
+
+                float alpha = cauldron.fluidAlpha.get(partialTicks);
+                renderFluid(cauldron, cauldron.getFluid(), fluidLevel, x, z, buffer, matrixStack, light, alpha);
+                renderBrew(cauldron, cauldron.getBrew(), fluidLevel, x, z, partialTicks, buffer, matrixStack, light, alpha);
             }
         }
     }
 
-    public static void renderFluid(CauldronBlockEntity cauldron, FluidStack fluidStack, int x, int z, IRenderTypeBuffer buffer, MatrixStack matrixStack, int light) {
+    public static void renderFluid(CauldronBlockEntity cauldron, FluidStack fluidStack, float fluidHeight, int x, int z, IRenderTypeBuffer buffer, MatrixStack matrixStack, int light, float alpha) {
         if (fluidStack.isEmpty()) {
             return;
         }
@@ -62,12 +71,11 @@ public class CauldronBlockEntityRenderer extends TileEntityRenderer<CauldronBloc
             color = fluidAttributes.getColor(fluidStack);
         }
 
+        color = ColorHelper.mixAlpha(color, alpha);
+
         int blockLight = (light >> 4) & 0xf;
         int luminosity = Math.max(blockLight, fluidAttributes.getLuminosity(fluidStack));
         light = (light & 0xf00000) | luminosity << 4;
-
-        float floorHeight = 4 / 16F;
-        float fluidHeight = (float) cauldron.getFluidLevel() + floorHeight;
 
         float u1 = fluidTexture.getU(x == 0 ? 2 : 0);
         float v1 = fluidTexture.getV(z == 0 ? 2 : 0);
@@ -77,7 +85,7 @@ public class CauldronBlockEntityRenderer extends TileEntityRenderer<CauldronBloc
         buildVertices(builder, matrixStack, fluidHeight, x, z, u1, v1, u2, v2, light, color);
     }
 
-    public static void renderBrew(CauldronBlockEntity cauldron, Brew brew, int x, int z, float partialTicks, IRenderTypeBuffer buffer, MatrixStack matrixStack, int light) {
+    public static void renderBrew(CauldronBlockEntity cauldron, Brew brew, float fluidHeight, int x, int z, float partialTicks, IRenderTypeBuffer buffer, MatrixStack matrixStack, int light, float alpha) {
         if (brew == null) {
             return;
         }
@@ -88,15 +96,14 @@ public class CauldronBlockEntityRenderer extends TileEntityRenderer<CauldronBloc
 
         IVertexBuilder builder = buffer.getBuffer(RenderType.translucentMovingBlock());
 
-        float floorHeight = 4 / 16F;
-        float fluidHeight = (float) cauldron.getFluidLevel() + floorHeight;
+        int color = ColorHelper.mixAlpha(brew.getColorAndAlpha(partialTicks), alpha);
 
         float u1 = fluidTexture.getU(x == 0 ? 1 : 8);
         float v1 = fluidTexture.getV(z == 0 ? 1 : 8);
         float u2 = fluidTexture.getU(x == 0 ? 8 : 15);
         float v2 = fluidTexture.getV(z == 0 ? 8 : 15);
 
-        buildVertices(builder, matrixStack, fluidHeight, x, z, u1, v1, u2, v2, light, brew.getColorAndAlpha(partialTicks));
+        buildVertices(builder, matrixStack, fluidHeight, x, z, u1, v1, u2, v2, light, color);
     }
 
     private static void buildVertices(IVertexBuilder builder, MatrixStack matrixStack, float height, int x, int z, float u1, float v1, float u2, float v2, int light, int color) {

@@ -22,13 +22,29 @@ public class CauldronFluidTank extends FluidTank {
     }
 
     public void clear() {
+        if (!isEmpty()) {
+            cauldron.setFluidOrBrewChanged();
+        }
         setFluid(FluidStack.EMPTY);
+    }
+
+    @Override
+    public void setFluid(FluidStack stack) {
+        if (!stack.isFluidEqual(getFluid())) {
+            cauldron.setFluidOrBrewChanged();
+        }
+        super.setFluid(stack);
     }
 
     @Override
     public int fill(FluidStack resource, FluidAction action) {
         if (cauldron.canTransferFluids()) {
-            return super.fill(resource, action);
+            FluidStack previousFluid = action == FluidAction.EXECUTE ? getFluid().copy() : null;
+            int result = super.fill(resource, action);
+            if (action == FluidAction.EXECUTE && !previousFluid.isFluidEqual(getFluid())) {
+                cauldron.setFluidOrBrewChanged();
+            }
+            return result;
         }
         return 0;
     }
@@ -36,7 +52,12 @@ public class CauldronFluidTank extends FluidTank {
     @Override
     public FluidStack drain(int maxDrain, FluidAction action) {
         if (cauldron.canTransferFluids()) {
-            return super.drain(maxDrain, action);
+            FluidStack previousFluid = action == FluidAction.EXECUTE ? getFluid().copy() : null;
+            FluidStack result = super.drain(maxDrain, action);
+            if (action == FluidAction.EXECUTE && !previousFluid.isFluidEqual(getFluid())) {
+                cauldron.setFluidOrBrewChanged();
+            }
+            return result;
         }
         return FluidStack.EMPTY;
     }
