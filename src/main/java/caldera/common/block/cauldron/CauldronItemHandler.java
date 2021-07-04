@@ -39,9 +39,8 @@ public class CauldronItemHandler extends ItemStackHandler {
     public void addItem(ItemStack stack) {
         if (!isFull() && !stack.isEmpty()) {
             stacks.set(getNextEmptySlot(), stack.split(1));
-            cauldron.onIngredientsUpdated();
+            onContentsChanged();
         }
-        onContentsChanged();
     }
 
     public void clear() {

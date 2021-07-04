@@ -7,7 +7,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipeSerializer;
 import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.network.PacketBuffer;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.JSONUtils;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
@@ -52,7 +51,7 @@ public abstract class OrderedCauldronRecipe<RESULT> implements CauldronRecipe<RE
     }
 
     @Override
-    public boolean matches(FluidStack fluid, IItemHandler inventory, TileEntity blockEntity) {
+    public boolean matches(FluidStack fluid, IItemHandler inventory, Cauldron cauldron) {
         if (!getFluidIngredient().test(fluid)) {
             return false;
         }

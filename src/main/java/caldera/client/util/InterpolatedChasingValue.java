@@ -23,7 +23,8 @@
  *
  * https://github.com/Creators-of-Create/Create/blob/3d825fe632c54e34772247863083ef70a8e6555c/src/main/java/com/simibubi/create/foundation/gui/widgets/InterpolatedChasingValue.java
  */
-package caldera.common.util.rendering;
+
+package caldera.client.util;
 
 public class InterpolatedChasingValue extends InterpolatedValue {
 

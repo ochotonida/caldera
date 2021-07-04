@@ -28,6 +28,20 @@ public interface Brew {
     }
 
     /**
+     * Called immediately after this brew has been added to the cauldron
+     */
+    default void onBrewed() {
+
+    }
+
+    /**
+     * Called once every tick
+     */
+    default void tick() {
+
+    }
+
+    /**
      * Called every tick for every entity inside the cauldron
      *
      * @param entity an entity inside the cauldron

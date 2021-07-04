@@ -9,7 +9,6 @@ import net.minecraft.item.crafting.IRecipeSerializer;
 import net.minecraft.item.crafting.IRecipeType;
 import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.network.PacketBuffer;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.items.IItemHandler;
@@ -26,7 +25,7 @@ public class CauldronItemRecipe extends OrderedCauldronRecipe<ItemStack> {
     }
 
     @Override
-    public ItemStack assemble(FluidStack fluid, IItemHandler inventory, TileEntity blockEntity) {
+    public ItemStack assemble(FluidStack fluid, IItemHandler inventory, Cauldron cauldron) {
         return result.copy();
     }
 

@@ -1,13 +1,13 @@
 package caldera.common.recipe.brew.sludge;
 
+import caldera.client.util.ColorHelper;
 import caldera.common.init.ModRecipeTypes;
+import caldera.common.recipe.Cauldron;
 import caldera.common.recipe.brew.BrewType;
-import caldera.common.util.ColorHelper;
 import com.google.gson.JsonObject;
 import net.minecraft.item.crafting.IRecipeSerializer;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.PacketBuffer;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.items.IItemHandler;
@@ -16,11 +16,11 @@ import net.minecraftforge.registries.ForgeRegistryEntry;
 public class SludgeBrewType implements BrewType<SludgeBrew> {
 
     private final ResourceLocation id;
-    private final SludgeBrew instance;
+    private final int color;
 
     public SludgeBrewType(ResourceLocation id, int color) {
         this.id = id;
-        instance = new SludgeBrew(this, color);
+        this.color = color;
     }
 
     @Override
@@ -29,18 +29,18 @@ public class SludgeBrewType implements BrewType<SludgeBrew> {
     }
 
     @Override
-    public boolean matches(FluidStack fluid, IItemHandler inventory, TileEntity blockEntity) {
+    public boolean matches(FluidStack fluid, IItemHandler inventory, Cauldron cauldron) {
         return false;
     }
 
     @Override
-    public SludgeBrew assemble(FluidStack fluid, IItemHandler inventory, TileEntity blockEntity) {
-        return instance;
+    public SludgeBrew assemble(FluidStack fluid, IItemHandler inventory, Cauldron cauldron) {
+        return new SludgeBrew(this, cauldron, color);
     }
 
     @Override
-    public SludgeBrew loadBrew(CompoundNBT nbt, TileEntity blockEntity) {
-        return instance;
+    public SludgeBrew loadBrew(CompoundNBT nbt, Cauldron cauldron) {
+        return new SludgeBrew(this, cauldron, color);
     }
 
     @Override
@@ -64,7 +64,7 @@ public class SludgeBrewType implements BrewType<SludgeBrew> {
 
         @Override
         public void toNetwork(PacketBuffer buffer, SludgeBrewType type) {
-            buffer.writeInt(type.instance.getColor(0));
+            buffer.writeInt(type.color);
         }
     }
 }

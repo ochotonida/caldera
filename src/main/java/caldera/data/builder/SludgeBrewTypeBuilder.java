@@ -1,8 +1,8 @@
 package caldera.data.builder;
 
 import caldera.Caldera;
+import caldera.client.util.ColorHelper;
 import caldera.common.init.ModRecipeTypes;
-import caldera.common.util.ColorHelper;
 import com.google.gson.JsonObject;
 import net.minecraft.data.IFinishedRecipe;
 import net.minecraft.item.crafting.IRecipeSerializer;

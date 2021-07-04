@@ -1,25 +1,31 @@
 package caldera.common.block.cauldron;
 
 import caldera.Caldera;
+import caldera.client.util.InterpolatedChasingValue;
+import caldera.client.util.InterpolatedLinearChasingValue;
 import caldera.common.init.ModBlockEntityTypes;
 import caldera.common.init.ModRecipeTypes;
 import caldera.common.init.ModSoundEvents;
 import caldera.common.init.ModTags;
+import caldera.common.recipe.Cauldron;
 import caldera.common.recipe.CauldronRecipe;
 import caldera.common.recipe.brew.Brew;
 import caldera.common.recipe.brew.BrewType;
 import caldera.common.util.RecipeHelper;
-import caldera.common.util.rendering.InterpolatedChasingValue;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.fluid.Fluid;
+import net.minecraft.fluid.Fluids;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipeType;
 import net.minecraft.item.crafting.RecipeManager;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SUpdateTileEntityPacket;
+import net.minecraft.particles.IParticleData;
+import net.minecraft.particles.ParticleTypes;
 import net.minecraft.state.properties.DoubleBlockHalf;
 import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.tileentity.TileEntity;
@@ -41,20 +47,22 @@ import net.minecraftforge.items.wrapper.EmptyHandler;
 import javax.annotation.Nullable;
 import java.util.Collection;
 
-public class CauldronBlockEntity extends TileEntity implements ITickableTileEntity  {
+public class CauldronBlockEntity extends TileEntity implements Cauldron, ITickableTileEntity  {
 
     private static final ResourceLocation SLUDGE_TYPE = new ResourceLocation(Caldera.MODID, "brew_types/sludge");
+    private static final int BREW_TIME = 60;
 
     private LazyOptional<IItemHandler> itemHandler = LazyOptional.of(() -> EmptyHandler.INSTANCE);
     private LazyOptional<IFluidHandler> fluidHandler = LazyOptional.of(() -> EmptyFluidHandler.INSTANCE);
     protected final CauldronFluidTank fluidTank;
     protected final CauldronItemHandler inventory;
     private Brew brew;
+    private int brewTimeRemaining;
 
-    // Exclusively used for rendering
+    // Exclusively used for rendering TODO make water change color when it contains items
     protected final InterpolatedChasingValue fluidLevel;
-    protected final InterpolatedChasingValue previousFluidAlpha;
-    protected final InterpolatedChasingValue fluidAlpha;
+    protected final InterpolatedLinearChasingValue previousFluidAlpha;
+    protected final InterpolatedLinearChasingValue fluidAlpha;
     private boolean fluidOrBrewChanged;
     private FluidStack previousFluid;
     private Brew previousBrew;
@@ -65,8 +73,8 @@ public class CauldronBlockEntity extends TileEntity implements ITickableTileEnti
         inventory = new CauldronItemHandler(this);
 
         fluidLevel = new InterpolatedChasingValue().withSpeed(1/2F).start(0);
-        previousFluidAlpha = new InterpolatedChasingValue().withSpeed(1/8F).start(0);
-        fluidAlpha = new InterpolatedChasingValue().withSpeed(1/8F).start(1);
+        previousFluidAlpha = new InterpolatedLinearChasingValue().withStep(1/20F).start(0);
+        fluidAlpha = new InterpolatedLinearChasingValue().withStep(1/20F).start(1);
 
         previousFluid = FluidStack.EMPTY;
         previousBrew = null;
@@ -87,7 +95,7 @@ public class CauldronBlockEntity extends TileEntity implements ITickableTileEnti
         return getLevel() != null && LargeCauldronBlock.isOrigin(getBlockState());
     }
 
-    private Vector3d getCauldronCenter() {
+    public Vector3d getCenter() {
         CauldronBlockEntity controller = getController();
 
         if (controller == null) {
@@ -161,27 +169,74 @@ public class CauldronBlockEntity extends TileEntity implements ITickableTileEnti
 
     @Override
     public void tick() {
-        if (getLevel() == null) {
-            return;
-        }
-
         if (!fluidHandler.isPresent()) {
             setupCapabilities();
         }
 
+        if (isController()) {
+            tickController();
+        }
+    }
+
+    public void tickController() {
+        if (getLevel() == null) {
+            return;
+        }
+
+        updateBrewing();
+
         if (getLevel().isClientSide()) {
             fluidLevel.tick();
             fluidAlpha.tick();
-            if (Math.abs(fluidAlpha.getTarget() - fluidAlpha.value) < 1 / 3D) {
+            if (Math.abs(fluidAlpha.getTarget() - fluidAlpha.value) < 1 / 2F) {
                 previousFluidAlpha.tick();
             }
         }
     }
 
+    private void updateBrewing() {
+        if (brewTimeRemaining-- > 0 && getLevel() != null) {
+            if (getLevel().isClientSide()) {
+                spawnParticles(ParticleTypes.ENTITY_EFFECT, 1, getFluidParticleColor());
+            } else if (brewTimeRemaining == 0) {
+                craftFromCurrentIngredients();
+            }
+        }
+    }
+
+    public void spawnParticles(IParticleData particleData, int amount, double r, double g, double b) {
+        if (getLevel() == null) {
+            return;
+        }
+
+        double y = getBlockPos().getY() + getFluidLevel() + 4 / 16D + 0.5 / 16D;
+
+        for (int i = 0; i < amount; i++) {
+            double x = getBlockPos().getX() + getLevel().getRandom().nextDouble() * 26 / 16D + 3 / 16D;
+            double z = getBlockPos().getZ() + getLevel().getRandom().nextDouble() * 26 / 16D + 3 / 16D;
+
+            getLevel().addParticle(particleData, x, y, z, r, g, b);
+        }
+    }
+
+    private int getFluidParticleColor() {
+        if (hasFluid()) {
+            FluidStack fluidStack = getFluid();
+            Fluid fluid = fluidStack.getFluid();
+            if (fluid != Fluids.WATER) {
+                int color = fluid.getAttributes().getColor(fluidStack);
+                if (color > 0) {
+                    return color;
+                }
+            }
+        }
+        return Fluids.WATER.getAttributes().getColor(getLevel(), getBlockPos());
+    }
+
     protected void onEntityInside(Entity entity, double yOffset) {
         if (hasBrew()) {
             getBrew().onEntityInside(entity, yOffset);
-        } else if (!entity.level.isClientSide() && entity instanceof ItemEntity) {
+        } else if (entity instanceof ItemEntity) {
             onItemInside((ItemEntity) entity, yOffset);
         }
     }
@@ -189,7 +244,8 @@ public class CauldronBlockEntity extends TileEntity implements ITickableTileEnti
     private void onItemInside(ItemEntity itemEntity, double yOffset) {
         CompoundNBT itemData = itemEntity.getPersistentData();
 
-        if (itemEntity.getDeltaMovement().y() <= 0
+        if (!itemEntity.level.isClientSide()
+                && itemEntity.getDeltaMovement().y() <= 0
                 && !itemData.contains("InitialDeltaMovement", Constants.NBT.TAG_COMPOUND)
         ) {
             CompoundNBT nbt = new CompoundNBT();
@@ -212,6 +268,14 @@ public class CauldronBlockEntity extends TileEntity implements ITickableTileEnti
 
     private void addItemToCauldron(ItemEntity itemEntity) {
         if (getLevel() == null) {
+            return;
+        }
+
+        if (isValidIngredient(itemEntity.getItem()) && !inventory.isFull()) {
+            brewTimeRemaining = BREW_TIME;
+        }
+
+        if (itemEntity.level.isClientSide()) {
             return;
         }
 
@@ -247,30 +311,12 @@ public class CauldronBlockEntity extends TileEntity implements ITickableTileEnti
 
             inventory.addItem(stack);
         } else {
-            getLevel().playSound(
-                    null,
-                    itemEntity.getX(),
-                    itemEntity.getY(),
-                    itemEntity.getZ(),
-                    ModSoundEvents.CAULDRON_RETURN_INERT_INGREDIENT.get(),
-                    SoundCategory.BLOCKS,
-                    0.5F,
-                    1
-            );
+            getLevel().playSound(null, itemEntity.getX(), itemEntity.getY(), itemEntity.getZ(), ModSoundEvents.CAULDRON_RETURN_INERT_INGREDIENT.get(), SoundCategory.BLOCKS, 0.5F, 1);
         }
 
         spawnInCauldron(remainder, motion);
 
-        getLevel().playSound(
-                null,
-                itemEntity.getX(),
-                itemEntity.getY(),
-                itemEntity.getZ(),
-                SoundEvents.GENERIC_SPLASH,
-                SoundCategory.BLOCKS,
-                1,
-                1
-        );
+        getLevel().playSound(null, itemEntity.getX(), itemEntity.getY(), itemEntity.getZ(), SoundEvents.GENERIC_SPLASH, SoundCategory.BLOCKS, 1, 1);
         itemEntity.remove();
     }
 
@@ -283,7 +329,7 @@ public class CauldronBlockEntity extends TileEntity implements ITickableTileEnti
             return;
         }
 
-        Vector3d position = getCauldronCenter();
+        Vector3d position = getCenter();
 
         ItemEntity itemEntity = new ItemEntity(getLevel(), position.x(), position.y(), position.z(), stack);
         itemEntity.setDefaultPickUpDelay();
@@ -291,7 +337,7 @@ public class CauldronBlockEntity extends TileEntity implements ITickableTileEnti
         getLevel().addFreshEntity(itemEntity);
     }
 
-    protected void onIngredientsUpdated() {
+    private void craftFromCurrentIngredients() {
         if (getLevel() == null) {
             return;
         }
@@ -349,6 +395,7 @@ public class CauldronBlockEntity extends TileEntity implements ITickableTileEnti
 
         inventory.clear();
         fluidTank.clear();
+        brewTimeRemaining = 0;
         sendUpdatePacket();
         setChanged();
     }
@@ -358,6 +405,7 @@ public class CauldronBlockEntity extends TileEntity implements ITickableTileEnti
 
         inventory.clear();
         fluidTank.setFluid(result);
+        brewTimeRemaining = 0;
         sendUpdatePacket();
         setChanged();
     }
@@ -378,9 +426,12 @@ public class CauldronBlockEntity extends TileEntity implements ITickableTileEnti
 
         inventory.clear();
         fluidTank.clear();
+        brewTimeRemaining = 0;
         setFluidOrBrewChanged();
         sendUpdatePacket();
         setChanged();
+
+        brew.onBrewed();
     }
 
     protected void setFluidOrBrewChanged() {
@@ -473,6 +524,9 @@ public class CauldronBlockEntity extends TileEntity implements ITickableTileEnti
                 if (!wasEmpty) {
                     previousFluidAlpha.start(1).target(0);
                     fluidAlpha.start(0).target(1);
+                }
+                if (brew != null) {
+                    brew.onBrewed();
                 }
             }
         } else {
