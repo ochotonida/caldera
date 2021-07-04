@@ -51,6 +51,11 @@ public class CauldronBlockEntityRenderer extends TileEntityRenderer<CauldronBloc
         }
     }
 
+    @Override
+    public boolean shouldRenderOffScreen(CauldronBlockEntity cauldron) {
+        return cauldron.isController();
+    }
+
     public static void renderFluid(CauldronBlockEntity cauldron, FluidStack fluidStack, float fluidHeight, int x, int z, IRenderTypeBuffer buffer, MatrixStack matrixStack, int light, float alpha) {
         if (fluidStack.isEmpty()) {
             return;
