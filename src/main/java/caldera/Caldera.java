@@ -26,5 +26,6 @@ public class Caldera {
         ModItems.REGISTRY.register(modEventBus);
         ModRecipeTypes.REGISTRY.register(modEventBus);
         ModSoundEvents.REGISTRY.register(modEventBus);
+        ModParticleTypes.REGISTRY.register(modEventBus);
     }
 }

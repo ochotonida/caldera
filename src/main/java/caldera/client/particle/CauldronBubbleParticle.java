@@ -1,13 +1,22 @@
 package caldera.client.particle;
 
-import net.minecraft.client.particle.*;
+import net.minecraft.client.particle.IAnimatedSprite;
+import net.minecraft.client.particle.IParticleFactory;
+import net.minecraft.client.particle.IParticleRenderType;
+import net.minecraft.client.particle.Particle;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.particles.BasicParticleType;
 
-public class CauldronBubbleParticle extends SpriteTexturedParticle {
+public class CauldronBubbleParticle extends AnimatedParticle {
 
-    protected CauldronBubbleParticle(ClientWorld level, double x, double y, double z, double r, double g, double b) {
-        super(level, x, y, z);
+    protected CauldronBubbleParticle(ClientWorld level, double x, double y, double z, double r, double g, double b, IAnimatedSprite sprite) {
+        super(level, x, y, z, sprite);
+
+        rCol = (float) r;
+        gCol = (float) g;
+        bCol = (float) b;
+
+        lifetime = 15;
     }
 
     @Override
@@ -24,7 +33,7 @@ public class CauldronBubbleParticle extends SpriteTexturedParticle {
         }
 
         public Particle createParticle(BasicParticleType type, ClientWorld level, double x, double y, double z, double r, double g, double b) {
-            CauldronBubbleParticle particle = new CauldronBubbleParticle(level, x, y, z, r, g, b);
+            CauldronBubbleParticle particle = new CauldronBubbleParticle(level, x, y, z, r, g, b, sprite);
             particle.pickSprite(sprite);
             return particle;
         }

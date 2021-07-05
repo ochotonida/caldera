@@ -84,6 +84,10 @@ public class LargeCauldronBlock extends CubeMultiBlock {
                 && state.getValue(LargeCauldronBlock.HALF) == DoubleBlockHalf.LOWER;
     }
 
+    private static boolean isInsideCauldron(BlockState state, Vector3d vector) {
+        return isInsideCauldron(state, vector.x(), vector.y(), vector.z());
+    }
+
     private static boolean isInsideCauldron(BlockState state, double x, double y, double z) {
         double wallWidth = 1.99 / 16D;
         double floorHeight = 3.99 / 16D;
@@ -163,7 +167,7 @@ public class LargeCauldronBlock extends CubeMultiBlock {
     public ActionResultType use(BlockState state, World level, BlockPos pos, PlayerEntity player, Hand hand, BlockRayTraceResult rayTraceResult) {
         Vector3d hitOffset = rayTraceResult.getLocation().subtract(pos.getX(), pos.getY(), pos.getZ());
 
-        if (isInsideCauldron(state, hitOffset.x, hitOffset.y, hitOffset.z)) {
+        if (isInsideCauldron(state, hitOffset)) {
             CauldronBlockEntity controller = getController(state, pos, level);
             if (controller != null) {
                 return controller.onUse(player, hand);

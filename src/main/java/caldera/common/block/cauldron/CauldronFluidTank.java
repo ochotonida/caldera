@@ -28,6 +28,10 @@ public class CauldronFluidTank extends FluidTank {
         setFluid(FluidStack.EMPTY);
     }
 
+    public boolean isFull() {
+        return getSpace() <= 0;
+    }
+
     @Override
     public void setFluid(FluidStack stack) {
         if (!stack.isFluidEqual(getFluid())) {

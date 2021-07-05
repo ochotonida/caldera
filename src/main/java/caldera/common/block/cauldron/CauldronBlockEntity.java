@@ -3,10 +3,7 @@ package caldera.common.block.cauldron;
 import caldera.Caldera;
 import caldera.client.util.InterpolatedChasingValue;
 import caldera.client.util.InterpolatedLinearChasingValue;
-import caldera.common.init.ModBlockEntityTypes;
-import caldera.common.init.ModRecipeTypes;
-import caldera.common.init.ModSoundEvents;
-import caldera.common.init.ModTags;
+import caldera.common.init.*;
 import caldera.common.recipe.Cauldron;
 import caldera.common.recipe.CauldronRecipe;
 import caldera.common.recipe.brew.Brew;
@@ -186,6 +183,10 @@ public class CauldronBlockEntity extends TileEntity implements Cauldron, ITickab
         updateBrewing();
 
         if (getLevel().isClientSide()) {
+            if (fluidTank.isFull()) {
+                spawnParticles(ModParticleTypes.CAULDRON_BUBBLE.get(), 2, getFluidParticleColor());
+            }
+
             fluidLevel.tick();
             fluidAlpha.tick();
             if (Math.abs(fluidAlpha.getTarget() - fluidAlpha.value) < 1 / 2F) {
@@ -201,6 +202,10 @@ public class CauldronBlockEntity extends TileEntity implements Cauldron, ITickab
             } else if (brewTimeRemaining == 0) {
                 craftFromCurrentIngredients();
             }
+        }
+
+        if (hasBrew()) {
+            brew.tick();
         }
     }
 
@@ -258,7 +263,7 @@ public class CauldronBlockEntity extends TileEntity implements Cauldron, ITickab
             itemData.put("InitialDeltaMovement", nbt);
         }
 
-        if (fluidTank.getSpace() <= 0
+        if (fluidTank.isFull()
                 && itemEntity.getDeltaMovement().y() <= 0
                 && yOffset < 0.2
         ) {

@@ -1,5 +1,6 @@
 package caldera.common.recipe.brew.sludge;
 
+import caldera.client.util.ColorHelper;
 import caldera.common.recipe.Cauldron;
 import caldera.common.recipe.brew.Brew;
 import net.minecraft.nbt.CompoundNBT;
@@ -10,11 +11,19 @@ public class SludgeBrew implements Brew {
     private final SludgeBrewType type;
     private final Cauldron cauldron;
     private final int color;
+    private final int particleColor;
+
+    private int ticks;
 
     public SludgeBrew(SludgeBrewType type, Cauldron cauldron, int color) {
         this.type = type;
         this.cauldron = cauldron;
         this.color = color;
+        this.particleColor = ColorHelper.fromRGB(
+                ColorHelper.getRed(color) / 2,
+                ColorHelper.getGreen(color) / 2,
+                ColorHelper.getBlue(color) / 2
+        );
     }
 
     @Override
@@ -29,7 +38,16 @@ public class SludgeBrew implements Brew {
 
     @Override
     public void onBrewed() {
-        cauldron.spawnParticles(ParticleTypes.ENTITY_EFFECT, 50, color);
+        cauldron.spawnParticles(ParticleTypes.ENTITY_EFFECT, 50, particleColor);
+    }
+
+    @Override
+    public void tick() {
+        ticks++;
+
+        if (ticks % 2 == 0 && cauldron.getLevel() != null && cauldron.getLevel().isClientSide()) {
+            cauldron.spawnParticles(ParticleTypes.ENTITY_EFFECT, 1, particleColor);
+        }
     }
 
     @Override
