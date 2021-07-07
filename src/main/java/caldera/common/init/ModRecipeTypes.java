@@ -1,6 +1,7 @@
 package caldera.common.init;
 
 import caldera.Caldera;
+import caldera.common.recipe.CauldronBrewingRecipe;
 import caldera.common.recipe.CauldronFluidRecipe;
 import caldera.common.recipe.CauldronItemRecipe;
 import caldera.common.recipe.CauldronRecipe;
@@ -22,9 +23,11 @@ public class ModRecipeTypes {
 
     public static final IRecipeType<CauldronRecipe<ItemStack>> CAULDRON_ITEM_CRAFTING = IRecipeType.register(new ResourceLocation(Caldera.MODID, "cauldron_item").toString());
     public static final IRecipeType<CauldronRecipe<FluidStack>> CAULDRON_FLUID_CRAFTING = IRecipeType.register(new ResourceLocation(Caldera.MODID, "cauldron_fluid").toString());
+    public static final IRecipeType<CauldronRecipe<ResourceLocation>> CAULDRON_BREWING = IRecipeType.register(new ResourceLocation(Caldera.MODID, "cauldron_brewing").toString());
     public static final IRecipeType<BrewType<Brew>> BREW_TYPE = IRecipeType.register(new ResourceLocation(Caldera.MODID, "brew_type").toString());
 
     public static final RegistryObject<IRecipeSerializer<?>> CAULDRON_ITEM_CRAFTING_SERIALIZER = REGISTRY.register("cauldron_item", CauldronItemRecipe.Serializer::new);
     public static final RegistryObject<IRecipeSerializer<?>> CAULDRON_FLUID_CRAFTING_SERIALIZER = REGISTRY.register("cauldron_fluid", CauldronFluidRecipe.Serializer::new);
+    public static final RegistryObject<IRecipeSerializer<?>> CAULDRON_BREWING_SERIALIZER = REGISTRY.register("cauldron_brewing", CauldronBrewingRecipe.Serializer::new);
     public static final RegistryObject<IRecipeSerializer<?>> SLUDGE_BREW_SERIALIZER = REGISTRY.register("sludge_brew", SludgeBrewType.Serializer::new);
 }

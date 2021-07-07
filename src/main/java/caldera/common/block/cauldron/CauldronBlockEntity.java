@@ -361,23 +361,20 @@ public class CauldronBlockEntity extends TileEntity implements Cauldron, ITickab
         RecipeManager manager = getLevel().getRecipeManager();
 
         CauldronRecipe<ItemStack> itemRecipe = findMatchingRecipe(manager, ModRecipeTypes.CAULDRON_ITEM_CRAFTING);
-
         if (itemRecipe != null) {
             craftItem(itemRecipe);
             return;
         }
 
         CauldronRecipe<FluidStack> fluidRecipe = findMatchingRecipe(manager, ModRecipeTypes.CAULDRON_FLUID_CRAFTING);
-
         if (fluidRecipe != null) {
             craftFluid(fluidRecipe);
             return;
         }
 
-        BrewType<?> brewType = findMatchingRecipe(manager, ModRecipeTypes.BREW_TYPE);
-
-        if (brewType != null) {
-            createBrew(brewType);
+        CauldronRecipe<ResourceLocation> brewRecipe = findMatchingRecipe(manager, ModRecipeTypes.CAULDRON_BREWING);
+        if (brewRecipe != null) {
+            craftBrew(brewRecipe);
             return;
         }
 
@@ -429,19 +426,21 @@ public class CauldronBlockEntity extends TileEntity implements Cauldron, ITickab
         setChanged();
     }
 
-    protected void setBrewToSludge() {
-        BrewType<?> brewType = RecipeHelper.byType(ModRecipeTypes.BREW_TYPE).get(SLUDGE_TYPE);
+    private void craftBrew(CauldronRecipe<ResourceLocation> recipe) {
+        ResourceLocation result = assembleRecipe(recipe);
+        createBrew(result);
+    }
+
+    protected void createBrew(ResourceLocation brewTypeId) {
+        BrewType<?> brewType = RecipeHelper.byType(ModRecipeTypes.BREW_TYPE).get(brewTypeId);
 
         if (brewType == null) {
-            Caldera.LOGGER.error("Failed to load brew type {} for cauldron at {}", SLUDGE_TYPE.toString(), getBlockPos());
+            Caldera.LOGGER.error("Failed to load brew type {} for cauldron at {}", brewTypeId.toString(), getBlockPos());
+            brew = null;
             return;
         }
 
-        createBrew(brewType);
-    }
-
-    protected void createBrew(BrewType<?> brewType) {
-        brew = assembleRecipe(brewType);
+        brew = brewType.assemble(getFluid(), inventory, this);
 
         inventory.clear();
         fluidTank.clear();
@@ -451,6 +450,10 @@ public class CauldronBlockEntity extends TileEntity implements Cauldron, ITickab
         setChanged();
 
         brew.onBrewed();
+    }
+
+    protected void setBrewToSludge() {
+        createBrew(SLUDGE_TYPE);
     }
 
     protected void setFluidOrBrewChanged() {

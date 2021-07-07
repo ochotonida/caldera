@@ -29,11 +29,6 @@ public class SludgeBrewType implements BrewType<SludgeBrew> {
     }
 
     @Override
-    public boolean matches(FluidStack fluid, IItemHandler inventory, Cauldron cauldron) {
-        return false;
-    }
-
-    @Override
     public SludgeBrew assemble(FluidStack fluid, IItemHandler inventory, Cauldron cauldron) {
         return new SludgeBrew(this, cauldron, color);
     }
