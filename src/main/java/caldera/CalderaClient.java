@@ -1,8 +1,8 @@
 package caldera;
 
-import caldera.client.particle.CauldronBubbleParticle;
 import caldera.common.init.ModBlockEntityTypes;
 import caldera.common.init.ModParticleTypes;
+import caldera.common.particle.CauldronBubbleParticle;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.ParticleManager;
 import net.minecraft.inventory.container.PlayerContainer;

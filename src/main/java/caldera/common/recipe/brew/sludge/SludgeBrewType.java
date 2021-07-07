@@ -1,9 +1,9 @@
 package caldera.common.recipe.brew.sludge;
 
-import caldera.client.util.ColorHelper;
 import caldera.common.init.ModRecipeTypes;
 import caldera.common.recipe.Cauldron;
 import caldera.common.recipe.brew.BrewType;
+import caldera.common.util.ColorHelper;
 import com.google.gson.JsonObject;
 import net.minecraft.item.crafting.IRecipeSerializer;
 import net.minecraft.nbt.CompoundNBT;

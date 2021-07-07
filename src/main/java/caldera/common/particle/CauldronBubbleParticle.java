@@ -1,4 +1,4 @@
-package caldera.client.particle;
+package caldera.common.particle;
 
 import net.minecraft.client.particle.IAnimatedSprite;
 import net.minecraft.client.particle.IParticleFactory;

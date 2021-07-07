@@ -21,45 +21,34 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  *
- * https://github.com/Creators-of-Create/Create/blob/3d825fe632c54e34772247863083ef70a8e6555c/src/main/java/com/simibubi/create/foundation/gui/widgets/InterpolatedChasingValue.java
+ * https://github.com/Creators-of-Create/Create/blob/3d825fe632c54e34772247863083ef70a8e6555c/src/main/java/com/simibubi/create/foundation/gui/widgets/InterpolatedValue.java
  */
 
-package caldera.client.util;
+package caldera.common.util.rendering;
 
-public class InterpolatedChasingValue extends InterpolatedValue {
+import net.minecraft.util.math.MathHelper;
 
-    float speed = 0.5f;
-    float target = 0;
-    float eps = 1 / 4096f;
+public class InterpolatedValue {
 
-    public void tick() {
-        float diff = getCurrentDiff();
-        if (Math.abs(diff) < eps)
-            return;
-        set(value + (diff) * speed);
-    }
+    public float value = 0;
+    public float lastValue = 0;
 
-    protected float getCurrentDiff() {
-        return getTarget() - value;
-    }
-
-    public InterpolatedChasingValue withSpeed(float speed) {
-        this.speed = speed;
+    public InterpolatedValue set(float value) {
+        lastValue = this.value;
+        this.value = value;
         return this;
     }
 
-    public InterpolatedChasingValue target(float target) {
-        this.target = target;
+    public InterpolatedValue init(float value) {
+        this.lastValue = this.value = value;
         return this;
     }
 
-    public InterpolatedChasingValue start(float value) {
-        lastValue = this.value = value;
-        target(value);
-        return this;
+    public float get(float partialTicks) {
+        return MathHelper.lerp(partialTicks, lastValue, value);
     }
 
-    public float getTarget() {
-        return target;
+    public boolean settled() {
+        return Math.abs(value - lastValue) < 1e-3;
     }
 }

@@ -1,4 +1,4 @@
-package caldera.client.util;
+package caldera.common.util;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;

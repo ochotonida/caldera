@@ -1,15 +1,15 @@
 package caldera.common.block.cauldron;
 
 import caldera.Caldera;
-import caldera.client.util.ColorHelper;
-import caldera.client.util.InterpolatedChasingValue;
-import caldera.client.util.InterpolatedLinearChasingValue;
 import caldera.common.init.*;
 import caldera.common.recipe.Cauldron;
 import caldera.common.recipe.CauldronRecipe;
 import caldera.common.recipe.brew.Brew;
 import caldera.common.recipe.brew.BrewType;
+import caldera.common.util.ColorHelper;
 import caldera.common.util.RecipeHelper;
+import caldera.common.util.rendering.InterpolatedChasingValue;
+import caldera.common.util.rendering.InterpolatedLinearChasingValue;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.ItemEntity;

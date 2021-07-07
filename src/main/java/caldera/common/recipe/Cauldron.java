@@ -1,6 +1,6 @@
 package caldera.common.recipe;
 
-import caldera.client.util.ColorHelper;
+import caldera.common.util.ColorHelper;
 import net.minecraft.particles.IParticleData;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;

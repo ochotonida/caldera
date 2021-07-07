@@ -1,8 +1,8 @@
 package caldera.common.block.cauldron;
 
 import caldera.Caldera;
-import caldera.client.util.ColorHelper;
 import caldera.common.recipe.brew.Brew;
+import caldera.common.util.ColorHelper;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 import net.minecraft.client.Minecraft;

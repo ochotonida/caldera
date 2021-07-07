@@ -1,4 +1,4 @@
-package caldera.client.util;
+package caldera.common.util.rendering;
 
 public class InterpolatedLinearChasingValue extends InterpolatedValue {
 
