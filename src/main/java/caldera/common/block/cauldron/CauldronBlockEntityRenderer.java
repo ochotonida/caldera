@@ -41,11 +41,12 @@ public class CauldronBlockEntityRenderer extends TileEntityRenderer<CauldronBloc
         for (int x = 0; x <= 1; x++) {
             for (int z = 0; z <= 1; z++) {
                 float previousAlpha = cauldron.previousFluidAlpha.get(partialTicks);
-                renderFluid(cauldron, cauldron.getPreviousFluid(), fluidLevel, x, z, buffer, matrixStack, light, previousAlpha);
+                renderFluid(cauldron, cauldron.getPreviousFluid(), fluidLevel, x, z, buffer, matrixStack, light, previousAlpha, 1);
                 renderBrew(cauldron, cauldron.getPreviousBrew(), fluidLevel, x, z, partialTicks, buffer, matrixStack, light, previousAlpha);
 
                 float alpha = cauldron.fluidAlpha.get(partialTicks);
-                renderFluid(cauldron, cauldron.getFluid(), fluidLevel, x, z, buffer, matrixStack, light, alpha);
+                float brewingColorAlpha = cauldron.brewingColorAlpha.get(partialTicks);
+                renderFluid(cauldron, cauldron.getFluid(), fluidLevel, x, z, buffer, matrixStack, light, alpha, brewingColorAlpha);
                 renderBrew(cauldron, cauldron.getBrew(), fluidLevel, x, z, partialTicks, buffer, matrixStack, light, alpha);
             }
         }
@@ -56,7 +57,7 @@ public class CauldronBlockEntityRenderer extends TileEntityRenderer<CauldronBloc
         return cauldron.isController();
     }
 
-    public static void renderFluid(CauldronBlockEntity cauldron, FluidStack fluidStack, float fluidHeight, int x, int z, IRenderTypeBuffer buffer, MatrixStack matrixStack, int light, float alpha) {
+    public static void renderFluid(CauldronBlockEntity cauldron, FluidStack fluidStack, float fluidHeight, int x, int z, IRenderTypeBuffer buffer, MatrixStack matrixStack, int light, float alpha, float brewingColorAlpha) {
         if (fluidStack.isEmpty()) {
             return;
         }
@@ -74,6 +75,10 @@ public class CauldronBlockEntityRenderer extends TileEntityRenderer<CauldronBloc
             color = fluidAttributes.getColor(cauldron.getLevel(), cauldron.getBlockPos());
         } else {
             color = fluidAttributes.getColor(fluidStack);
+        }
+
+        if ((color & 0xFFFFFF) != 0xFFFFFF) {
+            color = ColorHelper.mixColors(color, ColorHelper.applyAlpha(CauldronBlockEntity.BREWING_COLOR, 1), brewingColorAlpha);
         }
 
         color = ColorHelper.applyAlpha(color, alpha);

@@ -1,6 +1,7 @@
 package caldera.common.block.cauldron;
 
 import caldera.Caldera;
+import caldera.client.util.ColorHelper;
 import caldera.client.util.InterpolatedChasingValue;
 import caldera.client.util.InterpolatedLinearChasingValue;
 import caldera.common.init.*;
@@ -56,10 +57,13 @@ public class CauldronBlockEntity extends TileEntity implements Cauldron, ITickab
     private Brew brew;
     private int brewTimeRemaining;
 
-    // Exclusively used for rendering TODO make water change color when it contains items
+    // Exclusively used for rendering
+    protected static final int BREWING_COLOR = 0xA3C740;
+
     protected final InterpolatedChasingValue fluidLevel;
     protected final InterpolatedLinearChasingValue previousFluidAlpha;
     protected final InterpolatedLinearChasingValue fluidAlpha;
+    protected final InterpolatedLinearChasingValue brewingColorAlpha;
     private boolean fluidOrBrewChanged;
     private FluidStack previousFluid;
     private Brew previousBrew;
@@ -72,6 +76,8 @@ public class CauldronBlockEntity extends TileEntity implements Cauldron, ITickab
         fluidLevel = new InterpolatedChasingValue().withSpeed(1/2F).start(0);
         previousFluidAlpha = new InterpolatedLinearChasingValue().withStep(1/20F).start(0);
         fluidAlpha = new InterpolatedLinearChasingValue().withStep(1/20F).start(1);
+
+        brewingColorAlpha = new InterpolatedLinearChasingValue().withStep(1/30F).start(0);
 
         previousFluid = FluidStack.EMPTY;
         previousBrew = null;
@@ -192,12 +198,13 @@ public class CauldronBlockEntity extends TileEntity implements Cauldron, ITickab
             if (Math.abs(fluidAlpha.getTarget() - fluidAlpha.value) < 1 / 2F) {
                 previousFluidAlpha.tick();
             }
+            brewingColorAlpha.tick();
         }
     }
 
     private void updateBrewing() {
         if (brewTimeRemaining-- > 0 && getLevel() != null) {
-            if (getLevel().isClientSide()) {
+            if (getLevel().isClientSide() && hasFluid()) {
                 spawnParticles(ParticleTypes.ENTITY_EFFECT, 1, getFluidParticleColor());
             } else if (brewTimeRemaining == 0) {
                 craftFromCurrentIngredients();
@@ -225,17 +232,18 @@ public class CauldronBlockEntity extends TileEntity implements Cauldron, ITickab
     }
 
     private int getFluidParticleColor() {
+        int color = 0xFFFFFF;
         if (hasFluid()) {
             FluidStack fluidStack = getFluid();
             Fluid fluid = fluidStack.getFluid();
             if (fluid != Fluids.WATER) {
-                int color = fluid.getAttributes().getColor(fluidStack);
-                if (color > 0) {
-                    return color;
-                }
+                color = fluid.getAttributes().getColor(fluidStack);
             }
         }
-        return Fluids.WATER.getAttributes().getColor(getLevel(), getBlockPos());
+        if ((color & 0xFFFFFF) == 0xFFFFFF) {
+            color = Fluids.WATER.getAttributes().getColor(getLevel(), getBlockPos());
+        }
+        return ColorHelper.mixColors(color, BREWING_COLOR, brewingColorAlpha.get(0));
     }
 
     protected void onEntityInside(Entity entity, double yOffset) {
@@ -278,9 +286,12 @@ public class CauldronBlockEntity extends TileEntity implements Cauldron, ITickab
 
         if (isValidIngredient(itemEntity.getItem()) && !inventory.isFull()) {
             brewTimeRemaining = BREW_TIME;
+            if (inventory.isEmpty()) {
+                brewingColorAlpha.target(1);
+            }
         }
 
-        if (itemEntity.level.isClientSide()) {
+        if (getLevel().isClientSide()) {
             return;
         }
 
@@ -409,6 +420,9 @@ public class CauldronBlockEntity extends TileEntity implements Cauldron, ITickab
         FluidStack result = assembleRecipe(recipe);
 
         inventory.clear();
+        if (!fluidTank.getFluid().isFluidEqual(result)) {
+            setFluidOrBrewChanged();
+        }
         fluidTank.setFluid(result);
         brewTimeRemaining = 0;
         sendUpdatePacket();
@@ -485,11 +499,17 @@ public class CauldronBlockEntity extends TileEntity implements Cauldron, ITickab
     public void handleUpdateTag(BlockState state, CompoundNBT tag) {
         super.handleUpdateTag(state, tag);
         readUpdateTag(tag);
+
+        if (tag.getBoolean("containsItems")) {
+            brewingColorAlpha.start(1);
+        }
     }
 
     @Override
     public CompoundNBT getUpdateTag() {
-        return createUpdateTag(super.getUpdateTag());
+        CompoundNBT updateTag = createUpdateTag(super.getUpdateTag());
+        updateTag.putBoolean("containsItems", !inventory.isEmpty());
+        return createUpdateTag(updateTag);
     }
 
     // sync client on block update
@@ -518,6 +538,7 @@ public class CauldronBlockEntity extends TileEntity implements Cauldron, ITickab
         loadBrew(nbt);
 
         if (fluidOrBrewChanged) {
+            brewingColorAlpha.start(0);
             if (isEmpty()) {
                 previousBrew = null;
                 previousFluid = FluidStack.EMPTY;

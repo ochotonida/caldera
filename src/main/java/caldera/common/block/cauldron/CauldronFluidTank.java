@@ -34,9 +34,6 @@ public class CauldronFluidTank extends FluidTank {
 
     @Override
     public void setFluid(FluidStack stack) {
-        if (!stack.isFluidEqual(getFluid())) {
-            cauldron.setFluidOrBrewChanged();
-        }
         super.setFluid(stack);
     }
 
