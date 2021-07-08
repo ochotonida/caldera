@@ -52,4 +52,21 @@ public interface Cauldron {
      * @param amount the amount of particles to spawn
      */
     void spawnParticles(IParticleData particleData, int amount, double xSpeed, double ySpeed, double zSpeed);
+
+    /**
+     * Spawn colored splash particles int the cauldron
+     * @param color the color of the particles
+     */
+    default void spawnSplashParticles(double x, double z, int color) {
+        double r = ColorHelper.getRed(color) / 255D;
+        double g = ColorHelper.getGreen(color) / 255D;
+        double b = ColorHelper.getBlue(color) / 255D;
+
+        spawnSplashParticles(x, z, r, g, b);
+    }
+
+    /**
+     * Spawn colored splash particles in the cauldron
+     */
+    void spawnSplashParticles(double x, double z, double r, double g, double b);
 }

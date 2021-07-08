@@ -3,6 +3,7 @@ package caldera;
 import caldera.common.init.ModBlockEntityTypes;
 import caldera.common.init.ModParticleTypes;
 import caldera.common.particle.CauldronBubbleParticle;
+import caldera.common.particle.CauldronSplashParticle;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.ParticleManager;
 import net.minecraft.inventory.container.PlayerContainer;
@@ -41,5 +42,6 @@ public class CalderaClient {
         ParticleManager manager = Minecraft.getInstance().particleEngine;
 
         manager.register(ModParticleTypes.CAULDRON_BUBBLE.get(), CauldronBubbleParticle.Factory::new);
+        manager.register(ModParticleTypes.CAULDRON_SPLASH.get(), CauldronSplashParticle.Factory::new);
     }
 }

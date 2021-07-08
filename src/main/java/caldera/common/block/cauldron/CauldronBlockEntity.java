@@ -231,6 +231,20 @@ public class CauldronBlockEntity extends TileEntity implements Cauldron, ITickab
         }
     }
 
+    @Override
+    public void spawnSplashParticles(double x, double z, double r, double g, double b) {
+        if (getLevel() == null) {
+            return;
+        }
+
+        double y = getBlockPos().getY() + getFluidLevel() + 4 / 16D + 0.5 / 16D;
+        int amount = 6;
+
+        for (int i = 0; i < amount; i++) {
+            getLevel().addParticle(ModParticleTypes.CAULDRON_SPLASH.get(), x, y, z, r, g, b);
+        }
+    }
+
     private int getFluidParticleColor() {
         int color = 0xFFFFFF;
         if (hasFluid()) {
@@ -292,6 +306,7 @@ public class CauldronBlockEntity extends TileEntity implements Cauldron, ITickab
         }
 
         if (getLevel().isClientSide()) {
+            spawnSplashParticles(itemEntity.getX(), itemEntity.getZ(), getFluidParticleColor());
             return;
         }
 

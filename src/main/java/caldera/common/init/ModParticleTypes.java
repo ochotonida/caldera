@@ -12,4 +12,5 @@ public class ModParticleTypes {
     public static final DeferredRegister<ParticleType<?>> REGISTRY = DeferredRegister.create(ForgeRegistries.PARTICLE_TYPES, Caldera.MODID);
 
     public static final RegistryObject<BasicParticleType> CAULDRON_BUBBLE = REGISTRY.register("cauldron_bubble", () -> new BasicParticleType(false));
+    public static final RegistryObject<BasicParticleType> CAULDRON_SPLASH = REGISTRY.register("cauldron_splash", () -> new BasicParticleType(false));
 }
