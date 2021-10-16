@@ -4,12 +4,12 @@ import caldera.common.init.ModRecipeTypes;
 import caldera.common.recipe.ingredient.FluidIngredient;
 import caldera.common.util.CraftingHelper;
 import com.google.gson.JsonObject;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipeSerializer;
-import net.minecraft.item.crafting.IRecipeType;
-import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.items.IItemHandler;
 
@@ -30,12 +30,12 @@ public class CauldronItemRecipe extends OrderedCauldronRecipe<ItemStack> {
     }
 
     @Override
-    public IRecipeSerializer<?> getSerializer() {
+    public RecipeSerializer<?> getSerializer() {
         return ModRecipeTypes.CAULDRON_ITEM_CRAFTING_SERIALIZER.get();
     }
 
     @Override
-    public IRecipeType<CauldronRecipe<ItemStack>> getType() {
+    public RecipeType<CauldronRecipe<ItemStack>> getType() {
         return ModRecipeTypes.CAULDRON_ITEM_CRAFTING;
     }
 
@@ -58,12 +58,12 @@ public class CauldronItemRecipe extends OrderedCauldronRecipe<ItemStack> {
         }
 
         @Override
-        public ItemStack readResult(PacketBuffer buffer) {
+        public ItemStack readResult(FriendlyByteBuf buffer) {
             return buffer.readItem();
         }
 
         @Override
-        public void writeResult(PacketBuffer buffer, CauldronItemRecipe recipe) {
+        public void writeResult(FriendlyByteBuf buffer, CauldronItemRecipe recipe) {
             buffer.writeItem(recipe.result);
         }
     }

@@ -5,9 +5,9 @@ import caldera.common.init.ModParticleTypes;
 import caldera.common.particle.CauldronBubbleParticle;
 import caldera.common.particle.CauldronSplashParticle;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.particle.ParticleManager;
-import net.minecraft.inventory.container.PlayerContainer;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.particle.ParticleEngine;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraftforge.client.event.ParticleFactoryRegisterEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -32,14 +32,14 @@ public class CalderaClient {
 
     @SubscribeEvent
     public void onTextureStitch(TextureStitchEvent.Pre event) {
-        if (event.getMap().location().equals(PlayerContainer.BLOCK_ATLAS)) {
+        if (event.getMap().location().equals(InventoryMenu.BLOCK_ATLAS)) {
             event.addSprite(new ResourceLocation(Caldera.MODID, "block/brew"));
         }
     }
 
     @SubscribeEvent
     public void onRegisterParticleFactories(ParticleFactoryRegisterEvent event) {
-        ParticleManager manager = Minecraft.getInstance().particleEngine;
+        ParticleEngine manager = Minecraft.getInstance().particleEngine;
 
         manager.register(ModParticleTypes.CAULDRON_BUBBLE.get(), CauldronBubbleParticle.Factory::new);
         manager.register(ModParticleTypes.CAULDRON_SPLASH.get(), CauldronSplashParticle.Factory::new);

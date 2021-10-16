@@ -1,6 +1,6 @@
 package caldera.common.init;
 
-import net.minecraft.block.SoundType;
+import net.minecraft.world.level.block.SoundType;
 import net.minecraftforge.common.util.ForgeSoundType;
 
 public class ModSoundTypes {

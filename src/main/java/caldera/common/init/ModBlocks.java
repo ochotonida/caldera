@@ -2,8 +2,8 @@ package caldera.common.init;
 
 import caldera.Caldera;
 import caldera.common.block.cauldron.LargeCauldronBlock;
-import net.minecraft.block.Block;
-import net.minecraft.block.material.Material;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.material.Material;
 import net.minecraftforge.common.ToolType;
 import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;

@@ -1,21 +1,21 @@
 package caldera.common.block;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.item.BlockItemUseContext;
-import net.minecraft.item.ItemStack;
-import net.minecraft.state.EnumProperty;
-import net.minecraft.state.StateContainer;
-import net.minecraft.state.properties.BlockStateProperties;
-import net.minecraft.state.properties.DoubleBlockHalf;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.math.vector.Vector3i;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Vec3i;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.util.Constants;
@@ -58,7 +58,7 @@ public abstract class CubeMultiBlock extends Block {
         return BlockPos.betweenClosedStream(origin, origin.offset(1, 1, 1));
     }
 
-    public static Vector3i getOffsetFromOrigin(BlockState state) {
+    public static Vec3i getOffsetFromOrigin(BlockState state) {
         Direction facing = state.getValue(FACING);
 
         Direction.AxisDirection axisDirectionX = facing.getAxis() == Direction.Axis.X
@@ -68,14 +68,14 @@ public abstract class CubeMultiBlock extends Block {
                 ? facing.getAxisDirection()
                 : facing.getCounterClockWise().getAxisDirection();
 
-        return new Vector3i(
+        return new Vec3i(
                 axisDirectionX == Direction.AxisDirection.NEGATIVE ? 1 : 0,
                 state.getValue(HALF) == DoubleBlockHalf.UPPER ? 1 : 0,
                 axisDirectionZ == Direction.AxisDirection.NEGATIVE ? 1 : 0
         );
     }
 
-    public static Direction getFacingFromOffset(Vector3i offset) {
+    public static Direction getFacingFromOffset(Vec3i offset) {
         Direction.AxisDirection axisDirectionX = offset.getX() == 0
                 ? Direction.AxisDirection.POSITIVE
                 : Direction.AxisDirection.NEGATIVE;
@@ -90,14 +90,14 @@ public abstract class CubeMultiBlock extends Block {
         }
     }
 
-    public static DoubleBlockHalf getHalfFromOffset(Vector3i offset) {
+    public static DoubleBlockHalf getHalfFromOffset(Vec3i offset) {
         return offset.getY() == 0 ? DoubleBlockHalf.LOWER : DoubleBlockHalf.UPPER;
     }
 
-    private static BlockPos getPosForPlacement(BlockItemUseContext blockPlaceContext) {
+    private static BlockPos getPosForPlacement(BlockPlaceContext blockPlaceContext) {
         Direction facing = blockPlaceContext.getClickedFace();
         BlockPos clickedPos = blockPlaceContext.getClickedPos();
-        Vector3d clickOffset = blockPlaceContext.getClickLocation().subtract(
+        Vec3 clickOffset = blockPlaceContext.getClickLocation().subtract(
                 clickedPos.getX(),
                 clickedPos.getY(),
                 clickedPos.getZ()
@@ -123,7 +123,7 @@ public abstract class CubeMultiBlock extends Block {
     }
 
     @Override
-    protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         super.createBlockStateDefinition(builder);
         builder.add(FACING);
         builder.add(HALF);
@@ -131,7 +131,7 @@ public abstract class CubeMultiBlock extends Block {
 
     @Override
     @SuppressWarnings("deprecation")
-    public void onRemove(BlockState currentState, World level, BlockPos replacedPos, BlockState newState, boolean isMoving) {
+    public void onRemove(BlockState currentState, Level level, BlockPos replacedPos, BlockState newState, boolean isMoving) {
         super.onRemove(currentState, level, replacedPos, newState, isMoving);
 
         if (level.isClientSide() || newState.is(this) || !currentState.is(this)) {
@@ -143,10 +143,10 @@ public abstract class CubeMultiBlock extends Block {
         replaceWithAir(level, replacedPos.relative(getFacing(currentState, Direction.Axis.Z)));
     }
 
-    private void replaceWithAir(World level, BlockPos pos) {
+    private void replaceWithAir(Level level, BlockPos pos) {
         BlockState state = level.getBlockState(pos);
         if (state.is(this)) {
-            Vector3i offset = getOffsetFromOrigin(state);
+            Vec3i offset = getOffsetFromOrigin(state);
             if (state.getValue(FACING) == getFacingFromOffset(offset)
                     && state.getValue(HALF) == getHalfFromOffset(offset)
             ) {
@@ -158,7 +158,7 @@ public abstract class CubeMultiBlock extends Block {
 
     @Nullable
     @Override
-    public BlockState getStateForPlacement(BlockItemUseContext blockPlaceContext) {
+    public BlockState getStateForPlacement(BlockPlaceContext blockPlaceContext) {
         BlockPos origin = getPosForPlacement(blockPlaceContext);
 
         if (origin.getY() < 0 || origin.getY() > 254 || streamShape(origin)
@@ -168,20 +168,20 @@ public abstract class CubeMultiBlock extends Block {
             return null;
         }
 
-        Vector3i offset = blockPlaceContext.getClickedPos().subtract(origin);
+        Vec3i offset = blockPlaceContext.getClickedPos().subtract(origin);
         return defaultBlockState()
                 .setValue(FACING, getFacingFromOffset(offset))
                 .setValue(HALF, getHalfFromOffset(offset));
     }
 
     @Override
-    public void setPlacedBy(World level, BlockPos clickedPos, BlockState placedState, LivingEntity entity, ItemStack stack) {
+    public void setPlacedBy(Level level, BlockPos clickedPos, BlockState placedState, LivingEntity entity, ItemStack stack) {
         BlockPos origin = getOrigin(placedState, clickedPos);
 
         streamShape(origin)
                 .filter(pos -> !pos.equals(clickedPos))
                 .forEach(pos -> {
-                    Vector3i offset = pos.subtract(origin);
+                    Vec3i offset = pos.subtract(origin);
                     BlockState stateForPlacement = placedState
                             .setValue(FACING, getFacingFromOffset(offset))
                             .setValue(HALF, getHalfFromOffset(offset));
@@ -193,6 +193,6 @@ public abstract class CubeMultiBlock extends Block {
     @OnlyIn(Dist.CLIENT)
     @SuppressWarnings("deprecation")
     public long getSeed(BlockState state, BlockPos pos) {
-        return MathHelper.getSeed(getOrigin(state, pos));
+        return Mth.getSeed(getOrigin(state, pos));
     }
 }

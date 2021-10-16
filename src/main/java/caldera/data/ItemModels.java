@@ -3,8 +3,8 @@ package caldera.data;
 import caldera.Caldera;
 import caldera.common.init.ModBlocks;
 import net.minecraft.data.DataGenerator;
-import net.minecraft.util.IItemProvider;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.ItemLike;
 import net.minecraftforge.client.model.generators.ItemModelProvider;
 import net.minecraftforge.common.data.ExistingFileHelper;
 
@@ -19,7 +19,7 @@ public class ItemModels extends ItemModelProvider {
         addGeneratedModel(ModBlocks.LARGE_CAULDRON.get());
     }
 
-    private void addGeneratedModel(IItemProvider item) {
+    private void addGeneratedModel(ItemLike item) {
         // noinspection ConstantConditions
         String name = item.asItem().getRegistryName().getPath();
         ResourceLocation texture = new ResourceLocation(Caldera.MODID, "item/" + name);

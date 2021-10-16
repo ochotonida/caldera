@@ -1,15 +1,15 @@
 package caldera.common.particle;
 
-import net.minecraft.client.particle.IAnimatedSprite;
-import net.minecraft.client.particle.IParticleFactory;
-import net.minecraft.client.particle.IParticleRenderType;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.particles.BasicParticleType;
+import net.minecraft.client.particle.ParticleProvider;
+import net.minecraft.client.particle.ParticleRenderType;
+import net.minecraft.client.particle.SpriteSet;
+import net.minecraft.core.particles.SimpleParticleType;
 
 public class CauldronBubbleParticle extends AnimatedParticle {
 
-    protected CauldronBubbleParticle(ClientWorld level, double x, double y, double z, double r, double g, double b, IAnimatedSprite sprite) {
+    protected CauldronBubbleParticle(ClientLevel level, double x, double y, double z, double r, double g, double b, SpriteSet sprite) {
         super(level, x, y, z, sprite);
 
         rCol = (float) r;
@@ -20,19 +20,19 @@ public class CauldronBubbleParticle extends AnimatedParticle {
     }
 
     @Override
-    public IParticleRenderType getRenderType() {
-        return IParticleRenderType.PARTICLE_SHEET_OPAQUE;
+    public ParticleRenderType getRenderType() {
+        return ParticleRenderType.PARTICLE_SHEET_OPAQUE;
     }
 
-    public static class Factory implements IParticleFactory<BasicParticleType> {
+    public static class Factory implements ParticleProvider<SimpleParticleType> {
 
-        private final IAnimatedSprite sprite;
+        private final SpriteSet sprite;
 
-        public Factory(IAnimatedSprite sprite) {
+        public Factory(SpriteSet sprite) {
             this.sprite = sprite;
         }
 
-        public Particle createParticle(BasicParticleType type, ClientWorld level, double x, double y, double z, double r, double g, double b) {
+        public Particle createParticle(SimpleParticleType type, ClientLevel level, double x, double y, double z, double r, double g, double b) {
             CauldronBubbleParticle particle = new CauldronBubbleParticle(level, x, y, z, r, g, b, sprite);
             particle.pickSprite(sprite);
             return particle;

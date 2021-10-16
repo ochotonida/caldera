@@ -1,17 +1,17 @@
 package caldera.common.recipe;
 
 import caldera.common.util.ColorHelper;
-import net.minecraft.particles.IParticleData;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
 
 public interface Cauldron {
 
     @Nullable
-    World getLevel();
+    Level getLevel();
 
     boolean hasLevel();
 
@@ -27,7 +27,7 @@ public interface Cauldron {
      *
      * @return The center of this cauldron, at the bottom of the basin
      */
-    Vector3d getCenter();
+    Vec3 getCenter();
 
     /**
      * Spawn particles at random positions in the cauldron at the current fluid height
@@ -37,7 +37,7 @@ public interface Cauldron {
      * @param amount the amount of particles to spawn
      * @param color the color of the particles
      */
-    default void spawnParticles(IParticleData particleData, int amount, int color) {
+    default void spawnParticles(ParticleOptions particleData, int amount, int color) {
         double r = ColorHelper.getRed(color) / 255D;
         double g = ColorHelper.getGreen(color) / 255D;
         double b = ColorHelper.getBlue(color) / 255D;
@@ -51,7 +51,7 @@ public interface Cauldron {
      * @param particleData the particle to spawn
      * @param amount the amount of particles to spawn
      */
-    void spawnParticles(IParticleData particleData, int amount, double xSpeed, double ySpeed, double zSpeed);
+    void spawnParticles(ParticleOptions particleData, int amount, double xSpeed, double ySpeed, double zSpeed);
 
     /**
      * Spawn colored splash particles int the cauldron

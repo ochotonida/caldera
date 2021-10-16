@@ -1,17 +1,17 @@
 package caldera.common.particle;
 
-import net.minecraft.client.particle.IAnimatedSprite;
-import net.minecraft.client.particle.IParticleFactory;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
-import net.minecraft.client.particle.RainParticle;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.particles.BasicParticleType;
+import net.minecraft.client.particle.ParticleProvider;
+import net.minecraft.client.particle.SpriteSet;
+import net.minecraft.client.particle.WaterDropParticle;
+import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-public class CauldronSplashParticle extends RainParticle {
+public class CauldronSplashParticle extends WaterDropParticle {
 
-    private CauldronSplashParticle(ClientWorld level, double x, double y, double z, double r, double g, double b) {
+    private CauldronSplashParticle(ClientLevel level, double x, double y, double z, double r, double g, double b) {
         super(level, x, y, z);
         gravity = 0.04F;
 
@@ -21,15 +21,15 @@ public class CauldronSplashParticle extends RainParticle {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public static class Factory implements IParticleFactory<BasicParticleType> {
+    public static class Factory implements ParticleProvider<SimpleParticleType> {
 
-        private final IAnimatedSprite sprite;
+        private final SpriteSet sprite;
 
-        public Factory(IAnimatedSprite sprite) {
+        public Factory(SpriteSet sprite) {
             this.sprite = sprite;
         }
 
-        public Particle createParticle(BasicParticleType type, ClientWorld level, double x, double y, double z, double r, double g, double b) {
+        public Particle createParticle(SimpleParticleType type, ClientLevel level, double x, double y, double z, double r, double g, double b) {
             CauldronSplashParticle particle = new CauldronSplashParticle(level, x, y, z, r, g, b);
             particle.pickSprite(sprite);
             return particle;

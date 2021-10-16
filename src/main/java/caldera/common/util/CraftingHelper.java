@@ -2,15 +2,15 @@ package caldera.common.util;
 
 import com.google.gson.*;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.fluid.Fluids;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.JsonToNBT;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.JSONUtils;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.TagParser;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.GsonHelper;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.Fluids;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.registries.ForgeRegistries;
 
@@ -22,7 +22,7 @@ public class CraftingHelper {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
 
     public static ResourceLocation readResourceLocation(JsonObject object, String memberName) {
-        return new ResourceLocation(JSONUtils.getAsString(object, memberName));
+        return new ResourceLocation(GsonHelper.getAsString(object, memberName));
     }
 
     public static JsonArray writeIngredients(List<Ingredient> ingredients) {
@@ -35,7 +35,7 @@ public class CraftingHelper {
         return array;
     }
 
-    public static void writeIngredients(PacketBuffer buffer, List<Ingredient> ingredients) {
+    public static void writeIngredients(FriendlyByteBuf buffer, List<Ingredient> ingredients) {
         buffer.writeByte(ingredients.size());
 
         for (Ingredient ingredient : ingredients) {
@@ -44,7 +44,7 @@ public class CraftingHelper {
     }
 
     public static List<Ingredient> readIngredients(JsonObject object, String memberName) {
-        JsonArray ingredients = JSONUtils.getAsJsonArray(object, memberName);
+        JsonArray ingredients = GsonHelper.getAsJsonArray(object, memberName);
         List<Ingredient> result = new ArrayList<>(ingredients.size());
 
         for (JsonElement ingredient : ingredients) {
@@ -54,7 +54,7 @@ public class CraftingHelper {
         return result;
     }
 
-    public static List<Ingredient> readIngredients(PacketBuffer buffer) {
+    public static List<Ingredient> readIngredients(FriendlyByteBuf buffer) {
         int size = buffer.readByte();
         ArrayList<Ingredient> result = new ArrayList<>(size);
 
@@ -81,7 +81,7 @@ public class CraftingHelper {
 
     public static ItemStack readItemStack(JsonObject object, String memberName, boolean readNbt) {
         return net.minecraftforge.common.crafting.CraftingHelper
-                .getItemStack(JSONUtils.getAsJsonObject(object, memberName), readNbt);
+                .getItemStack(GsonHelper.getAsJsonObject(object, memberName), readNbt);
     }
 
     public static JsonObject writeFluidStack(FluidStack fluidStack, boolean writeNbt, boolean writeAmount) {
@@ -104,7 +104,7 @@ public class CraftingHelper {
     }
 
     public static FluidStack readFluidStack(JsonObject object, String memberName, boolean readNbt, boolean readAmount) {
-        return readFluidStack(JSONUtils.getAsJsonObject(object, memberName), readNbt, readAmount);
+        return readFluidStack(GsonHelper.getAsJsonObject(object, memberName), readNbt, readAmount);
     }
 
     public static FluidStack readFluidStack(JsonObject object, boolean readNbt, boolean readAmount) {
@@ -120,22 +120,22 @@ public class CraftingHelper {
 
         int amount;
         if (readAmount) {
-            amount = JSONUtils.getAsInt(object, "amount");
+            amount = GsonHelper.getAsInt(object, "amount");
         } else {
             amount = 1;
         }
 
-        CompoundNBT nbt = null;
+        CompoundTag nbt = null;
         if (readNbt && object.has("nbt")) {
             try {
                 JsonElement element = object.get("nbt");
                 if (element.isJsonObject()) {
-                    nbt = JsonToNBT.parseTag(GSON.toJson(element));
+                    nbt = TagParser.parseTag(GSON.toJson(element));
                 } else {
-                    nbt = JsonToNBT.parseTag(JSONUtils.convertToString(element, "nbt"));
+                    nbt = TagParser.parseTag(GsonHelper.convertToString(element, "nbt"));
                 }
             } catch (CommandSyntaxException exception) {
-                throw new JsonSyntaxException("Invalid NBT Entry: " + exception.toString());
+                throw new JsonSyntaxException("Invalid NBT Entry: " + exception);
             }
         }
 

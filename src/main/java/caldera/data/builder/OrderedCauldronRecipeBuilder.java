@@ -4,15 +4,15 @@ import caldera.Caldera;
 import caldera.common.recipe.ingredient.FluidIngredient;
 import caldera.common.util.CraftingHelper;
 import com.google.gson.JsonObject;
-import net.minecraft.data.IFinishedRecipe;
-import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.data.recipes.FinishedRecipe;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.crafting.Ingredient;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-public abstract class OrderedCauldronRecipeBuilder implements IFinishedRecipe {
+public abstract class OrderedCauldronRecipeBuilder implements FinishedRecipe {
 
     private boolean ordered = false;
     private final FluidIngredient fluidIngredient;
@@ -33,11 +33,11 @@ public abstract class OrderedCauldronRecipeBuilder implements IFinishedRecipe {
         return this;
     }
 
-    public void build(Consumer<IFinishedRecipe> consumer, String location) {
+    public void build(Consumer<FinishedRecipe> consumer, String location) {
         build(consumer, new ResourceLocation(Caldera.MODID, "brew_types/" + location));
     }
 
-    public void build(Consumer<IFinishedRecipe> consumer, ResourceLocation id) {
+    public void build(Consumer<FinishedRecipe> consumer, ResourceLocation id) {
         this.id = id;
         consumer.accept(this);
     }

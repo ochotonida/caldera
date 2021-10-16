@@ -4,8 +4,8 @@ import caldera.common.init.ModRecipeTypes;
 import caldera.common.recipe.ingredient.FluidIngredient;
 import caldera.common.util.CraftingHelper;
 import com.google.gson.JsonObject;
-import net.minecraft.data.IFinishedRecipe;
-import net.minecraft.item.crafting.IRecipeSerializer;
+import net.minecraft.data.recipes.FinishedRecipe;
+import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraftforge.fluids.FluidStack;
 
 import java.util.function.Consumer;
@@ -19,7 +19,7 @@ public class CauldronFluidRecipeBuilder extends OrderedCauldronRecipeBuilder {
         this.result = result;
     }
 
-    public static void addRecipes(Consumer<IFinishedRecipe> consumer) {
+    public static void addRecipes(Consumer<FinishedRecipe> consumer) {
     }
 
     public static CauldronFluidRecipeBuilder builder(FluidStack result, FluidIngredient fluidIngredient) {
@@ -27,7 +27,7 @@ public class CauldronFluidRecipeBuilder extends OrderedCauldronRecipeBuilder {
     }
 
     @Override
-    public IRecipeSerializer<?> getType() {
+    public RecipeSerializer<?> getType() {
         return ModRecipeTypes.CAULDRON_FLUID_CRAFTING_SERIALIZER.get();
     }
 

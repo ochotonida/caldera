@@ -26,7 +26,7 @@
 
 package caldera.common.util.rendering;
 
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.Mth;
 
 public class InterpolatedValue {
 
@@ -45,7 +45,7 @@ public class InterpolatedValue {
     }
 
     public float get(float partialTicks) {
-        return MathHelper.lerp(partialTicks, lastValue, value);
+        return Mth.lerp(partialTicks, lastValue, value);
     }
 
     public boolean settled() {

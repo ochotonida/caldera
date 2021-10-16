@@ -10,27 +10,32 @@ import caldera.common.util.ColorHelper;
 import caldera.common.util.RecipeHelper;
 import caldera.common.util.rendering.InterpolatedChasingValue;
 import caldera.common.util.rendering.InterpolatedLinearChasingValue;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.fluid.Fluids;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipeType;
-import net.minecraft.item.crafting.RecipeManager;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.NetworkManager;
-import net.minecraft.network.play.server.SUpdateTileEntityPacket;
-import net.minecraft.particles.IParticleData;
-import net.minecraft.particles.ParticleTypes;
-import net.minecraft.state.properties.DoubleBlockHalf;
-import net.minecraft.tileentity.ITickableTileEntity;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.*;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.Connection;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.RecipeManager;
+import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.TickableBlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.LazyOptional;
@@ -45,7 +50,7 @@ import net.minecraftforge.items.wrapper.EmptyHandler;
 import javax.annotation.Nullable;
 import java.util.Collection;
 
-public class CauldronBlockEntity extends TileEntity implements Cauldron, ITickableTileEntity  {
+public class CauldronBlockEntity extends BlockEntity implements Cauldron, TickableBlockEntity  {
 
     private static final ResourceLocation SLUDGE_TYPE = new ResourceLocation(Caldera.MODID, "brew_types/sludge");
     private static final int BREW_TIME = 60;
@@ -98,16 +103,16 @@ public class CauldronBlockEntity extends TileEntity implements Cauldron, ITickab
         return getLevel() != null && LargeCauldronBlock.isOrigin(getBlockState());
     }
 
-    public Vector3d getCenter() {
+    public Vec3 getCenter() {
         CauldronBlockEntity controller = getController();
 
         if (controller == null) {
-            return Vector3d.ZERO;
+            return Vec3.ZERO;
         }
 
         double floorHeight = 4 / 16D;
         BlockPos pos = controller.getBlockPos();
-        return new Vector3d(pos.getX() + 1, pos.getY() + floorHeight, pos.getZ() + 1);
+        return new Vec3(pos.getX() + 1, pos.getY() + floorHeight, pos.getZ() + 1);
     }
 
     public Brew getBrew() {
@@ -216,7 +221,7 @@ public class CauldronBlockEntity extends TileEntity implements Cauldron, ITickab
         }
     }
 
-    public void spawnParticles(IParticleData particleData, int amount, double r, double g, double b) {
+    public void spawnParticles(ParticleOptions particleData, int amount, double r, double g, double b) {
         if (getLevel() == null) {
             return;
         }
@@ -269,14 +274,14 @@ public class CauldronBlockEntity extends TileEntity implements Cauldron, ITickab
     }
 
     private void onItemInside(ItemEntity itemEntity, double yOffset) {
-        CompoundNBT itemData = itemEntity.getPersistentData();
+        CompoundTag itemData = itemEntity.getPersistentData();
 
         if (!itemEntity.level.isClientSide()
                 && itemEntity.getDeltaMovement().y() <= 0
                 && !itemData.contains("InitialDeltaMovement", Constants.NBT.TAG_COMPOUND)
         ) {
-            CompoundNBT nbt = new CompoundNBT();
-            Vector3d deltaMovement = itemEntity.getDeltaMovement();
+            CompoundTag nbt = new CompoundTag();
+            Vec3 deltaMovement = itemEntity.getDeltaMovement();
 
             nbt.putDouble("X", deltaMovement.x());
             nbt.putDouble("Y", deltaMovement.y());
@@ -310,12 +315,12 @@ public class CauldronBlockEntity extends TileEntity implements Cauldron, ITickab
             return;
         }
 
-        CompoundNBT itemData = itemEntity.getPersistentData();
+        CompoundTag itemData = itemEntity.getPersistentData();
 
-        Vector3d motion;
+        Vec3 motion;
         if (itemData.contains("InitialDeltaMovement", Constants.NBT.TAG_COMPOUND)) {
-            CompoundNBT nbt = itemData.getCompound("InitialDeltaMovement");
-            motion = new Vector3d(
+            CompoundTag nbt = itemData.getCompound("InitialDeltaMovement");
+            motion = new Vec3(
                     nbt.getDouble("X"),
                     nbt.getDouble("Y"),
                     nbt.getDouble("Z")
@@ -342,12 +347,12 @@ public class CauldronBlockEntity extends TileEntity implements Cauldron, ITickab
 
             inventory.addItem(stack);
         } else {
-            getLevel().playSound(null, itemEntity.getX(), itemEntity.getY(), itemEntity.getZ(), ModSoundEvents.CAULDRON_RETURN_INERT_INGREDIENT.get(), SoundCategory.BLOCKS, 0.5F, 1);
+            getLevel().playSound(null, itemEntity.getX(), itemEntity.getY(), itemEntity.getZ(), ModSoundEvents.CAULDRON_RETURN_INERT_INGREDIENT.get(), SoundSource.BLOCKS, 0.5F, 1);
         }
 
         spawnInCauldron(remainder, motion);
 
-        getLevel().playSound(null, itemEntity.getX(), itemEntity.getY(), itemEntity.getZ(), SoundEvents.GENERIC_SPLASH, SoundCategory.BLOCKS, 1, 1);
+        getLevel().playSound(null, itemEntity.getX(), itemEntity.getY(), itemEntity.getZ(), SoundEvents.GENERIC_SPLASH, SoundSource.BLOCKS, 1, 1);
         itemEntity.remove();
     }
 
@@ -355,12 +360,12 @@ public class CauldronBlockEntity extends TileEntity implements Cauldron, ITickab
         return !ModTags.INERT.contains(stack.getItem());
     }
 
-    private void spawnInCauldron(ItemStack stack, Vector3d motion) {
+    private void spawnInCauldron(ItemStack stack, Vec3 motion) {
         if (getLevel() == null) {
             return;
         }
 
-        Vector3d position = getCenter();
+        Vec3 position = getCenter();
 
         ItemEntity itemEntity = new ItemEntity(getLevel(), position.x(), position.y(), position.z(), stack);
         itemEntity.setDefaultPickUpDelay();
@@ -399,7 +404,7 @@ public class CauldronBlockEntity extends TileEntity implements Cauldron, ITickab
     }
 
     @Nullable
-    private <RECIPE extends CauldronRecipe<?>> RECIPE findMatchingRecipe(RecipeManager manager, IRecipeType<RECIPE> type) {
+    private <RECIPE extends CauldronRecipe<?>> RECIPE findMatchingRecipe(RecipeManager manager, RecipeType<RECIPE> type) {
         Collection<RECIPE> itemRecipes = RecipeHelper.byType(manager, type).values();
         for (RECIPE recipe : itemRecipes) {
             if (matchesRecipe(recipe)) {
@@ -419,7 +424,7 @@ public class CauldronBlockEntity extends TileEntity implements Cauldron, ITickab
 
     private void craftItem(CauldronRecipe<ItemStack> recipe) {
         ItemStack result = assembleRecipe(recipe);
-        spawnInCauldron(result, new Vector3d(0, 0.5, 0));
+        spawnInCauldron(result, new Vec3(0, 0.5, 0));
 
         inventory.clear();
         fluidTank.clear();
@@ -475,16 +480,16 @@ public class CauldronBlockEntity extends TileEntity implements Cauldron, ITickab
         fluidOrBrewChanged = true;
     }
 
-    protected ActionResultType onUse(PlayerEntity player, Hand hand) {
+    protected InteractionResult onUse(Player player, InteractionHand hand) {
         if (player.level.isClientSide()) {
-            return ActionResultType.SUCCESS;
+            return InteractionResult.SUCCESS;
         }
 
         if (FluidUtil.interactWithFluidHandler(player, hand, fluidTank)) {
-            return ActionResultType.SUCCESS;
+            return InteractionResult.SUCCESS;
         }
 
-        return ActionResultType.PASS;
+        return InteractionResult.PASS;
     }
 
     @Override
@@ -498,9 +503,9 @@ public class CauldronBlockEntity extends TileEntity implements Cauldron, ITickab
     }
 
     @Override
-    public AxisAlignedBB getRenderBoundingBox() {
+    public AABB getRenderBoundingBox() {
         if (isController()) {
-            return new AxisAlignedBB(getBlockPos(), getBlockPos().offset(2, 2, 2));
+            return new AABB(getBlockPos(), getBlockPos().offset(2, 2, 2));
         }
         return super.getRenderBoundingBox();
     }
@@ -514,7 +519,7 @@ public class CauldronBlockEntity extends TileEntity implements Cauldron, ITickab
 
     // update client on chunk load
     @Override
-    public void handleUpdateTag(BlockState state, CompoundNBT tag) {
+    public void handleUpdateTag(BlockState state, CompoundTag tag) {
         super.handleUpdateTag(state, tag);
         readUpdateTag(tag);
 
@@ -524,25 +529,25 @@ public class CauldronBlockEntity extends TileEntity implements Cauldron, ITickab
     }
 
     @Override
-    public CompoundNBT getUpdateTag() {
-        CompoundNBT updateTag = createUpdateTag(super.getUpdateTag());
+    public CompoundTag getUpdateTag() {
+        CompoundTag updateTag = createUpdateTag(super.getUpdateTag());
         updateTag.putBoolean("containsItems", !inventory.isEmpty());
         return createUpdateTag(updateTag);
     }
 
     // sync client on block update
     @Override
-    public void onDataPacket(NetworkManager networkManager, SUpdateTileEntityPacket updatePacket) {
+    public void onDataPacket(Connection networkManager, ClientboundBlockEntityDataPacket updatePacket) {
         readUpdateTag(updatePacket.getTag());
     }
 
     @Override
-    public SUpdateTileEntityPacket getUpdatePacket() {
-        return new SUpdateTileEntityPacket(getBlockPos(), 0, createUpdateTag(new CompoundNBT()));
+    public ClientboundBlockEntityDataPacket getUpdatePacket() {
+        return new ClientboundBlockEntityDataPacket(getBlockPos(), 0, createUpdateTag(new CompoundTag()));
     }
 
     // load data sent to client
-    protected void readUpdateTag(CompoundNBT nbt) {
+    protected void readUpdateTag(CompoundTag nbt) {
         float previousFluidLevel = (float) getFluidLevel();
         boolean wasEmpty = isEmpty();
 
@@ -578,18 +583,18 @@ public class CauldronBlockEntity extends TileEntity implements Cauldron, ITickab
         }
     }
 
-    protected CompoundNBT createUpdateTag(CompoundNBT nbt) {
+    protected CompoundTag createUpdateTag(CompoundTag nbt) {
         nbt.putBoolean("FluidOrBrewChanged", fluidOrBrewChanged);
         fluidOrBrewChanged = false;
 
-        nbt.put("FluidHandler", fluidTank.writeToNBT(new CompoundNBT()));
+        nbt.put("FluidHandler", fluidTank.writeToNBT(new CompoundTag()));
         saveBrew(nbt);
 
         return nbt;
     }
 
     @Override
-    public void load(BlockState state, CompoundNBT nbt) {
+    public void load(BlockState state, CompoundTag nbt) {
         super.load(state, nbt);
         fluidTank.readFromNBT(nbt.getCompound("FluidHandler"));
         inventory.deserializeNBT(nbt.getCompound("ItemHandler"));
@@ -597,15 +602,15 @@ public class CauldronBlockEntity extends TileEntity implements Cauldron, ITickab
     }
 
     @Override
-    public CompoundNBT save(CompoundNBT nbt) {
-        nbt.put("FluidHandler", fluidTank.writeToNBT(new CompoundNBT()));
+    public CompoundTag save(CompoundTag nbt) {
+        nbt.put("FluidHandler", fluidTank.writeToNBT(new CompoundTag()));
         nbt.put("ItemHandler", inventory.serializeNBT());
         saveBrew(nbt);
 
         return super.save(nbt);
     }
 
-    private void loadBrew(CompoundNBT nbt) {
+    private void loadBrew(CompoundTag nbt) {
         brew = null;
 
         if (nbt.contains("Brew", Constants.NBT.TAG_COMPOUND)) {
@@ -631,13 +636,13 @@ public class CauldronBlockEntity extends TileEntity implements Cauldron, ITickab
         }
     }
 
-    private void saveBrew(CompoundNBT nbt) {
+    private void saveBrew(CompoundTag nbt) {
         if (getLevel() == null) {
             throw new IllegalArgumentException();
         }
 
         if (hasBrew()) {
-            CompoundNBT brewNBT = new CompoundNBT();
+            CompoundTag brewNBT = new CompoundTag();
             brew.writeBrew(brewNBT);
             nbt.put("Brew", brewNBT);
             nbt.putString("BrewType", brew.getType().getId().toString());

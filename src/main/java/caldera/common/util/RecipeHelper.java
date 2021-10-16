@@ -2,11 +2,11 @@ package caldera.common.util;
 
 import caldera.mixin.accessor.RecipeManagerAccessor;
 import net.minecraft.client.Minecraft;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.item.crafting.IRecipeType;
-import net.minecraft.item.crafting.RecipeManager;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.Container;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeManager;
+import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraftforge.fml.common.thread.EffectiveSide;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
 
@@ -23,16 +23,16 @@ public class RecipeHelper {
         }
     }
 
-    public static <RECIPE extends IRecipe<IInventory>> Map<ResourceLocation, RECIPE> byType(
+    public static <RECIPE extends Recipe<Container>> Map<ResourceLocation, RECIPE> byType(
             RecipeManager manager,
-            IRecipeType<RECIPE> type
+            RecipeType<RECIPE> type
     ) {
         // noinspection unchecked
         return (Map<ResourceLocation, RECIPE>) ((RecipeManagerAccessor) getManager()).caldera$callByType(type);
     }
 
-    public static <RECIPE extends IRecipe<IInventory>> Map<ResourceLocation, RECIPE> byType(
-            IRecipeType<RECIPE> type
+    public static <RECIPE extends Recipe<Container>> Map<ResourceLocation, RECIPE> byType(
+            RecipeType<RECIPE> type
     ) {
         return byType(getManager(), type);
     }

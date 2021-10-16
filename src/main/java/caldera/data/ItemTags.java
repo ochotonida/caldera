@@ -2,24 +2,24 @@ package caldera.data;
 
 import caldera.Caldera;
 import caldera.common.init.ModTags;
-import net.minecraft.data.BlockTagsProvider;
 import net.minecraft.data.DataGenerator;
-import net.minecraft.data.ItemTagsProvider;
-import net.minecraft.item.Item;
-import net.minecraft.item.Items;
-import net.minecraft.tags.ITag;
+import net.minecraft.data.tags.BlockTagsProvider;
+import net.minecraft.data.tags.ItemTagsProvider;
+import net.minecraft.tags.Tag;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
 import net.minecraftforge.common.data.ExistingFileHelper;
 import net.minecraftforge.versions.forge.ForgeVersion;
 
 @SuppressWarnings("unchecked")
 public class ItemTags extends ItemTagsProvider {
 
-    public static final ITag.INamedTag<Item> TOOLS = ModTags.itemTag(ForgeVersion.MOD_ID, "tools");
-    public static final ITag.INamedTag<Item> AXES = ModTags.itemTag(ForgeVersion.MOD_ID, "tools/axes");
-    public static final ITag.INamedTag<Item> HOES = ModTags.itemTag(ForgeVersion.MOD_ID, "tools/hoes");
-    public static final ITag.INamedTag<Item> PICKAXES = ModTags.itemTag(ForgeVersion.MOD_ID, "tools/pickaxes");
-    public static final ITag.INamedTag<Item> SHOVELS = ModTags.itemTag(ForgeVersion.MOD_ID, "tools/shovels");
-    public static final ITag.INamedTag<Item> SWORDS = ModTags.itemTag(ForgeVersion.MOD_ID, "tools/swords");
+    public static final Tag.Named<Item> TOOLS = ModTags.itemTag(ForgeVersion.MOD_ID, "tools");
+    public static final Tag.Named<Item> AXES = ModTags.itemTag(ForgeVersion.MOD_ID, "tools/axes");
+    public static final Tag.Named<Item> HOES = ModTags.itemTag(ForgeVersion.MOD_ID, "tools/hoes");
+    public static final Tag.Named<Item> PICKAXES = ModTags.itemTag(ForgeVersion.MOD_ID, "tools/pickaxes");
+    public static final Tag.Named<Item> SHOVELS = ModTags.itemTag(ForgeVersion.MOD_ID, "tools/shovels");
+    public static final Tag.Named<Item> SWORDS = ModTags.itemTag(ForgeVersion.MOD_ID, "tools/swords");
 
 
     public ItemTags(DataGenerator dataGenerator, BlockTagsProvider blockTagProvider, ExistingFileHelper existingFileHelper) {

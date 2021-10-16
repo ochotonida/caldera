@@ -5,10 +5,10 @@ import caldera.common.recipe.Cauldron;
 import caldera.common.recipe.brew.BrewType;
 import caldera.common.util.ColorHelper;
 import com.google.gson.JsonObject;
-import net.minecraft.item.crafting.IRecipeSerializer;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.registries.ForgeRegistryEntry;
@@ -34,16 +34,16 @@ public class SludgeBrewType implements BrewType<SludgeBrew> {
     }
 
     @Override
-    public SludgeBrew loadBrew(CompoundNBT nbt, Cauldron cauldron) {
+    public SludgeBrew loadBrew(CompoundTag nbt, Cauldron cauldron) {
         return new SludgeBrew(this, cauldron, color);
     }
 
     @Override
-    public IRecipeSerializer<?> getSerializer() {
+    public RecipeSerializer<?> getSerializer() {
         return ModRecipeTypes.SLUDGE_BREW_SERIALIZER.get();
     }
 
-    public static class Serializer extends ForgeRegistryEntry<IRecipeSerializer<?>> implements IRecipeSerializer<SludgeBrewType> {
+    public static class Serializer extends ForgeRegistryEntry<RecipeSerializer<?>> implements RecipeSerializer<SludgeBrewType> {
 
         @Override
         public SludgeBrewType fromJson(ResourceLocation id, JsonObject object) {
@@ -52,13 +52,13 @@ public class SludgeBrewType implements BrewType<SludgeBrew> {
         }
 
         @Override
-        public SludgeBrewType fromNetwork(ResourceLocation id, PacketBuffer buffer) {
+        public SludgeBrewType fromNetwork(ResourceLocation id, FriendlyByteBuf buffer) {
             int color = buffer.readInt();
             return new SludgeBrewType(id, color);
         }
 
         @Override
-        public void toNetwork(PacketBuffer buffer, SludgeBrewType type) {
+        public void toNetwork(FriendlyByteBuf buffer, SludgeBrewType type) {
             buffer.writeInt(type.color);
         }
     }

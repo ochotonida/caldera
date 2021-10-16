@@ -1,13 +1,13 @@
 package caldera.common.recipe;
 
-import net.minecraft.inventory.IInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.world.World;
+import net.minecraft.world.Container;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.items.IItemHandler;
 
-public interface CauldronRecipe<RESULT> extends IRecipe<IInventory> {
+public interface CauldronRecipe<RESULT> extends Recipe<Container> {
 
     /**
      * Check whether the cauldron's current contents match this recipe
@@ -34,14 +34,14 @@ public interface CauldronRecipe<RESULT> extends IRecipe<IInventory> {
     // unused
     @Override
     @Deprecated
-    default boolean matches(IInventory inventory, World level) {
+    default boolean matches(Container inventory, Level level) {
         return false;
     }
 
     // unused
     @Override
     @Deprecated
-    default ItemStack assemble(IInventory inventory) {
+    default ItemStack assemble(Container inventory) {
         return ItemStack.EMPTY;
     }
 

@@ -1,7 +1,7 @@
 package caldera.common.recipe.brew;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.entity.Entity;
 
 public interface Brew {
 
@@ -51,5 +51,5 @@ public interface Brew {
 
     }
 
-    void writeBrew(CompoundNBT nbt);
+    void writeBrew(CompoundTag nbt);
 }

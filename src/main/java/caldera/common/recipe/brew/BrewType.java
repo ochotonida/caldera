@@ -2,16 +2,16 @@ package caldera.common.recipe.brew;
 
 import caldera.common.init.ModRecipeTypes;
 import caldera.common.recipe.Cauldron;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.item.crafting.IRecipeType;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.world.World;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.Container;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.items.IItemHandler;
 
-public interface BrewType<BREW extends Brew> extends IRecipe<IInventory> {
+public interface BrewType<BREW extends Brew> extends Recipe<Container> {
 
     /**
      * Creates the result of this recipe
@@ -31,19 +31,19 @@ public interface BrewType<BREW extends Brew> extends IRecipe<IInventory> {
      * @param cauldron The block entity loading the brew, might not have been fully initialized
      * @return A brew of this type
      */
-    BREW loadBrew(CompoundNBT nbt, Cauldron cauldron);
+    BREW loadBrew(CompoundTag nbt, Cauldron cauldron);
 
     // unused
     @Override
     @Deprecated
-    default boolean matches(IInventory inventory, World level) {
+    default boolean matches(Container inventory, Level level) {
         return false;
     }
 
     // unused
     @Override
     @Deprecated
-    default ItemStack assemble(IInventory inventory) {
+    default ItemStack assemble(Container inventory) {
         return ItemStack.EMPTY;
     }
 
@@ -62,7 +62,7 @@ public interface BrewType<BREW extends Brew> extends IRecipe<IInventory> {
     }
 
     @Override
-    default IRecipeType<?> getType() {
+    default RecipeType<?> getType() {
         return ModRecipeTypes.BREW_TYPE;
     }
 

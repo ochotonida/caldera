@@ -1,10 +1,10 @@
 package caldera.common.init;
 
 import caldera.Caldera;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.RegistryObject;
@@ -16,7 +16,7 @@ public class ModItems {
 
     public static final DeferredRegister<Item> REGISTRY = DeferredRegister.create(ForgeRegistries.ITEMS, Caldera.MODID);
 
-    public static final ItemGroup CREATIVE_TAB = new ItemGroup(Caldera.MODID) {
+    public static final CreativeModeTab CREATIVE_TAB = new CreativeModeTab(Caldera.MODID) {
         @Override
         @OnlyIn(Dist.CLIENT)
         public ItemStack makeIcon() {

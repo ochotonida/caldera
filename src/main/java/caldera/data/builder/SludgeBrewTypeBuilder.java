@@ -1,12 +1,12 @@
 package caldera.data.builder;
 
 import caldera.Caldera;
-import caldera.client.util.ColorHelper;
 import caldera.common.init.ModRecipeTypes;
+import caldera.common.util.ColorHelper;
 import com.google.gson.JsonObject;
-import net.minecraft.data.IFinishedRecipe;
-import net.minecraft.item.crafting.IRecipeSerializer;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.data.recipes.FinishedRecipe;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.crafting.RecipeSerializer;
 
 import java.util.function.Consumer;
 
@@ -18,7 +18,7 @@ public class SludgeBrewTypeBuilder {
         this.color = color;
     }
 
-    public static void addRecipes(Consumer<IFinishedRecipe> consumer) {
+    public static void addRecipes(Consumer<FinishedRecipe> consumer) {
         sludgeBrewType(0x873954).build(consumer, "sludge");
     }
 
@@ -26,15 +26,15 @@ public class SludgeBrewTypeBuilder {
         return new SludgeBrewTypeBuilder(color);
     }
 
-    public void build(Consumer<IFinishedRecipe> consumer, String location) {
+    public void build(Consumer<FinishedRecipe> consumer, String location) {
         build(consumer, new ResourceLocation(Caldera.MODID, "brew_types/" + location));
     }
 
-    public void build(Consumer<IFinishedRecipe> consumer, ResourceLocation id) {
+    public void build(Consumer<FinishedRecipe> consumer, ResourceLocation id) {
         consumer.accept(new SludgeBrewTypeBuilder.Result(id, color));
     }
 
-    public static class Result implements IFinishedRecipe {
+    public static class Result implements FinishedRecipe {
 
         private final ResourceLocation id;
         private final int color;
@@ -55,7 +55,7 @@ public class SludgeBrewTypeBuilder {
         }
 
         @Override
-        public IRecipeSerializer<?> getType() {
+        public RecipeSerializer<?> getType() {
             return ModRecipeTypes.SLUDGE_BREW_SERIALIZER.get();
         }
 

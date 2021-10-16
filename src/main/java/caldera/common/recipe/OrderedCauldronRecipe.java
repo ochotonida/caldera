@@ -3,13 +3,13 @@ package caldera.common.recipe;
 import caldera.common.recipe.ingredient.FluidIngredient;
 import caldera.common.util.CraftingHelper;
 import com.google.gson.JsonObject;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipeSerializer;
-import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.JSONUtils;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.core.NonNullList;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.GsonHelper;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraftforge.common.util.RecipeMatcher;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.items.IItemHandler;
@@ -104,8 +104,8 @@ public abstract class OrderedCauldronRecipe<RESULT> implements CauldronRecipe<RE
     }
 
     public static abstract class Serializer<RECIPE extends OrderedCauldronRecipe<RESULT>, RESULT>
-            extends ForgeRegistryEntry<IRecipeSerializer<?>>
-            implements IRecipeSerializer<RECIPE> {
+            extends ForgeRegistryEntry<RecipeSerializer<?>>
+            implements RecipeSerializer<RECIPE> {
 
         public abstract RECIPE createRecipe(
                 ResourceLocation id,
@@ -117,22 +117,22 @@ public abstract class OrderedCauldronRecipe<RESULT> implements CauldronRecipe<RE
 
         public abstract RESULT readResult(JsonObject object);
 
-        public abstract RESULT readResult(PacketBuffer buffer);
+        public abstract RESULT readResult(FriendlyByteBuf buffer);
 
-        public abstract void writeResult(PacketBuffer buffer, RECIPE recipe);
+        public abstract void writeResult(FriendlyByteBuf buffer, RECIPE recipe);
 
         @Override
         public RECIPE fromJson(ResourceLocation id, JsonObject object) {
             List<Ingredient> ingredients = CraftingHelper.readIngredients(object, "ingredients");
             FluidIngredient fluidIngredient = FluidIngredient.fromJson(object, "fluid");
             RESULT result = readResult(object);
-            boolean isOrdered = JSONUtils.getAsBoolean(object, "ordered");
+            boolean isOrdered = GsonHelper.getAsBoolean(object, "ordered");
 
             return createRecipe(id, result, isOrdered, fluidIngredient, ingredients);
         }
 
         @Override
-        public RECIPE fromNetwork(ResourceLocation id, PacketBuffer buffer) {
+        public RECIPE fromNetwork(ResourceLocation id, FriendlyByteBuf buffer) {
             List<Ingredient> ingredients = CraftingHelper.readIngredients(buffer);
             FluidIngredient fluidIngredient = FluidIngredient.fromBuffer(buffer);
             RESULT result = readResult(buffer);
@@ -142,7 +142,7 @@ public abstract class OrderedCauldronRecipe<RESULT> implements CauldronRecipe<RE
         }
 
         @Override
-        public void toNetwork(PacketBuffer buffer, RECIPE recipe) {
+        public void toNetwork(FriendlyByteBuf buffer, RECIPE recipe) {
             CraftingHelper.writeIngredients(buffer, recipe.getIngredients());
             recipe.getFluidIngredient().toBuffer(buffer);
             writeResult(buffer, recipe);

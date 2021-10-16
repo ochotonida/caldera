@@ -2,8 +2,8 @@ package caldera.common.util;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
-import net.minecraft.util.JSONUtils;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.GsonHelper;
+import net.minecraft.util.Mth;
 
 public class ColorHelper {
 
@@ -11,10 +11,10 @@ public class ColorHelper {
         if (!object.has(name)) {
             throw new JsonSyntaxException("Missing " + name + ", expected to find color");
         }
-        JsonObject colorObject = JSONUtils.convertToJsonObject(object.get(name), name);
-        int r = JSONUtils.getAsInt(colorObject, "red");
-        int g = JSONUtils.getAsInt(colorObject, "green");
-        int b = JSONUtils.getAsInt(colorObject, "blue");
+        JsonObject colorObject = GsonHelper.convertToJsonObject(object.get(name), name);
+        int r = GsonHelper.getAsInt(colorObject, "red");
+        int g = GsonHelper.getAsInt(colorObject, "green");
+        int b = GsonHelper.getAsInt(colorObject, "blue");
 
         return fromRGB(r, g, b);
     }
@@ -42,7 +42,7 @@ public class ColorHelper {
         if (previousAlpha > 0) {
             alpha = alpha * previousAlpha / 0xFF;
         }
-        return (color & 0xFFFFFF) | MathHelper.clamp((int) alpha, 0x00, 0xFF) << 24;
+        return (color & 0xFFFFFF) | Mth.clamp((int) alpha, 0x00, 0xFF) << 24;
     }
 
     public static int fromRGBA(int r, int g, int b, int a) {
