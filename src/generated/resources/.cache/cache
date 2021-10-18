@@ -1,8 +1,6 @@
 fb1d0a9d8aef85c7a21a54c974ab12576a8f2265 assets/caldera/blockstates/large_cauldron.json
 6f5fd474a6c1290a9b6c06cb2171f643722dedef assets/caldera/models/item/large_cauldron.json
-9ee1839cc03ce55b9a7728941815e78a246583cf data/caldera/loot_tables/blocks/large_cauldron.json
-94677f1238da1a398d631dd540cde6051f3d9dad data/caldera/recipes/brew_types/debug_lava.json
-91b1ecc3b7ee098981462062445b212efa441856 data/caldera/recipes/brew_types/debug_water.json
+684ae7f828f57430e4e417cb4374e1941d87eade data/caldera/loot_tables/blocks/large_cauldron.json
 ae2ad0d37084e9f2b393ef015a63b8a3f308aebb data/caldera/recipes/brew_types/sludge.json
 02715b1ccdf357b87f7bf4b5bad4e228a8926233 data/caldera/tags/items/inert.json
 e91376e3309e47efc935f1723a03b066e88062b0 data/forge/tags/items/tools.json
@@ -11,3 +9,4 @@ ae0e78e296ffaa3a9ddb5feb61d454480ecdebc4 data/forge/tags/items/tools/hoes.json
 0d0953db934a9bb943840ce9ad03deba67bc9c01 data/forge/tags/items/tools/pickaxes.json
 db5d187e24ef4d1eac506285e9a9d771c33f2cab data/forge/tags/items/tools/shovels.json
 3b896b653fd0665fdbfcc2cf1eadd64fcd9f385d data/forge/tags/items/tools/swords.json
+d578348b346788e49fb33cb4944f97b8f8ce7118 data/minecraft/tags/blocks/mineable/pickaxe.json
