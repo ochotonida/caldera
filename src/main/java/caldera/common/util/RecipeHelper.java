@@ -7,8 +7,8 @@ import net.minecraft.world.Container;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraftforge.fml.common.thread.EffectiveSide;
-import net.minecraftforge.fml.server.ServerLifecycleHooks;
+import net.minecraftforge.fml.util.thread.EffectiveSide;
+import net.minecraftforge.fmllegacy.server.ServerLifecycleHooks;
 
 import java.util.Map;
 

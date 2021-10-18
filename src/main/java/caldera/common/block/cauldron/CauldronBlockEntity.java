@@ -29,7 +29,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.TickableBlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.material.Fluid;
@@ -50,7 +50,9 @@ import net.minecraftforge.items.wrapper.EmptyHandler;
 import javax.annotation.Nullable;
 import java.util.Collection;
 
-public class CauldronBlockEntity extends BlockEntity implements Cauldron, TickableBlockEntity  {
+public class CauldronBlockEntity extends BlockEntity implements Cauldron {
+
+    public static final BlockEntityTicker<CauldronBlockEntity> TICKER = (level, pos, state, blockEntity) -> blockEntity.tick();
 
     private static final ResourceLocation SLUDGE_TYPE = new ResourceLocation(Caldera.MODID, "brew_types/sludge");
     private static final int BREW_TIME = 60;
@@ -73,8 +75,8 @@ public class CauldronBlockEntity extends BlockEntity implements Cauldron, Tickab
     private FluidStack previousFluid;
     private Brew previousBrew;
 
-    public CauldronBlockEntity() {
-        super(ModBlockEntityTypes.LARGE_CAULDRON.get());
+    public CauldronBlockEntity(BlockPos pos, BlockState state) {
+        super(ModBlockEntityTypes.LARGE_CAULDRON.get(), pos, state);
         fluidTank = new CauldronFluidTank(this);
         inventory = new CauldronItemHandler(this);
 
@@ -175,7 +177,6 @@ public class CauldronBlockEntity extends BlockEntity implements Cauldron, Tickab
         oldFluidHandler.invalidate();
     }
 
-    @Override
     public void tick() {
         if (!fluidHandler.isPresent()) {
             setupCapabilities();
@@ -353,7 +354,7 @@ public class CauldronBlockEntity extends BlockEntity implements Cauldron, Tickab
         spawnInCauldron(remainder, motion);
 
         getLevel().playSound(null, itemEntity.getX(), itemEntity.getY(), itemEntity.getZ(), SoundEvents.GENERIC_SPLASH, SoundSource.BLOCKS, 1, 1);
-        itemEntity.remove();
+        itemEntity.discard();
     }
 
     private boolean isValidIngredient(ItemStack stack) {
@@ -519,8 +520,8 @@ public class CauldronBlockEntity extends BlockEntity implements Cauldron, Tickab
 
     // update client on chunk load
     @Override
-    public void handleUpdateTag(BlockState state, CompoundTag tag) {
-        super.handleUpdateTag(state, tag);
+    public void handleUpdateTag(CompoundTag tag) {
+        super.handleUpdateTag(tag);
         readUpdateTag(tag);
 
         if (tag.getBoolean("containsItems")) {
@@ -547,18 +548,18 @@ public class CauldronBlockEntity extends BlockEntity implements Cauldron, Tickab
     }
 
     // load data sent to client
-    protected void readUpdateTag(CompoundTag nbt) {
+    protected void readUpdateTag(CompoundTag tag) {
         float previousFluidLevel = (float) getFluidLevel();
         boolean wasEmpty = isEmpty();
 
-        boolean fluidOrBrewChanged = nbt.getBoolean("FluidOrBrewChanged");
+        boolean fluidOrBrewChanged = tag.getBoolean("FluidOrBrewChanged");
         if (fluidOrBrewChanged) {
             previousFluid = getFluid().copy();
             previousBrew = getBrew();
         }
 
-        fluidTank.readFromNBT(nbt.getCompound("FluidHandler"));
-        loadBrew(nbt);
+        fluidTank.readFromNBT(tag.getCompound("FluidHandler"));
+        loadBrew(tag);
 
         if (fluidOrBrewChanged) {
             brewingColorAlpha.start(0);
@@ -583,38 +584,38 @@ public class CauldronBlockEntity extends BlockEntity implements Cauldron, Tickab
         }
     }
 
-    protected CompoundTag createUpdateTag(CompoundTag nbt) {
-        nbt.putBoolean("FluidOrBrewChanged", fluidOrBrewChanged);
+    protected CompoundTag createUpdateTag(CompoundTag tag) {
+        tag.putBoolean("FluidOrBrewChanged", fluidOrBrewChanged);
         fluidOrBrewChanged = false;
 
-        nbt.put("FluidHandler", fluidTank.writeToNBT(new CompoundTag()));
-        saveBrew(nbt);
+        tag.put("FluidHandler", fluidTank.writeToNBT(new CompoundTag()));
+        saveBrew(tag);
 
-        return nbt;
+        return tag;
     }
 
     @Override
-    public void load(BlockState state, CompoundTag nbt) {
-        super.load(state, nbt);
-        fluidTank.readFromNBT(nbt.getCompound("FluidHandler"));
-        inventory.deserializeNBT(nbt.getCompound("ItemHandler"));
-        loadBrew(nbt);
+    public void load(CompoundTag tag) {
+        super.load(tag);
+        fluidTank.readFromNBT(tag.getCompound("FluidHandler"));
+        inventory.deserializeNBT(tag.getCompound("ItemHandler"));
+        loadBrew(tag);
     }
 
     @Override
-    public CompoundTag save(CompoundTag nbt) {
-        nbt.put("FluidHandler", fluidTank.writeToNBT(new CompoundTag()));
-        nbt.put("ItemHandler", inventory.serializeNBT());
-        saveBrew(nbt);
+    public CompoundTag save(CompoundTag tag) {
+        tag.put("FluidHandler", fluidTank.writeToNBT(new CompoundTag()));
+        tag.put("ItemHandler", inventory.serializeNBT());
+        saveBrew(tag);
 
-        return super.save(nbt);
+        return super.save(tag);
     }
 
-    private void loadBrew(CompoundTag nbt) {
+    private void loadBrew(CompoundTag tag) {
         brew = null;
 
-        if (nbt.contains("Brew", Constants.NBT.TAG_COMPOUND)) {
-            String rawBrewTypeId = nbt.getString("BrewType");
+        if (tag.contains("Brew", Constants.NBT.TAG_COMPOUND)) {
+            String rawBrewTypeId = tag.getString("BrewType");
             ResourceLocation brewTypeId = ResourceLocation.tryParse(rawBrewTypeId);
 
             if (brewTypeId == null) {
@@ -632,11 +633,11 @@ public class CauldronBlockEntity extends BlockEntity implements Cauldron, Tickab
                 return;
             }
 
-            brew = brewType.loadBrew(nbt.getCompound("Brew"), this);
+            brew = brewType.loadBrew(tag.getCompound("Brew"), this);
         }
     }
 
-    private void saveBrew(CompoundTag nbt) {
+    private void saveBrew(CompoundTag tag) {
         if (getLevel() == null) {
             throw new IllegalArgumentException();
         }
@@ -644,8 +645,8 @@ public class CauldronBlockEntity extends BlockEntity implements Cauldron, Tickab
         if (hasBrew()) {
             CompoundTag brewNBT = new CompoundTag();
             brew.writeBrew(brewNBT);
-            nbt.put("Brew", brewNBT);
-            nbt.putString("BrewType", brew.getType().getId().toString());
+            tag.put("Brew", brewNBT);
+            tag.putString("BrewType", brew.getType().getId().toString());
         }
     }
 }

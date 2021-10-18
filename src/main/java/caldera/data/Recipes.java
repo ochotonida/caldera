@@ -16,7 +16,7 @@ public class Recipes extends RecipeProvider {
     }
 
     @Override
-    protected void buildShapelessRecipes(Consumer<FinishedRecipe> consumer) {
+    protected void buildCraftingRecipes(Consumer<FinishedRecipe> consumer) {
         addCauldronRecipes(consumer);
     }
 

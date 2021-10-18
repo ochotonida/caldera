@@ -2,6 +2,8 @@ package caldera.common.recipe.ingredient;
 
 import caldera.common.util.CraftingHelper;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
+import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.SerializationTags;
@@ -43,7 +45,7 @@ public class FluidIngredient implements Predicate<FluidStack> {
 
         if (ingredient.has("tag")) {
             ResourceLocation tagName = CraftingHelper.readResourceLocation(ingredient, "tag");
-            Tag<Fluid> fluidTag = SerializationTags.getInstance().getFluids().getTagOrEmpty(tagName);
+            Tag<Fluid> fluidTag = SerializationTags.getInstance().getTagOrThrow(Registry.FLUID_REGISTRY, tagName, (id) -> new JsonSyntaxException("Unknown fluid tag '" + id + "'"));
             return of(fluidTag);
         } else {
             FluidStack fluidStack = CraftingHelper.readFluidStack(ingredient, true, false);
@@ -56,7 +58,7 @@ public class FluidIngredient implements Predicate<FluidStack> {
             return CraftingHelper.writeFluidStack(fluidStack, true, false);
         } else {
             JsonObject object = new JsonObject();
-            ResourceLocation tagName = SerializationTags.getInstance().getFluids().getIdOrThrow(fluidTag);
+            ResourceLocation tagName = SerializationTags.getInstance().getIdOrThrow(Registry.FLUID_REGISTRY, fluidTag, () -> new IllegalStateException("Unknown fluid tag"));
             object.addProperty("tag", tagName.toString());
             return object;
         }
@@ -68,7 +70,7 @@ public class FluidIngredient implements Predicate<FluidStack> {
             return FluidIngredient.of(fluidStack);
         } else {
             ResourceLocation tagName = buffer.readResourceLocation();
-            Tag<Fluid> fluidTag = SerializationTags.getInstance().getFluids().getTagOrEmpty(tagName);
+            Tag<Fluid> fluidTag = SerializationTags.getInstance().getTagOrThrow(Registry.FLUID_REGISTRY, tagName, (id) -> null);
             return of(fluidTag);
         }
     }
@@ -78,7 +80,7 @@ public class FluidIngredient implements Predicate<FluidStack> {
         if (fluidStack != null) {
             fluidStack.writeToPacket(buffer);
         } else {
-            ResourceLocation tagName = SerializationTags.getInstance().getFluids().getIdOrThrow(fluidTag);
+            ResourceLocation tagName = SerializationTags.getInstance().getIdOrThrow(Registry.FLUID_REGISTRY, fluidTag, () -> null);
             buffer.writeResourceLocation(tagName);
         }
     }

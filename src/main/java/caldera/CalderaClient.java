@@ -1,11 +1,13 @@
 package caldera;
 
+import caldera.common.block.cauldron.CauldronBlockEntityRenderer;
 import caldera.common.init.ModBlockEntityTypes;
 import caldera.common.init.ModParticleTypes;
 import caldera.common.particle.CauldronBubbleParticle;
 import caldera.common.particle.CauldronSplashParticle;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.ParticleEngine;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraftforge.client.event.ParticleFactoryRegisterEvent;
@@ -27,7 +29,7 @@ public class CalderaClient {
 
     @SubscribeEvent
     public void onClientSetup(FMLClientSetupEvent event) {
-        event.enqueueWork(ModBlockEntityTypes::addRenderers);
+        event.enqueueWork(() -> BlockEntityRenderers.register(ModBlockEntityTypes.LARGE_CAULDRON.get(), CauldronBlockEntityRenderer::new));
     }
 
     @SubscribeEvent

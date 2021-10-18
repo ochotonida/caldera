@@ -11,7 +11,10 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.phys.BlockHitResult;
@@ -25,7 +28,7 @@ import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 
-public class LargeCauldronBlock extends CubeMultiBlock {
+public class LargeCauldronBlock extends CubeMultiBlock implements EntityBlock {
 
     private static final Map<Direction, VoxelShape> LOWER_SHAPES = new HashMap<>();
     private static final Map<Direction, VoxelShape> UPPER_SHAPES = new HashMap<>();
@@ -113,14 +116,17 @@ public class LargeCauldronBlock extends CubeMultiBlock {
         return true;
     }
 
+    @Nullable
     @Override
-    public boolean hasTileEntity(BlockState state) {
-        return true;
+    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+        return new CauldronBlockEntity(pos, state);
     }
 
+    @Nullable
     @Override
-    public BlockEntity createTileEntity(BlockState state, BlockGetter world) {
-        return new CauldronBlockEntity();
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> blockEntityType) {
+        // noinspection unchecked
+        return level.isClientSide() ? null : (BlockEntityTicker<T>) CauldronBlockEntity.TICKER;
     }
 
     @Override

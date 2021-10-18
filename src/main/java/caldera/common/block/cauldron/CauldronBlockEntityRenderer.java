@@ -8,8 +8,8 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
+import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
@@ -20,11 +20,10 @@ import net.minecraft.world.level.material.Fluids;
 import net.minecraftforge.fluids.FluidAttributes;
 import net.minecraftforge.fluids.FluidStack;
 
-public class CauldronBlockEntityRenderer extends BlockEntityRenderer<CauldronBlockEntity> {
+public class CauldronBlockEntityRenderer implements BlockEntityRenderer<CauldronBlockEntity> {
 
-    public CauldronBlockEntityRenderer(BlockEntityRenderDispatcher dispatcher) {
-        super(dispatcher);
-    }
+    @SuppressWarnings("unused")
+    public CauldronBlockEntityRenderer(BlockEntityRendererProvider.Context context) { }
 
     @Override
     public void render(CauldronBlockEntity cauldron, float partialTicks, PoseStack matrixStack, MultiBufferSource buffer, int light, int overlay) {
