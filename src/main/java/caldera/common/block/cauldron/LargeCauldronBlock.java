@@ -126,7 +126,7 @@ public class LargeCauldronBlock extends CubeMultiBlock implements EntityBlock {
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> blockEntityType) {
         // noinspection unchecked
-        return level.isClientSide() ? null : (BlockEntityTicker<T>) CauldronBlockEntity.TICKER;
+        return (BlockEntityTicker<T>) CauldronBlockEntity.TICKER;
     }
 
     @Override
