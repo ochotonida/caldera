@@ -2,7 +2,7 @@ package caldera.common.recipe.brew;
 
 import caldera.common.init.ModRecipeTypes;
 import caldera.common.recipe.Cauldron;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
@@ -11,7 +11,13 @@ import net.minecraft.world.level.Level;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.items.IItemHandler;
 
-public interface BrewType<BREW extends Brew> extends Recipe<Container> {
+public abstract class BrewType implements Recipe<Container> {
+
+    private final ResourceLocation id;
+
+    protected BrewType(ResourceLocation id) {
+        this.id = id;
+    }
 
     /**
      * Creates the result of this recipe
@@ -22,47 +28,45 @@ public interface BrewType<BREW extends Brew> extends Recipe<Container> {
      * @param cauldron The cauldron constructing this recipe
      * @return The result of this recipe
      */
-    BREW assemble(FluidStack fluid, IItemHandler inventory, Cauldron cauldron);
+    public abstract Brew assemble(FluidStack fluid, IItemHandler inventory, Cauldron cauldron);
 
-    /**
-     * Load a brew of this type from nbt
-     *
-     * @param nbt Compound tag to read the brew from
-     * @param cauldron The block entity loading the brew, might not have been fully initialized
-     * @return A brew of this type
-     */
-    BREW loadBrew(CompoundTag nbt, Cauldron cauldron);
+    public abstract Brew create(Cauldron cauldron);
+
+    @Override
+    public ResourceLocation getId() {
+        return id;
+    }
 
     // unused
     @Override
     @Deprecated
-    default boolean matches(Container inventory, Level level) {
+    public final boolean matches(Container inventory, Level level) {
         return false;
     }
 
     // unused
     @Override
     @Deprecated
-    default ItemStack assemble(Container inventory) {
+    public final ItemStack assemble(Container inventory) {
         return ItemStack.EMPTY;
     }
 
     // unused
     @Override
     @Deprecated
-    default boolean canCraftInDimensions(int width, int height) {
+    public final boolean canCraftInDimensions(int width, int height) {
         return false;
     }
 
     // unused
     @Override
     @Deprecated
-    default ItemStack getResultItem() {
+    public final ItemStack getResultItem() {
         return ItemStack.EMPTY;
     }
 
     @Override
-    default RecipeType<?> getType() {
+    public final RecipeType<?> getType() {
         return ModRecipeTypes.BREW_TYPE;
     }
 

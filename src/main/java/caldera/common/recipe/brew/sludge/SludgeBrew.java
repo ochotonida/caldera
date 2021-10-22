@@ -6,18 +6,15 @@ import caldera.common.util.ColorHelper;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 
-public class SludgeBrew implements Brew {
+public class SludgeBrew extends Brew {
 
-    private final SludgeBrewType type;
-    private final Cauldron cauldron;
     private final int color;
     private final int particleColor;
 
     private int ticks;
 
     public SludgeBrew(SludgeBrewType type, Cauldron cauldron, int color) {
-        this.type = type;
-        this.cauldron = cauldron;
+        super(type, cauldron);
         this.color = color;
         this.particleColor = ColorHelper.fromRGB(
                 ColorHelper.getRed(color) / 2,
@@ -27,31 +24,31 @@ public class SludgeBrew implements Brew {
     }
 
     @Override
-    public SludgeBrewType getType() {
-        return type;
-    }
-
-    @Override
     public int getColor(float partialTicks) {
         return color;
     }
 
     @Override
     public void onBrewed() {
-        cauldron.spawnParticles(ParticleTypes.ENTITY_EFFECT, 50, particleColor);
+        getCauldron().spawnParticles(ParticleTypes.ENTITY_EFFECT, 50, particleColor);
     }
 
     @Override
     public void tick() {
         ticks++;
 
-        if (ticks % 2 == 0 && cauldron.getLevel() != null && cauldron.getLevel().isClientSide()) {
-            cauldron.spawnParticles(ParticleTypes.ENTITY_EFFECT, 1, particleColor);
+        if (ticks % 2 == 0 && getCauldron().getLevel() != null && getCauldron().getLevel().isClientSide()) {
+            getCauldron().spawnParticles(ParticleTypes.ENTITY_EFFECT, 1, particleColor);
         }
     }
 
     @Override
-    public void writeBrew(CompoundTag nbt) {
+    public void save(CompoundTag nbt) {
+
+    }
+
+    @Override
+    public void load(CompoundTag tag) {
 
     }
 }

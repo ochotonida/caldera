@@ -5,7 +5,6 @@ import caldera.common.recipe.Cauldron;
 import caldera.common.recipe.brew.BrewType;
 import caldera.common.util.ColorHelper;
 import com.google.gson.JsonObject;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.RecipeSerializer;
@@ -13,19 +12,13 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.registries.ForgeRegistryEntry;
 
-public class SludgeBrewType implements BrewType<SludgeBrew> {
+public class SludgeBrewType extends BrewType {
 
-    private final ResourceLocation id;
     private final int color;
 
     public SludgeBrewType(ResourceLocation id, int color) {
-        this.id = id;
+        super(id);
         this.color = color;
-    }
-
-    @Override
-    public ResourceLocation getId() {
-        return id;
     }
 
     @Override
@@ -34,7 +27,7 @@ public class SludgeBrewType implements BrewType<SludgeBrew> {
     }
 
     @Override
-    public SludgeBrew loadBrew(CompoundTag nbt, Cauldron cauldron) {
+    public SludgeBrew create(Cauldron cauldron) {
         return new SludgeBrew(this, cauldron, color);
     }
 

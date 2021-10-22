@@ -453,7 +453,7 @@ public class CauldronBlockEntity extends BlockEntity implements Cauldron {
     }
 
     protected void createBrew(ResourceLocation brewTypeId) {
-        BrewType<?> brewType = RecipeHelper.byType(ModRecipeTypes.BREW_TYPE).get(brewTypeId);
+        BrewType brewType = RecipeHelper.byType(ModRecipeTypes.BREW_TYPE).get(brewTypeId);
 
         if (brewType == null) {
             Caldera.LOGGER.error("Failed to load brew type {} for cauldron at {}", brewTypeId.toString(), getBlockPos());
@@ -625,7 +625,7 @@ public class CauldronBlockEntity extends BlockEntity implements Cauldron {
                 return;
             }
 
-            BrewType<?> brewType = RecipeHelper.byType(ModRecipeTypes.BREW_TYPE).get(brewTypeId);
+            BrewType brewType = RecipeHelper.byType(ModRecipeTypes.BREW_TYPE).get(brewTypeId);
             if (brewType == null) {
                 Caldera.LOGGER.error("The cauldron at {} has brew type {} which no longer exists. " +
                         "The brew will be discarded.", getBlockPos(), rawBrewTypeId
@@ -633,7 +633,8 @@ public class CauldronBlockEntity extends BlockEntity implements Cauldron {
                 return;
             }
 
-            brew = brewType.loadBrew(tag.getCompound("Brew"), this);
+            brew = brewType.create(this);
+            brew.load(tag.getCompound("Brew"));
         }
     }
 
@@ -644,7 +645,7 @@ public class CauldronBlockEntity extends BlockEntity implements Cauldron {
 
         if (hasBrew()) {
             CompoundTag brewNBT = new CompoundTag();
-            brew.writeBrew(brewNBT);
+            brew.save(brewNBT);
             tag.put("Brew", brewNBT);
             tag.putString("BrewType", brew.getType().getId().toString());
         }
