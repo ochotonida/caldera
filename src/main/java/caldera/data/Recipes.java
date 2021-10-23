@@ -1,8 +1,7 @@
 package caldera.data;
 
-import caldera.data.builder.CauldronFluidRecipeBuilder;
-import caldera.data.builder.CauldronItemRecipeBuilder;
-import caldera.data.builder.SludgeBrewTypeBuilder;
+import caldera.data.recipe.CauldronFluidRecipeBuilder;
+import caldera.data.recipe.CauldronItemRecipeBuilder;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.data.recipes.RecipeProvider;
@@ -21,7 +20,7 @@ public class Recipes extends RecipeProvider {
     }
 
     protected void addCauldronRecipes(Consumer<FinishedRecipe> consumer) {
-        SludgeBrewTypeBuilder.addRecipes(consumer);
+        // TODO GenericBrewTypeBuilder.addRecipes(consumer);
         CauldronItemRecipeBuilder.addRecipes(consumer);
         CauldronFluidRecipeBuilder.addRecipes(consumer);
     }

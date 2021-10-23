@@ -1,15 +1,16 @@
 package caldera.common.block.cauldron;
 
 import caldera.Caldera;
+import caldera.common.brew.Brew;
+import caldera.common.brew.BrewType;
+import caldera.common.brew.BrewTypeManager;
 import caldera.common.init.*;
 import caldera.common.recipe.Cauldron;
 import caldera.common.recipe.CauldronRecipe;
-import caldera.common.recipe.brew.Brew;
-import caldera.common.recipe.brew.BrewType;
 import caldera.common.util.ColorHelper;
-import caldera.common.util.RecipeHelper;
 import caldera.common.util.rendering.InterpolatedChasingValue;
 import caldera.common.util.rendering.InterpolatedLinearChasingValue;
+import caldera.mixin.accessor.RecipeManagerAccessor;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleOptions;
@@ -20,12 +21,14 @@ import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.Container;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -54,7 +57,7 @@ public class CauldronBlockEntity extends BlockEntity implements Cauldron {
 
     public static final BlockEntityTicker<CauldronBlockEntity> TICKER = (level, pos, state, blockEntity) -> blockEntity.tick();
 
-    private static final ResourceLocation SLUDGE_TYPE = new ResourceLocation(Caldera.MODID, "brew_types/sludge");
+    private static final ResourceLocation SLUDGE_TYPE = new ResourceLocation(Caldera.MODID, "sludge");
     private static final int BREW_TIME = 60;
 
     private LazyOptional<IItemHandler> itemHandler = LazyOptional.of(() -> EmptyHandler.INSTANCE);
@@ -379,21 +382,19 @@ public class CauldronBlockEntity extends BlockEntity implements Cauldron {
             return;
         }
 
-        RecipeManager manager = getLevel().getRecipeManager();
-
-        CauldronRecipe<ItemStack> itemRecipe = findMatchingRecipe(manager, ModRecipeTypes.CAULDRON_ITEM_CRAFTING);
+        CauldronRecipe<ItemStack> itemRecipe = findMatchingRecipe(ModRecipeTypes.CAULDRON_ITEM_CRAFTING);
         if (itemRecipe != null) {
             craftItem(itemRecipe);
             return;
         }
 
-        CauldronRecipe<FluidStack> fluidRecipe = findMatchingRecipe(manager, ModRecipeTypes.CAULDRON_FLUID_CRAFTING);
+        CauldronRecipe<FluidStack> fluidRecipe = findMatchingRecipe(ModRecipeTypes.CAULDRON_FLUID_CRAFTING);
         if (fluidRecipe != null) {
             craftFluid(fluidRecipe);
             return;
         }
 
-        CauldronRecipe<ResourceLocation> brewRecipe = findMatchingRecipe(manager, ModRecipeTypes.CAULDRON_BREWING);
+        CauldronRecipe<ResourceLocation> brewRecipe = findMatchingRecipe(ModRecipeTypes.CAULDRON_BREWING);
         if (brewRecipe != null) {
             craftBrew(brewRecipe);
             return;
@@ -405,14 +406,20 @@ public class CauldronBlockEntity extends BlockEntity implements Cauldron {
     }
 
     @Nullable
-    private <RECIPE extends CauldronRecipe<?>> RECIPE findMatchingRecipe(RecipeManager manager, RecipeType<RECIPE> type) {
-        Collection<RECIPE> itemRecipes = RecipeHelper.byType(manager, type).values();
+    private <RECIPE extends CauldronRecipe<?>> RECIPE findMatchingRecipe(RecipeType<RECIPE> type) {
+        // noinspection ConstantConditions
+        Collection<RECIPE> itemRecipes = getRecipesByType(getLevel().getRecipeManager(), type);
         for (RECIPE recipe : itemRecipes) {
             if (matchesRecipe(recipe)) {
                 return recipe;
             }
         }
         return null;
+    }
+
+    private static <RECIPE extends Recipe<Container>> Collection<RECIPE> getRecipesByType(RecipeManager manager, RecipeType<RECIPE> type) {
+        // noinspection unchecked
+        return (Collection<RECIPE>) ((RecipeManagerAccessor) manager).caldera$callByType(type).values();
     }
 
     private boolean matchesRecipe(CauldronRecipe<?> recipe) {
@@ -453,7 +460,7 @@ public class CauldronBlockEntity extends BlockEntity implements Cauldron {
     }
 
     protected void createBrew(ResourceLocation brewTypeId) {
-        BrewType brewType = RecipeHelper.byType(ModRecipeTypes.BREW_TYPE).get(brewTypeId);
+        BrewType brewType = BrewTypeManager.get(brewTypeId);
 
         if (brewType == null) {
             Caldera.LOGGER.error("Failed to load brew type {} for cauldron at {}", brewTypeId.toString(), getBlockPos());
@@ -625,7 +632,7 @@ public class CauldronBlockEntity extends BlockEntity implements Cauldron {
                 return;
             }
 
-            BrewType brewType = RecipeHelper.byType(ModRecipeTypes.BREW_TYPE).get(brewTypeId);
+            BrewType brewType = BrewTypeManager.get(brewTypeId);
             if (brewType == null) {
                 Caldera.LOGGER.error("The cauldron at {} has brew type {} which no longer exists. " +
                         "The brew will be discarded.", getBlockPos(), rawBrewTypeId

@@ -1,7 +1,7 @@
 package caldera.common.block.cauldron;
 
 import caldera.Caldera;
-import caldera.common.recipe.brew.Brew;
+import caldera.common.brew.Brew;
 import caldera.common.util.ColorHelper;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
