@@ -8,8 +8,7 @@ import caldera.common.init.*;
 import caldera.common.recipe.Cauldron;
 import caldera.common.recipe.CauldronRecipe;
 import caldera.common.util.ColorHelper;
-import caldera.common.util.rendering.InterpolatedChasingValue;
-import caldera.common.util.rendering.InterpolatedLinearChasingValue;
+import caldera.common.util.ChasingValue;
 import caldera.mixin.accessor.RecipeManagerAccessor;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -70,10 +69,9 @@ public class CauldronBlockEntity extends BlockEntity implements Cauldron {
     // Exclusively used for rendering
     protected static final int BREWING_COLOR = 0xA3C740;
 
-    protected final InterpolatedChasingValue fluidLevel;
-    protected final InterpolatedLinearChasingValue previousFluidAlpha;
-    protected final InterpolatedLinearChasingValue fluidAlpha;
-    protected final InterpolatedLinearChasingValue brewingColorAlpha;
+    protected final ChasingValue previousFluidAlpha;
+    protected final ChasingValue fluidAlpha;
+    protected final ChasingValue brewingColorAlpha;
     private boolean fluidOrBrewChanged;
     private FluidStack previousFluid;
     private Brew previousBrew;
@@ -83,11 +81,10 @@ public class CauldronBlockEntity extends BlockEntity implements Cauldron {
         fluidTank = new CauldronFluidTank(this);
         inventory = new CauldronItemHandler(this);
 
-        fluidLevel = new InterpolatedChasingValue().withSpeed(1/2F).start(0);
-        previousFluidAlpha = new InterpolatedLinearChasingValue().withStep(1/20F).start(0);
-        fluidAlpha = new InterpolatedLinearChasingValue().withStep(1/20F).start(1);
+        previousFluidAlpha = new ChasingValue(1/20F, 0);
+        fluidAlpha = new ChasingValue(1/20F, 1);
 
-        brewingColorAlpha = new InterpolatedLinearChasingValue().withStep(1/30F).start(0);
+        brewingColorAlpha = new ChasingValue(1/30F, 0);
 
         previousFluid = FluidStack.EMPTY;
         previousBrew = null;
@@ -163,6 +160,13 @@ public class CauldronBlockEntity extends BlockEntity implements Cauldron {
         }
     }
 
+    public float getVisualFluidLevel(float partialTicks) {
+        if (hasBrew()) {
+            return getBrew().getVisualFluidLevel(partialTicks);
+        }
+        return (float) getFluidLevel();
+    }
+
     private void setupCapabilities() {
         LazyOptional<IItemHandler> oldItemHandler = itemHandler;
         LazyOptional<IFluidHandler> oldFluidHandler = fluidHandler;
@@ -202,9 +206,8 @@ public class CauldronBlockEntity extends BlockEntity implements Cauldron {
                 spawnParticles(ModParticleTypes.CAULDRON_BUBBLE.get(), 2, getFluidParticleColor());
             }
 
-            fluidLevel.tick();
             fluidAlpha.tick();
-            if (Math.abs(fluidAlpha.getTarget() - fluidAlpha.value) < 1 / 2F) {
+            if (Math.abs(fluidAlpha.getTarget() - fluidAlpha.getValue()) < 1 / 2F) {
                 previousFluidAlpha.tick();
             }
             brewingColorAlpha.tick();
@@ -266,7 +269,7 @@ public class CauldronBlockEntity extends BlockEntity implements Cauldron {
         if ((color & 0xFFFFFF) == 0xFFFFFF) {
             color = Fluids.WATER.getAttributes().getColor(getLevel(), getBlockPos());
         }
-        return ColorHelper.mixColors(color, BREWING_COLOR, brewingColorAlpha.get(0));
+        return ColorHelper.mixColors(color, BREWING_COLOR, brewingColorAlpha.getValue(0));
     }
 
     protected void onEntityInside(Entity entity, double yOffset) {
@@ -310,7 +313,7 @@ public class CauldronBlockEntity extends BlockEntity implements Cauldron {
         if (isValidIngredient(itemEntity.getItem()) && !inventory.isFull()) {
             brewTimeRemaining = BREW_TIME;
             if (inventory.isEmpty()) {
-                brewingColorAlpha.target(1);
+                brewingColorAlpha.setTarget(1);
             }
         }
 
@@ -532,7 +535,7 @@ public class CauldronBlockEntity extends BlockEntity implements Cauldron {
         readUpdateTag(tag);
 
         if (tag.getBoolean("containsItems")) {
-            brewingColorAlpha.start(1);
+            brewingColorAlpha.reset(1);
         }
     }
 
@@ -556,7 +559,6 @@ public class CauldronBlockEntity extends BlockEntity implements Cauldron {
 
     // load data sent to client
     protected void readUpdateTag(CompoundTag tag) {
-        float previousFluidLevel = (float) getFluidLevel();
         boolean wasEmpty = isEmpty();
 
         boolean fluidOrBrewChanged = tag.getBoolean("FluidOrBrewChanged");
@@ -569,25 +571,23 @@ public class CauldronBlockEntity extends BlockEntity implements Cauldron {
         loadBrew(tag);
 
         if (fluidOrBrewChanged) {
-            brewingColorAlpha.start(0);
+            brewingColorAlpha.reset(0);
             if (isEmpty()) {
                 previousBrew = null;
                 previousFluid = FluidStack.EMPTY;
-                fluidLevel.start(0);
-                previousFluidAlpha.start(0);
-                fluidAlpha.start(1);
+                previousFluidAlpha.reset(0);
+                fluidAlpha.reset(1);
             } else {
-                fluidLevel.start(previousFluidLevel).target((float) getFluidLevel());
                 if (!wasEmpty) {
-                    previousFluidAlpha.start(1).target(0);
-                    fluidAlpha.start(0).target(1);
+                    previousFluidAlpha.setValue(1);
+                    previousFluidAlpha.setTarget(0);
+                    fluidAlpha.setValue(0);
+                    fluidAlpha.setTarget(1);
                 }
                 if (brew != null) {
                     brew.onBrewed();
                 }
             }
-        } else {
-            fluidLevel.target((float) getFluidLevel());
         }
     }
 

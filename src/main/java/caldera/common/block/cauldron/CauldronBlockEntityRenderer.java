@@ -35,16 +35,16 @@ public class CauldronBlockEntityRenderer implements BlockEntityRenderer<Cauldron
         }
 
         float floorHeight = (4 + 0.001F) / 16;
-        float fluidLevel = floorHeight + cauldron.fluidLevel.get(partialTicks);
+        float fluidLevel = floorHeight + cauldron.getVisualFluidLevel(partialTicks);
 
         for (int x = 0; x <= 1; x++) {
             for (int z = 0; z <= 1; z++) {
-                float previousAlpha = cauldron.previousFluidAlpha.get(partialTicks);
+                float previousAlpha = cauldron.previousFluidAlpha.getValue(partialTicks);
                 renderFluid(cauldron, cauldron.getPreviousFluid(), fluidLevel, x, z, buffer, matrixStack, light, previousAlpha, 1);
                 renderBrew(cauldron, cauldron.getPreviousBrew(), fluidLevel, x, z, partialTicks, buffer, matrixStack, light, previousAlpha);
 
-                float alpha = cauldron.fluidAlpha.get(partialTicks);
-                float brewingColorAlpha = cauldron.brewingColorAlpha.get(partialTicks);
+                float alpha = cauldron.fluidAlpha.getValue(partialTicks);
+                float brewingColorAlpha = cauldron.brewingColorAlpha.getValue(partialTicks);
                 renderFluid(cauldron, cauldron.getFluid(), fluidLevel, x, z, buffer, matrixStack, light, alpha, brewingColorAlpha);
                 renderBrew(cauldron, cauldron.getBrew(), fluidLevel, x, z, partialTicks, buffer, matrixStack, light, alpha);
             }

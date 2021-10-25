@@ -1,7 +1,7 @@
 package caldera.common.brew.generic;
 
 import caldera.common.util.ColorHelper;
-import caldera.common.util.rendering.InterpolatedLinearChasingValue;
+import caldera.common.util.ChasingValue;
 
 public class ColorInfo {
 
@@ -9,10 +9,10 @@ public class ColorInfo {
     private int previousColor;
     // TODO add alpha
 
-    private final InterpolatedLinearChasingValue alpha;
+    private final ChasingValue progress;
 
     public ColorInfo() {
-        this.alpha = new InterpolatedLinearChasingValue().withStep(1/30F).start(1);
+        this.progress = new ChasingValue(1/30F, 1);
         start(0xFFFFFF);
     }
 
@@ -21,18 +21,18 @@ public class ColorInfo {
     }
 
     public void tick() {
-        alpha.tick();
+        progress.tick();
     }
 
     public int getColor(float partialTicks) {
-        float amount = alpha.get(partialTicks);
+        float amount = progress.getValue(partialTicks);
         return ColorHelper.mixColors(color, previousColor, amount);
     }
 
     public void setColor(int newColor) {
         previousColor = getColor(0);
         color = newColor;
-        alpha.set(0);
+        progress.setValue(0);
     }
 
     public int getTargetColor() {

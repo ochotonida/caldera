@@ -29,6 +29,10 @@ public abstract class Brew {
         return 1;
     }
 
+    public float getVisualFluidLevel(float partialTicks) {
+        return (float) getFluidLevel();
+    }
+
     /**
      * @return The current color of the brew. Only called on the client
      */
