@@ -7,17 +7,17 @@ import caldera.common.brew.BrewTypeManager;
 import caldera.common.init.*;
 import caldera.common.recipe.Cauldron;
 import caldera.common.recipe.CauldronRecipe;
-import caldera.common.util.ColorHelper;
-import caldera.common.util.ChasingValue;
 import caldera.mixin.accessor.RecipeManagerAccessor;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.Container;
@@ -30,12 +30,11 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
-import net.minecraft.world.level.material.Fluid;
-import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.capabilities.Capability;
@@ -64,30 +63,17 @@ public class CauldronBlockEntity extends BlockEntity implements Cauldron {
     protected final CauldronFluidTank fluidTank;
     protected final CauldronItemHandler inventory;
     private Brew brew;
-    private int brewTimeRemaining;
+    private int brewingTimeRemaining;
 
-    // Exclusively used for rendering
     protected static final int BREWING_COLOR = 0xA3C740;
 
-    protected final ChasingValue previousFluidAlpha;
-    protected final ChasingValue fluidAlpha;
-    protected final ChasingValue brewingColorAlpha;
-    private boolean fluidOrBrewChanged;
-    private FluidStack previousFluid;
-    private Brew previousBrew;
+    private final TransitionHelper transitionHelper;
 
     public CauldronBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntityTypes.LARGE_CAULDRON.get(), pos, state);
         fluidTank = new CauldronFluidTank(this);
         inventory = new CauldronItemHandler(this);
-
-        previousFluidAlpha = new ChasingValue(1/20F, 0);
-        fluidAlpha = new ChasingValue(1/20F, 1);
-
-        brewingColorAlpha = new ChasingValue(1/30F, 0);
-
-        previousFluid = FluidStack.EMPTY;
-        previousBrew = null;
+        transitionHelper = new TransitionHelper(this);
     }
 
     @Nullable
@@ -125,12 +111,8 @@ public class CauldronBlockEntity extends BlockEntity implements Cauldron {
         return fluidTank.getFluid();
     }
 
-    public Brew getPreviousBrew() {
-        return previousBrew;
-    }
-
-    public FluidStack getPreviousFluid() {
-        return previousFluid;
+    public TransitionHelper getTransitionHelper() {
+        return transitionHelper;
     }
 
     public boolean hasBrew() {
@@ -139,10 +121,6 @@ public class CauldronBlockEntity extends BlockEntity implements Cauldron {
 
     public boolean hasFluid() {
         return !getFluid().isEmpty();
-    }
-
-    public boolean isEmpty() {
-        return !hasBrew() && !hasFluid();
     }
 
     protected boolean canTransferFluids() {
@@ -203,24 +181,21 @@ public class CauldronBlockEntity extends BlockEntity implements Cauldron {
 
         if (getLevel().isClientSide()) {
             if (fluidTank.isFull()) {
-                spawnParticles(ModParticleTypes.CAULDRON_BUBBLE.get(), 2, getFluidParticleColor());
+                spawnParticles(ModParticleTypes.CAULDRON_BUBBLE.get(), 2, transitionHelper.getParticleColor());
             }
-
-            fluidAlpha.tick();
-            if (Math.abs(fluidAlpha.getTarget() - fluidAlpha.getValue()) < 1 / 2F) {
-                previousFluidAlpha.tick();
-            }
-            brewingColorAlpha.tick();
         }
+
+        transitionHelper.tick();
     }
 
     private void updateBrewing() {
-        if (brewTimeRemaining-- > 0 && getLevel() != null) {
+        if (brewingTimeRemaining >= 0 && getLevel() != null) {
             if (getLevel().isClientSide() && hasFluid()) {
-                spawnParticles(ParticleTypes.ENTITY_EFFECT, 1, getFluidParticleColor());
-            } else if (brewTimeRemaining == 0) {
+                spawnParticles(ParticleTypes.ENTITY_EFFECT, 1, transitionHelper.getParticleColor());
+            } else if (brewingTimeRemaining == 0) {
                 craftFromCurrentIngredients();
             }
+            brewingTimeRemaining--;
         }
 
         if (hasBrew()) {
@@ -257,21 +232,6 @@ public class CauldronBlockEntity extends BlockEntity implements Cauldron {
         }
     }
 
-    private int getFluidParticleColor() {
-        int color = 0xFFFFFF;
-        if (hasFluid()) {
-            FluidStack fluidStack = getFluid();
-            Fluid fluid = fluidStack.getFluid();
-            if (fluid != Fluids.WATER) {
-                color = fluid.getAttributes().getColor(fluidStack);
-            }
-        }
-        if ((color & 0xFFFFFF) == 0xFFFFFF) {
-            color = Fluids.WATER.getAttributes().getColor(getLevel(), getBlockPos());
-        }
-        return ColorHelper.mixColors(color, BREWING_COLOR, brewingColorAlpha.getValue(0));
-    }
-
     protected void onEntityInside(Entity entity, double yOffset) {
         if (hasBrew()) {
             getBrew().onEntityInside(entity, yOffset);
@@ -281,12 +241,13 @@ public class CauldronBlockEntity extends BlockEntity implements Cauldron {
     }
 
     private void onItemInside(ItemEntity itemEntity, double yOffset) {
+        if (getLevel() == null || getLevel().isClientSide()) {
+            return;
+        }
+
         CompoundTag itemData = itemEntity.getPersistentData();
 
-        if (!itemEntity.level.isClientSide()
-                && itemEntity.getDeltaMovement().y() <= 0
-                && !itemData.contains("InitialDeltaMovement", Constants.NBT.TAG_COMPOUND)
-        ) {
+        if (itemEntity.getDeltaMovement().y() <= 0 && !itemData.contains("InitialDeltaMovement", Constants.NBT.TAG_COMPOUND)) {
             CompoundTag nbt = new CompoundTag();
             Vec3 deltaMovement = itemEntity.getDeltaMovement();
 
@@ -297,29 +258,18 @@ public class CauldronBlockEntity extends BlockEntity implements Cauldron {
             itemData.put("InitialDeltaMovement", nbt);
         }
 
-        if (fluidTank.isFull()
-                && itemEntity.getDeltaMovement().y() <= 0
-                && yOffset < 0.2
-        ) {
+        if (fluidTank.isFull() && itemEntity.getDeltaMovement().y() <= 0 && yOffset < 0.2) {
             addItemToCauldron(itemEntity);
         }
     }
 
     private void addItemToCauldron(ItemEntity itemEntity) {
-        if (getLevel() == null) {
-            return;
-        }
-
         if (isValidIngredient(itemEntity.getItem()) && !inventory.isFull()) {
-            brewTimeRemaining = BREW_TIME;
+            brewingTimeRemaining = BREW_TIME;
             if (inventory.isEmpty()) {
-                brewingColorAlpha.setTarget(1);
+                transitionHelper.startColorTransition();
             }
-        }
-
-        if (getLevel().isClientSide()) {
-            spawnSplashParticles(itemEntity.getX(), itemEntity.getZ(), getFluidParticleColor());
-            return;
+            sendUpdatePacket();
         }
 
         CompoundTag itemData = itemEntity.getPersistentData();
@@ -354,12 +304,12 @@ public class CauldronBlockEntity extends BlockEntity implements Cauldron {
 
             inventory.addItem(stack);
         } else {
-            getLevel().playSound(null, itemEntity.getX(), itemEntity.getY(), itemEntity.getZ(), ModSoundEvents.CAULDRON_RETURN_INERT_INGREDIENT.get(), SoundSource.BLOCKS, 0.5F, 1);
+            itemEntity.level.playSound(null, itemEntity.getX(), itemEntity.getY(), itemEntity.getZ(), ModSoundEvents.CAULDRON_RETURN_INERT_INGREDIENT.get(), SoundSource.BLOCKS, 0.5F, 1);
         }
 
         spawnInCauldron(remainder, motion);
 
-        getLevel().playSound(null, itemEntity.getX(), itemEntity.getY(), itemEntity.getZ(), SoundEvents.GENERIC_SPLASH, SoundSource.BLOCKS, 1, 1);
+        itemEntity.level.playSound(null, itemEntity.getX(), itemEntity.getY(), itemEntity.getZ(), SoundEvents.GENERIC_SPLASH, SoundSource.BLOCKS, 1, 1);
         itemEntity.discard();
     }
 
@@ -439,8 +389,8 @@ public class CauldronBlockEntity extends BlockEntity implements Cauldron {
 
         inventory.clear();
         fluidTank.clear();
-        brewTimeRemaining = 0;
-        sendUpdatePacket();
+        brewingTimeRemaining = 0;
+        sendBlockUpdated();
         setChanged();
     }
 
@@ -448,12 +398,11 @@ public class CauldronBlockEntity extends BlockEntity implements Cauldron {
         FluidStack result = assembleRecipe(recipe);
 
         inventory.clear();
-        if (!fluidTank.getFluid().isFluidEqual(result)) {
-            setFluidOrBrewChanged();
-        }
+        transitionHelper.setPreviousFluidAndBrew(getFluid(), getBrew());
+        transitionHelper.startFluidTransition();
         fluidTank.setFluid(result);
-        brewTimeRemaining = 0;
-        sendUpdatePacket();
+        brewingTimeRemaining = 0;
+        sendBlockUpdated();
         setChanged();
     }
 
@@ -467,17 +416,18 @@ public class CauldronBlockEntity extends BlockEntity implements Cauldron {
 
         if (brewType == null) {
             Caldera.LOGGER.error("Failed to load brew type {} for cauldron at {}", brewTypeId.toString(), getBlockPos());
-            brew = null;
             return;
         }
+
+        transitionHelper.setPreviousFluidAndBrew(getFluid(), getBrew());
 
         brew = brewType.assemble(getFluid(), inventory, this);
 
         inventory.clear();
         fluidTank.clear();
-        brewTimeRemaining = 0;
-        setFluidOrBrewChanged();
-        sendUpdatePacket();
+        brewingTimeRemaining = 0;
+        transitionHelper.startFluidTransition();
+        sendBlockUpdated();
         setChanged();
 
         brew.onBrewed();
@@ -485,10 +435,6 @@ public class CauldronBlockEntity extends BlockEntity implements Cauldron {
 
     protected void setBrewToSludge() {
         createBrew(SLUDGE_TYPE);
-    }
-
-    protected void setFluidOrBrewChanged() {
-        fluidOrBrewChanged = true;
     }
 
     protected InteractionResult onUse(Player player, InteractionHand hand) {
@@ -521,32 +467,24 @@ public class CauldronBlockEntity extends BlockEntity implements Cauldron {
         return super.getRenderBoundingBox();
     }
 
-    protected void sendUpdatePacket() {
+    protected void sendBlockUpdated() {
         if (getLevel() != null && !getLevel().isClientSide()) {
             BlockState state = getBlockState();
             getLevel().sendBlockUpdated(getBlockPos(), state, state, Constants.BlockFlags.BLOCK_UPDATE);
         }
     }
 
-    // update client on chunk load
-    @Override
-    public void handleUpdateTag(CompoundTag tag) {
-        super.handleUpdateTag(tag);
-        readUpdateTag(tag);
-
-        if (tag.getBoolean("containsItems")) {
-            brewingColorAlpha.reset(1);
+    public void sendUpdatePacket() {
+        if (getLevel() != null && !getLevel().isClientSide()) {
+            ServerChunkCache chunkCache = ((ServerChunkCache) getLevel().getChunkSource());
+            // noinspection ConstantConditions
+            chunkCache.chunkMap
+                    .getPlayers(new ChunkPos(getBlockPos()), false)
+                    .forEach(player -> player.connection.send(getUpdatePacket()));
         }
     }
 
-    @Override
-    public CompoundTag getUpdateTag() {
-        CompoundTag updateTag = createUpdateTag(super.getUpdateTag());
-        updateTag.putBoolean("containsItems", !inventory.isEmpty());
-        return createUpdateTag(updateTag);
-    }
-
-    // sync client on block update
+    // block update
     @Override
     public void onDataPacket(Connection networkManager, ClientboundBlockEntityDataPacket updatePacket) {
         readUpdateTag(updatePacket.getTag());
@@ -554,107 +492,100 @@ public class CauldronBlockEntity extends BlockEntity implements Cauldron {
 
     @Override
     public ClientboundBlockEntityDataPacket getUpdatePacket() {
+        if (!isController()) {
+            return null;
+        }
         return new ClientboundBlockEntityDataPacket(getBlockPos(), 0, createUpdateTag(new CompoundTag()));
     }
 
-    // load data sent to client
     protected void readUpdateTag(CompoundTag tag) {
-        boolean wasEmpty = isEmpty();
-
-        boolean fluidOrBrewChanged = tag.getBoolean("FluidOrBrewChanged");
-        if (fluidOrBrewChanged) {
-            previousFluid = getFluid().copy();
-            previousBrew = getBrew();
-        }
-
+        brewingTimeRemaining = tag.getInt("BrewingTimeRemaining");
         fluidTank.readFromNBT(tag.getCompound("FluidHandler"));
-        loadBrew(tag);
-
-        if (fluidOrBrewChanged) {
-            brewingColorAlpha.reset(0);
-            if (isEmpty()) {
-                previousBrew = null;
-                previousFluid = FluidStack.EMPTY;
-                previousFluidAlpha.reset(0);
-                fluidAlpha.reset(1);
-            } else {
-                if (!wasEmpty) {
-                    previousFluidAlpha.setValue(1);
-                    previousFluidAlpha.setTarget(0);
-                    fluidAlpha.setValue(0);
-                    fluidAlpha.setTarget(1);
-                }
-                if (brew != null) {
-                    brew.onBrewed();
-                }
-            }
-        }
+        inventory.deserializeNBT(tag.getCompound("ItemHandler"));
+        brew = loadBrew(tag.getCompound("Brew"), this);
+        transitionHelper.load(tag.getCompound("TransitionHelper"));
     }
 
     protected CompoundTag createUpdateTag(CompoundTag tag) {
-        tag.putBoolean("FluidOrBrewChanged", fluidOrBrewChanged);
-        fluidOrBrewChanged = false;
-
+        tag.putInt("BrewingTimeRemaining", brewingTimeRemaining);
         tag.put("FluidHandler", fluidTank.writeToNBT(new CompoundTag()));
-        saveBrew(tag);
+        tag.put("ItemHandler", inventory.serializeNBT());
+        if (hasBrew()) {
+            tag.put("Brew", saveBrew(brew));
+        }
+        tag.put("TransitionHelper", transitionHelper.save());
 
         return tag;
     }
 
+    // client loads chunk
+    @Override
+    public void handleUpdateTag(CompoundTag tag) {
+        super.handleUpdateTag(tag);
+        readUpdateTag(tag);
+    }
+
+    @Override
+    public CompoundTag getUpdateTag() {
+        CompoundTag updateTag = super.getUpdateTag();
+        return createUpdateTag(updateTag);
+    }
+
+    // load from disk
     @Override
     public void load(CompoundTag tag) {
         super.load(tag);
+        brewingTimeRemaining = tag.getInt("BrewingTimeRemaining");
         fluidTank.readFromNBT(tag.getCompound("FluidHandler"));
         inventory.deserializeNBT(tag.getCompound("ItemHandler"));
-        loadBrew(tag);
+        brew = loadBrew(tag.getCompound("Brew"), this);
+        transitionHelper.load(tag.getCompound("TransitionHelper"));
     }
 
     @Override
     public CompoundTag save(CompoundTag tag) {
+        tag.putInt("BrewingTimeRemaining", brewingTimeRemaining);
         tag.put("FluidHandler", fluidTank.writeToNBT(new CompoundTag()));
         tag.put("ItemHandler", inventory.serializeNBT());
-        saveBrew(tag);
+        if (hasBrew()) {
+            tag.put("Brew", saveBrew(getBrew()));
+        }
+        tag.put("TransitionHelper", transitionHelper.save());
 
         return super.save(tag);
     }
 
-    private void loadBrew(CompoundTag tag) {
-        brew = null;
-
-        if (tag.contains("Brew", Constants.NBT.TAG_COMPOUND)) {
-            String rawBrewTypeId = tag.getString("BrewType");
-            ResourceLocation brewTypeId = ResourceLocation.tryParse(rawBrewTypeId);
-
-            if (brewTypeId == null) {
-                Caldera.LOGGER.error("The cauldron at {} has invalid brew type {}. " +
-                        "The brew will be discarded.", getBlockPos(), rawBrewTypeId
-                );
-                return;
-            }
-
-            BrewType brewType = BrewTypeManager.get(brewTypeId);
-            if (brewType == null) {
-                Caldera.LOGGER.error("The cauldron at {} has brew type {} which no longer exists. " +
-                        "The brew will be discarded.", getBlockPos(), rawBrewTypeId
-                );
-                return;
-            }
-
-            brew = brewType.create(this);
-            brew.load(tag.getCompound("Brew"));
+    protected static Brew loadBrew(CompoundTag tag, CauldronBlockEntity cauldron) {
+        if (!tag.contains("BrewType", Tag.TAG_STRING)) {
+            return null;
         }
+
+        String brewTypeIdString = tag.getString("BrewType");
+        ResourceLocation brewTypeId = ResourceLocation.tryParse(brewTypeIdString);
+
+        if (brewTypeId == null) {
+            Caldera.LOGGER.error("The cauldron at {} tried to load invalid brew type {}. The brew will be discarded.", cauldron.getBlockPos(), brewTypeIdString);
+            return null;
+        }
+
+        BrewType brewType = BrewTypeManager.get(brewTypeId);
+        if (brewType == null) {
+            Caldera.LOGGER.error("The cauldron at {} tried to load unknown brew type {}. The brew will be discarded.", cauldron.getBlockPos(), brewTypeIdString);
+            return null;
+        }
+
+        Brew result = brewType.create(cauldron);
+        result.load(tag.getCompound("Brew"));
+
+        return result;
     }
 
-    private void saveBrew(CompoundTag tag) {
-        if (getLevel() == null) {
-            throw new IllegalArgumentException();
-        }
-
-        if (hasBrew()) {
-            CompoundTag brewNBT = new CompoundTag();
-            brew.save(brewNBT);
-            tag.put("Brew", brewNBT);
-            tag.putString("BrewType", brew.getType().getId().toString());
-        }
+    protected static CompoundTag saveBrew(Brew brew) {
+        CompoundTag result = new CompoundTag();
+        CompoundTag brewTag = new CompoundTag();
+        brew.save(brewTag);
+        result.put("Brew", brewTag);
+        result.putString("BrewType", brew.getType().getId().toString());
+        return result;
     }
 }

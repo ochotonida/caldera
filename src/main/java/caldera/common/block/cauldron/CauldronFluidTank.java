@@ -18,13 +18,10 @@ public class CauldronFluidTank extends FluidTank {
     private static boolean isValid(FluidStack fluid) {
         // TODO replace this with a fluid tag maybe
         FluidAttributes attributes = fluid.getFluid().getAttributes();
-        return !attributes.isLighterThanAir() && !attributes.isGaseous();
+        return !attributes.isLighterThanAir() || !attributes.isGaseous();
     }
 
     public void clear() {
-        if (!isEmpty()) {
-            cauldron.setFluidOrBrewChanged();
-        }
         setFluid(FluidStack.EMPTY);
     }
 
@@ -33,19 +30,9 @@ public class CauldronFluidTank extends FluidTank {
     }
 
     @Override
-    public void setFluid(FluidStack stack) {
-        super.setFluid(stack);
-    }
-
-    @Override
     public int fill(FluidStack resource, FluidAction action) {
         if (cauldron.canTransferFluids()) {
-            FluidStack previousFluid = action == FluidAction.EXECUTE ? getFluid().copy() : null;
-            int result = super.fill(resource, action);
-            if (action == FluidAction.EXECUTE && !previousFluid.isFluidEqual(getFluid())) {
-                cauldron.setFluidOrBrewChanged();
-            }
-            return result;
+            return super.fill(resource, action);
         }
         return 0;
     }
@@ -53,19 +40,14 @@ public class CauldronFluidTank extends FluidTank {
     @Override
     public FluidStack drain(int maxDrain, FluidAction action) {
         if (cauldron.canTransferFluids()) {
-            FluidStack previousFluid = action == FluidAction.EXECUTE ? getFluid().copy() : null;
-            FluidStack result = super.drain(maxDrain, action);
-            if (action == FluidAction.EXECUTE && !previousFluid.isFluidEqual(getFluid())) {
-                cauldron.setFluidOrBrewChanged();
-            }
-            return result;
+            return super.drain(maxDrain, action);
         }
         return FluidStack.EMPTY;
     }
 
     @Override
     protected void onContentsChanged() {
-        cauldron.sendUpdatePacket();
+        cauldron.sendBlockUpdated();
         cauldron.setChanged();
     }
 }

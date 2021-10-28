@@ -39,14 +39,14 @@ public class CauldronBlockEntityRenderer implements BlockEntityRenderer<Cauldron
 
         for (int x = 0; x <= 1; x++) {
             for (int z = 0; z <= 1; z++) {
-                float previousAlpha = cauldron.previousFluidAlpha.getValue(partialTicks);
-                renderFluid(cauldron, cauldron.getPreviousFluid(), fluidLevel, x, z, buffer, matrixStack, light, previousAlpha, 1);
-                renderBrew(cauldron, cauldron.getPreviousBrew(), fluidLevel, x, z, partialTicks, buffer, matrixStack, light, previousAlpha);
+                float previousFluidAlpha = cauldron.getTransitionHelper().getPreviousFluidAlpha(partialTicks);
+                renderFluid(cauldron, cauldron.getTransitionHelper().getPreviousFluid(), fluidLevel, x, z, buffer, matrixStack, light, previousFluidAlpha, 1);
+                renderBrew(cauldron, cauldron.getTransitionHelper().getPreviousBrew(), fluidLevel, x, z, partialTicks, buffer, matrixStack, light, previousFluidAlpha);
 
-                float alpha = cauldron.fluidAlpha.getValue(partialTicks);
-                float brewingColorAlpha = cauldron.brewingColorAlpha.getValue(partialTicks);
-                renderFluid(cauldron, cauldron.getFluid(), fluidLevel, x, z, buffer, matrixStack, light, alpha, brewingColorAlpha);
-                renderBrew(cauldron, cauldron.getBrew(), fluidLevel, x, z, partialTicks, buffer, matrixStack, light, alpha);
+                float currentFluidAlpha = cauldron.getTransitionHelper().getFluidAlpha(partialTicks);
+                float brewingColorAlpha = cauldron.getTransitionHelper().getFluidColor(partialTicks);
+                renderFluid(cauldron, cauldron.getFluid(), fluidLevel, x, z, buffer, matrixStack, light, currentFluidAlpha, brewingColorAlpha);
+                renderBrew(cauldron, cauldron.getBrew(), fluidLevel, x, z, partialTicks, buffer, matrixStack, light, currentFluidAlpha);
             }
         }
     }
