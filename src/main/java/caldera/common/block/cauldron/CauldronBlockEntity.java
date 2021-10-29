@@ -503,7 +503,7 @@ public class CauldronBlockEntity extends BlockEntity implements Cauldron {
         fluidTank.readFromNBT(tag.getCompound("FluidHandler"));
         inventory.deserializeNBT(tag.getCompound("ItemHandler"));
         brew = loadBrew(tag.getCompound("Brew"), this);
-        transitionHelper.load(tag.getCompound("TransitionHelper"));
+        transitionHelper.load(tag.getCompound("Transition"));
     }
 
     protected CompoundTag createUpdateTag(CompoundTag tag) {
@@ -513,7 +513,7 @@ public class CauldronBlockEntity extends BlockEntity implements Cauldron {
         if (hasBrew()) {
             tag.put("Brew", saveBrew(brew));
         }
-        tag.put("TransitionHelper", transitionHelper.save());
+        tag.put("Transition", transitionHelper.save());
 
         return tag;
     }
@@ -539,7 +539,10 @@ public class CauldronBlockEntity extends BlockEntity implements Cauldron {
         fluidTank.readFromNBT(tag.getCompound("FluidHandler"));
         inventory.deserializeNBT(tag.getCompound("ItemHandler"));
         brew = loadBrew(tag.getCompound("Brew"), this);
-        transitionHelper.load(tag.getCompound("TransitionHelper"));
+
+        if (!inventory.isEmpty() && fluidTank.isFull()) {
+            transitionHelper.setColored();
+        }
     }
 
     @Override
@@ -550,7 +553,6 @@ public class CauldronBlockEntity extends BlockEntity implements Cauldron {
         if (hasBrew()) {
             tag.put("Brew", saveBrew(getBrew()));
         }
-        tag.put("TransitionHelper", transitionHelper.save());
 
         return super.save(tag);
     }

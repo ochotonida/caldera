@@ -57,6 +57,10 @@ public class TransitionHelper {
         fluidColorProgress.reset(0);
     }
 
+    public void setColored() {
+        fluidColorProgress.reset(1);
+    }
+
     public void startColorTransition() {
         fluidColorProgress.setTarget(1);
     }
@@ -101,8 +105,8 @@ public class TransitionHelper {
             result.put("PreviousFluid", fluidTag);
         }
 
-        result.put("AlphaProgress", saveValue(fluidAlphaProgress));
-        result.put("ColorProgress", saveValue(fluidColorProgress));
+        result.put("FluidAlphaProgress", saveValue(fluidAlphaProgress));
+        result.put("FluidColorProgress", saveValue(fluidColorProgress));
 
         return result;
     }
@@ -111,8 +115,8 @@ public class TransitionHelper {
         previousBrew = CauldronBlockEntity.loadBrew(tag.getCompound("PreviousBrew"), cauldron);
         previousFluid = FluidStack.loadFluidStackFromNBT(tag.getCompound("PreviousFluid"));
 
-        loadValue(tag.getCompound("AlphaProgress"), fluidAlphaProgress);
-        loadValue(tag.getCompound("ColorProgress"), fluidColorProgress);
+        loadValue(tag.getCompound("FluidAlphaProgress"), fluidAlphaProgress);
+        loadValue(tag.getCompound("FluidColorProgress"), fluidColorProgress);
     }
 
     private static CompoundTag saveValue(ChasingValue value) {
