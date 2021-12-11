@@ -31,6 +31,9 @@ public final class EffectActionType extends ForgeRegistryEntry<ActionType<?>> im
         return new EffectAction(identifier);
     }
 
+    public EffectAction effect(String identifier) {
+        return new EffectAction(identifier);
+    }
 
     public class EffectAction implements Action {
 

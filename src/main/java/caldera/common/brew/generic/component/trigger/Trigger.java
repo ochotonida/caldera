@@ -9,7 +9,7 @@ public interface Trigger {
 
     default JsonObject toJson() {
         JsonObject result = new JsonObject();
-        result.addProperty("type", getType().toString());
+        result.addProperty("triggerType", getType().toString());
         serialize(result);
         return result;
     }

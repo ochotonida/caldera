@@ -153,7 +153,7 @@ public class GenericBrewType implements BrewType {
                     throw new JsonParseException("Unknown effect type: " + providerId);
                 }
                 // noinspection ConstantConditions
-                EffectProvider provider = CalderaRegistries.EFFECT_PROVIDER_TYPES.getValue(providerId).deserialize(providerObject, identifier);
+                EffectProvider provider = CalderaRegistries.EFFECT_PROVIDER_TYPES.getValue(providerId).deserialize(providerObject);
                 result.put(identifier, provider);
             }
 
@@ -167,7 +167,7 @@ public class GenericBrewType implements BrewType {
                 String identifier = buffer.readUtf();
                 ResourceLocation effectProviderId = buffer.readResourceLocation();
                 // noinspection ConstantConditions
-                EffectProvider provider = CalderaRegistries.EFFECT_PROVIDER_TYPES.getValue(effectProviderId).deserialize(buffer, identifier);
+                EffectProvider provider = CalderaRegistries.EFFECT_PROVIDER_TYPES.getValue(effectProviderId).deserialize(buffer);
                 result.put(identifier, provider);
             }
 

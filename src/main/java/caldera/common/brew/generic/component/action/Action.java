@@ -13,7 +13,7 @@ public interface Action extends Consumer<GenericBrew> {
 
     default JsonObject toJson() {
         JsonObject result = new JsonObject();
-        result.addProperty("type", getType().toString());
+        result.addProperty("actionType", getType().toString());
         serialize(result);
         return result;
     }

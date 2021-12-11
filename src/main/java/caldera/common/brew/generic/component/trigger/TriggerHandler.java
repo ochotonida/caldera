@@ -16,14 +16,6 @@ public class TriggerHandler<INSTANCE extends Trigger> {
         this.triggerType = triggerType;
     }
 
-    public TriggerType<INSTANCE> getTriggerType() {
-        return triggerType;
-    }
-
-    public Map<INSTANCE, List<String>> getTriggers() {
-        return triggers;
-    }
-
     public void addListener(Trigger trigger, List<String> actions) {
         if (!trigger.getType().equals(triggerType.getRegistryName())) {
             throw new IllegalArgumentException(String.format("Trigger has incorrect type %s, expected %s", trigger.getType(), triggerType.getRegistryName()));

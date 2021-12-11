@@ -46,6 +46,14 @@ public class PlaySoundActionType extends ForgeRegistryEntry<ActionType<?>> imple
         return new PlaySoundAction(soundEvent, volume, pitch);
     }
 
+    public PlaySoundAction playSound(SoundEvent soundEvent) {
+        return playSound(soundEvent, 1, 1);
+    }
+
+    public PlaySoundAction playSound(SoundEvent soundEvent, float volume, float pitch) {
+        return new PlaySoundAction(soundEvent, volume, pitch);
+    }
+
     public class PlaySoundAction implements Action {
 
         private final SoundEvent soundEvent;

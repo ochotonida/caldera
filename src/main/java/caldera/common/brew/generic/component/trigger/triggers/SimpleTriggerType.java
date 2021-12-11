@@ -17,6 +17,10 @@ public final class SimpleTriggerType extends TriggerType<SimpleTriggerType.Simpl
         return new SimpleTrigger();
     }
 
+    public SimpleTrigger create() {
+        return new SimpleTrigger();
+    }
+
     public class SimpleTrigger implements Trigger {
 
         @Override

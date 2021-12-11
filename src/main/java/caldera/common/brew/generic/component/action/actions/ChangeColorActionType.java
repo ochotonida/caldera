@@ -33,6 +33,14 @@ public class ChangeColorActionType extends ForgeRegistryEntry<ActionType<?>> imp
         return new ChangeColorAction(color, transitionTime);
     }
 
+    public ChangeColorAction setColor(int color) {
+        return changeColor(color, 0);
+    }
+
+    public ChangeColorAction changeColor(int color, int transitionTime) {
+        return new ChangeColorAction(color, transitionTime);
+    }
+
     public class ChangeColorAction implements Action {
 
         private final int color;

@@ -16,26 +16,28 @@ import net.minecraftforge.registries.ForgeRegistryEntry;
 public class TimerEffectType extends ForgeRegistryEntry<EffectProviderType<?>> implements EffectProviderType<TimerEffectType.TimerEffectProvider> {
 
     @Override
-    public TimerEffectProvider deserialize(JsonObject object, String identifier) {
+    public TimerEffectProvider deserialize(JsonObject object) {
         int time = GsonHelper.getAsInt(object, "duration");
         if (time < 1) {
             throw new JsonParseException("Timer duration must be greater than 0");
         }
-        return new TimerEffectProvider(identifier, time);
+        return new TimerEffectProvider(time);
     }
 
     @Override
-    public TimerEffectProvider deserialize(FriendlyByteBuf buffer, String identifier) {
-        return new TimerEffectProvider(identifier, buffer.readInt());
+    public TimerEffectProvider deserialize(FriendlyByteBuf buffer) {
+        return new TimerEffectProvider(buffer.readInt());
+    }
+
+    public TimerEffectProvider timer(int time) {
+        return new TimerEffectProvider(time);
     }
 
     public class TimerEffectProvider implements EffectProvider {
 
-        private final String identifier;
         private final int time;
 
-        public TimerEffectProvider(String identifier, int time) {
-            this.identifier = identifier;
+        public TimerEffectProvider(int time) {
             this.time = time;
         }
 
@@ -55,12 +57,12 @@ public class TimerEffectType extends ForgeRegistryEntry<EffectProviderType<?>> i
         }
 
         @Override
-        public Effect create(GenericBrew brew) {
+        public Effect create(GenericBrew brew, String identifier) {
             return new TimerEffect(brew, identifier, time * 20);
         }
 
         @Override
-        public Effect loadEffect(GenericBrew brew, CompoundTag tag) {
+        public Effect loadEffect(GenericBrew brew, CompoundTag tag, String identifier) {
             int time = tag.getInt("TimeRemaining");
             return new TimerEffect(brew, identifier, time);
         }

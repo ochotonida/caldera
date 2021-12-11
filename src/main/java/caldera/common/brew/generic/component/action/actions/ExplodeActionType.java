@@ -41,6 +41,14 @@ public class ExplodeActionType extends ForgeRegistryEntry<ActionType<?>> impleme
         return new ExplodeAction(buffer.readFloat(), buffer.readBoolean(), buffer.readEnum(Explosion.BlockInteraction.class));
     }
 
+    public ExplodeAction explode(float radius) {
+        return explode(radius, false, Explosion.BlockInteraction.DESTROY);
+    }
+
+    public ExplodeAction explode(float radius, boolean causesFire, Explosion.BlockInteraction mode) {
+        return new ExplodeAction(radius, causesFire, mode);
+    }
+
     public class ExplodeAction implements Action {
 
         private final float radius;
@@ -71,7 +79,7 @@ public class ExplodeActionType extends ForgeRegistryEntry<ActionType<?>> impleme
         public void serialize(JsonObject object) {
             object.addProperty("radius", radius);
             object.addProperty("causesFire", causesFire);
-            object.addProperty("mode", mode.name());
+            object.addProperty("mode", mode.name().toLowerCase(Locale.ROOT));
         }
 
         @Override

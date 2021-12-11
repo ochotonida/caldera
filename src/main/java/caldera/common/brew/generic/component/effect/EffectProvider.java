@@ -8,15 +8,15 @@ import net.minecraft.resources.ResourceLocation;
 
 public interface EffectProvider {
 
-    Effect create(GenericBrew brew);
+    Effect create(GenericBrew brew, String identifier);
 
-    Effect loadEffect(GenericBrew brew, CompoundTag tag);
+    Effect loadEffect(GenericBrew brew, CompoundTag tag, String identifier);
 
     ResourceLocation getType();
 
     default JsonObject toJson() {
         JsonObject result = new JsonObject();
-        result.addProperty("type", getType().toString());
+        result.addProperty("effectType", getType().toString());
         serialize(result);
         return result;
     }

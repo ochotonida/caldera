@@ -54,7 +54,7 @@ public class GenericBrew extends Brew {
     }
 
     public void startEffect(String identifier) {
-        effects.put(identifier, getType().getEffects().get(identifier).create(this));
+        effects.put(identifier, getType().getEffects().get(identifier).create(this, identifier));
     }
 
     public void removeEffect(String identifier) {
@@ -90,7 +90,7 @@ public class GenericBrew extends Brew {
         for (Tag element : list) {
             CompoundTag tag = (CompoundTag) element;
             String identifier = tag.getString("Identifier");
-            Effect effect = getType().getEffects().get(identifier).loadEffect(this, tag);
+            Effect effect = getType().getEffects().get(identifier).loadEffect(this, tag, identifier);
             effects.put(identifier, effect);
         }
     }

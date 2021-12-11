@@ -19,6 +19,10 @@ public class TimerTriggerType extends TriggerType<TimerTriggerType.TimerTrigger>
         return new TimerTrigger(identifier);
     }
 
+    public TimerTrigger timerFinished(String identifier) {
+        return new TimerTrigger(identifier);
+    }
+
     public class TimerTrigger implements Trigger {
 
         private final String identifier;
