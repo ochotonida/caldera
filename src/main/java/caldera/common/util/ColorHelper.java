@@ -8,7 +8,7 @@ public class ColorHelper {
 
     public static int readColor(JsonObject object, String name) {
         if (!object.has(name)) {
-            throw new JsonSyntaxException("Missing " + name + ", expected to find color");
+            throw new JsonSyntaxException("Missing %s, expected to find color".formatted(name));
         }
         JsonElement element = object.get(name);
         if (element.isJsonObject()) {
@@ -20,7 +20,7 @@ public class ColorHelper {
         } else if (element.isJsonPrimitive() && element.getAsJsonPrimitive().isString()) {
             return parseColor(element.getAsString());
         } else {
-            throw new JsonParseException(String.format("Expected color to be json object or string, got %s", element));
+            throw new JsonParseException("Expected color to be json object or string, got '%s'".formatted(element));
         }
     }
 
@@ -28,7 +28,7 @@ public class ColorHelper {
         if (string.startsWith("#")) {
             return Integer.parseInt(string.substring(1), 16);
         }
-        throw new JsonParseException(String.format("Couldn't parse color string: %s", string));
+        throw new JsonParseException("Couldn't parse color string: '%s'".formatted(string));
     }
 
     public static JsonElement writeColor(int color) {

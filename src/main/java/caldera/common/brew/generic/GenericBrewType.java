@@ -100,7 +100,7 @@ public class GenericBrewType implements BrewType {
             for (Map.Entry<String, JsonElement> entry : object.entrySet()) {
                 String identifier = entry.getKey();
                 if (!entry.getValue().isJsonObject()) {
-                    throw new JsonParseException(String.format("Expected value for action '%s' to be an object, was '%s'", identifier, entry.getValue()));
+                    throw new JsonParseException("Expected value for action '%s' to be an object, was '%s'".formatted(identifier, entry.getValue()));
                 }
                 JsonObject actionObject = entry.getValue().getAsJsonObject();
                 ResourceLocation actionId = new ResourceLocation(GsonHelper.getAsString(actionObject, "actionType"));
@@ -144,7 +144,7 @@ public class GenericBrewType implements BrewType {
             for (Map.Entry<String, JsonElement> entry : object.entrySet()) {
                 String identifier = entry.getKey();
                 if (!entry.getValue().isJsonObject()) {
-                    throw new JsonParseException(String.format("Expected value for effect '%s' to be an object, was '%s'", identifier, entry.getValue()));
+                    throw new JsonParseException("Expected value for effect '%s' to be an object, was '%s'".formatted(identifier, entry.getValue()));
                 }
 
                 JsonObject providerObject = entry.getValue().getAsJsonObject();
@@ -189,7 +189,7 @@ public class GenericBrewType implements BrewType {
             Set<String> usedActions = new HashSet<>();
             for (JsonElement entry : array) {
                 if (!entry.isJsonObject()) {
-                    throw new JsonParseException(String.format("Expected array entry to be an object, was '%s'", entry));
+                    throw new JsonParseException("Expected array entry to be an object, was '%s'".formatted(entry));
                 }
                 JsonObject triggerObject = GsonHelper.getAsJsonObject(entry.getAsJsonObject(), "trigger");
                 ResourceLocation triggerTypeId = new ResourceLocation(GsonHelper.getAsString(triggerObject, "triggerType"));
@@ -205,7 +205,7 @@ public class GenericBrewType implements BrewType {
                 for (JsonElement element : actionArray) {
                     String action = GsonHelper.convertToString(element, "action");
                     if (!existingActions.contains(action)) {
-                        throw new JsonParseException(String.format("Action with identifier '%s' is undefined", action));
+                        throw new JsonParseException("Action with identifier '%s' is undefined".formatted(action));
                     }
                     actions.add(action);
                 }

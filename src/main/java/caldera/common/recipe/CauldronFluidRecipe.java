@@ -59,10 +59,7 @@ public class CauldronFluidRecipe extends OrderedCauldronRecipe<FluidStack> {
 
             if (result.getAmount() > CauldronFluidTank.CAPACITY) {
                 throw new JsonParseException(
-                        String.format("Fluid amount must be smaller than %s mB, is %s",
-                                CauldronFluidTank.CAPACITY,
-                                result.getAmount()
-                        )
+                        "Fluid amount must be smaller than %s mB, is %s".formatted(CauldronFluidTank.CAPACITY, result.getAmount())
                 );
             }
 

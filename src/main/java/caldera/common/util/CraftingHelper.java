@@ -113,7 +113,7 @@ public class CraftingHelper {
         Fluid fluid = ForgeRegistries.FLUIDS.getValue(fluidName);
 
         if (fluid == null) {
-            throw new JsonSyntaxException(String.format("Unknown item '%s'", fluidName));
+            throw new JsonSyntaxException("Unknown item '%s'".formatted(fluidName));
         } else if (fluid == Fluids.EMPTY) {
             return FluidStack.EMPTY;
         }

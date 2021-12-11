@@ -34,7 +34,7 @@ public class GenericBrewTypeBuilder {
 
     public GenericBrewTypeBuilder addAction(String identifier, Action action) {
         if (actions.containsKey(identifier)) {
-            throw new IllegalArgumentException(String.format("Action with identifier '%s' already exists", identifier));
+            throw new IllegalArgumentException("Action with identifier '%s' already exists".formatted(identifier));
         }
         actions.put(identifier, action);
         return this;
@@ -42,7 +42,7 @@ public class GenericBrewTypeBuilder {
 
     public GenericBrewTypeBuilder addEffect(String identifier, EffectProvider effectProvider) {
         if (effects.containsKey(identifier)) {
-            throw new IllegalArgumentException(String.format("Effect with identifier '%s' already exists", identifier));
+            throw new IllegalArgumentException("Effect with identifier '%s' already exists".formatted(identifier));
         }
         effects.put(identifier, effectProvider);
         return this;
@@ -61,7 +61,17 @@ public class GenericBrewTypeBuilder {
     }
 
     public void save(Consumer<FinishedBrewType> brewTypeConsumer) {
-        // TODO validate
+        actions.forEach((identifier, _action) -> {
+            if (triggers.stream().noneMatch(entry -> entry.getValue().contains(identifier))) {
+                throw new IllegalStateException("Action '%s' is never used".formatted(identifier));
+            }
+        });
+        triggers.forEach(entry -> entry.getValue().forEach(identifier -> {
+            if (actions.keySet().stream().noneMatch(identifier::equals)) {
+                throw new IllegalStateException("Undefined action '%s'".formatted(identifier));
+            }
+        }));
+
         brewTypeConsumer.accept(new Result(id, actions, effects, triggers));
     }
 
@@ -85,9 +95,17 @@ public class GenericBrewTypeBuilder {
             return this;
         }
 
-        public EventBuilder startTimer(String identifier, int timerDuration) {
-            addEffect(identifier, EffectProviders.TIMER.get().timer(timerDuration));
+        public EventBuilder startEffect(String identifier, EffectProvider effectProvider) {
+            addEffect(identifier, effectProvider);
             return executeAction("start_" + identifier, Actions.START_EFFECT.get().effect(identifier));
+        }
+
+        public EventBuilder removeEffect(String identifier) {
+            return executeAction("remove_" + identifier, Actions.REMOVE_EFFECT.get().effect(identifier));
+        }
+
+        public EventBuilder startTimer(String identifier, int timerDuration) {
+            return startEffect(identifier, EffectProviders.TIMER.get().timer(timerDuration));
         }
 
         public GenericBrewTypeBuilder end() {
