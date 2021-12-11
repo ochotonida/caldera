@@ -85,6 +85,8 @@ public class TimerEffectType extends ForgeRegistryEntry<EffectProviderType<?>> i
             if (--timeRemaining <= 0) {
                 brew.removeEffect(identifier);
                 Triggers.TIMER.get().trigger(brew, identifier);
+            } else {
+                brew.getCauldron().setChanged();
             }
         }
 

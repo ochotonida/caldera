@@ -1,5 +1,6 @@
 package caldera.common.util;
 
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Mth;
 
 public class ChasingValue {
@@ -58,5 +59,19 @@ public class ChasingValue {
             step *= -1;
         }
         updateValue(value + step);
+    }
+
+    public CompoundTag save() {
+        CompoundTag result = new CompoundTag();
+        result.putFloat("Step", step);
+        result.putFloat("Value", value);
+        result.putFloat("Target", target);
+        return result;
+    }
+
+    public void load(CompoundTag tag) {
+        step = tag.getFloat("Step");
+        value = previousValue = tag.getFloat("Value");
+        target = tag.getFloat("Target");
     }
 }

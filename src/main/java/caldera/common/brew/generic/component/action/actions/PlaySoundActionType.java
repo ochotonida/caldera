@@ -74,8 +74,8 @@ public class PlaySoundActionType extends ForgeRegistryEntry<ActionType<?>> imple
         @Override
         public void accept(GenericBrew brew) {
             Cauldron cauldron = brew.getCauldron();
-            Vec3 origin = cauldron.getCenter();
-            if (cauldron.getLevel() != null && !cauldron.getLevel().isClientSide()) { // TODO do this on clients only
+            if (cauldron.getLevel() != null && !cauldron.getLevel().isClientSide()) {
+                Vec3 origin = cauldron.getCenter();
                 cauldron.getLevel().playSound(null, origin.x, origin.y, origin.z, soundEvent, SoundSource.BLOCKS, volume, pitch);
             }
         }

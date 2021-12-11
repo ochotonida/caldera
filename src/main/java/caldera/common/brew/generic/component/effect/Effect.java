@@ -8,9 +8,5 @@ public interface Effect {
 
     }
 
-    default void remove() {
-
-    }
-
     void save(CompoundTag tag);
 }

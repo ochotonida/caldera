@@ -58,7 +58,7 @@ public class ChangeColorActionType extends ForgeRegistryEntry<ActionType<?>> imp
 
         @Override
         public void accept(GenericBrew brew) {
-            brew.getColorInfo().changeColor(color, transitionTime);
+            brew.changeColor(color, transitionTime);
         }
 
         @Override

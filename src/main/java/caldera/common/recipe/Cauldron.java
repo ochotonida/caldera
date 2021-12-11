@@ -29,6 +29,8 @@ public interface Cauldron {
      */
     Vec3 getCenter();
 
+    void setChanged();
+
     /**
      * Spawn particles at random positions in the cauldron at the current fluid height
      * (for particles that use the speed parameters for coloring)

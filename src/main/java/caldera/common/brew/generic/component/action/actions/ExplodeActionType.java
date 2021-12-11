@@ -69,10 +69,11 @@ public class ExplodeActionType extends ForgeRegistryEntry<ActionType<?>> impleme
         @Override
         public void accept(GenericBrew brew) {
             Cauldron cauldron = brew.getCauldron();
-            Vec3 origin = cauldron.getCenter();
-            if (cauldron.getLevel() != null) {
-                cauldron.getLevel().explode(null, origin.x, origin.y, origin.z, radius, causesFire, mode);
+            if (cauldron.getLevel() == null || cauldron.getLevel().isClientSide()) {
+                return;
             }
+            Vec3 origin = cauldron.getCenter();
+            cauldron.getLevel().explode(null, origin.x, origin.y, origin.z, radius, causesFire, mode);
         }
 
         @Override

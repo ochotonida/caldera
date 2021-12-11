@@ -25,6 +25,10 @@ public class TriggerHandler<INSTANCE extends Trigger> {
     }
 
     public void trigger(GenericBrew brew, Predicate<INSTANCE> predicate) {
+        if (brew.getCauldron().getLevel() != null && brew.getCauldron().getLevel().isClientSide()) {
+            return; // TODO send to clients
+        }
+
         triggers.forEach((trigger, actions) -> {
             if (predicate.test(trigger)) {
                 actions.forEach(identifier -> brew.getType().getAction(identifier).accept(brew));

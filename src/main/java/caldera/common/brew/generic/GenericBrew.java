@@ -9,6 +9,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -31,8 +32,9 @@ public class GenericBrew extends Brew {
         return colorInfo.getColor(partialTicks);
     }
 
-    public ColorInfo getColorInfo() {
-        return colorInfo;
+    public void changeColor(int newColor, int transitionTime) {
+        colorInfo.changeColor(newColor, transitionTime);
+        getCauldron().setChanged();
     }
 
     @Override
@@ -42,34 +44,37 @@ public class GenericBrew extends Brew {
 
     @Override
     public void tick() {
-        if (getCauldron().getLevel() != null) {
-            if (getCauldron().getLevel().isClientSide()) {
-                colorInfo.tick();
-            }
+        if (!colorInfo.hasSettled()) {
+            getCauldron().setChanged();
         }
+        colorInfo.tick();
 
-        for (Effect effect : effects.values()) {
-            effect.tick();
+        for (Effect effect : new ArrayList<>(effects.values())) {
+            if (effects.containsValue(effect)) {
+                effect.tick();
+            }
         }
     }
 
     public void startEffect(String identifier) {
         effects.put(identifier, getType().getEffects().get(identifier).create(this, identifier));
+        getCauldron().setChanged();
     }
 
     public void removeEffect(String identifier) {
         effects.remove(identifier);
+        getCauldron().setChanged();
     }
 
     @Override
     public void save(CompoundTag tag) {
-        tag.putInt("Color", colorInfo.getTargetColor());
+        tag.put("ColorInfo", colorInfo.save());
         tag.put("ActiveEffects", saveEffects());
     }
 
     @Override
     public void load(CompoundTag tag) {
-        colorInfo.start(tag.getInt("Color"));
+        colorInfo.load(tag.getCompound("ColorInfo"));
         loadEffects(tag.getList("ActiveEffects", Tag.TAG_COMPOUND));
     }
 
