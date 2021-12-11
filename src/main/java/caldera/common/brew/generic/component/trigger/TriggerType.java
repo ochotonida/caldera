@@ -2,17 +2,23 @@ package caldera.common.brew.generic.component.trigger;
 
 import caldera.common.brew.generic.GenericBrew;
 import caldera.common.brew.generic.GenericBrewType;
-import caldera.common.brew.generic.component.GenericBrewTypeComponent;
+import com.google.gson.JsonObject;
+import net.minecraftforge.registries.ForgeRegistryEntry;
 
 import java.util.function.Predicate;
 
-public abstract class TriggerType<TRIGGER extends Trigger> implements GenericBrewTypeComponent<TRIGGER> {
+public abstract class TriggerType<TRIGGER extends Trigger> extends ForgeRegistryEntry<TriggerType<?>> {
+
+    public abstract TRIGGER deserialize(JsonObject object);
 
     public TriggerHandler<TRIGGER> getTrigger(GenericBrewType brewType) {
-        return brewType.getActions().getTrigger(this);
+        return brewType.getTrigger(this);
     }
 
     protected void trigger(GenericBrew brew, Predicate<TRIGGER> predicate) {
-        brew.getType().getActions().getTrigger(this).trigger(brew, predicate);
+        TriggerHandler<TRIGGER> triggerHandler = brew.getType().getTrigger(this);
+        if (triggerHandler != null) {
+            triggerHandler.trigger(brew, predicate);
+        }
     }
 }

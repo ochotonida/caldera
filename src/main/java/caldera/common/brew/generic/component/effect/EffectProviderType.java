@@ -1,6 +1,12 @@
 package caldera.common.brew.generic.component.effect;
 
-import caldera.common.brew.generic.component.GenericBrewTypeComponent;
+import com.google.gson.JsonObject;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.registries.IForgeRegistryEntry;
 
-public interface EffectProviderType<EFFECT extends EffectProvider> extends GenericBrewTypeComponent<EFFECT> {
+public interface EffectProviderType<PROVIDER extends EffectProvider> extends IForgeRegistryEntry<EffectProviderType<?>> {
+
+    PROVIDER deserialize(JsonObject object, String identifier);
+
+    PROVIDER deserialize(FriendlyByteBuf buffer, String identifier);
 }

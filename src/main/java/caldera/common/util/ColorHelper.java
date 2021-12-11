@@ -1,7 +1,6 @@
 package caldera.common.util;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSyntaxException;
+import com.google.gson.*;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.Mth;
 
@@ -11,20 +10,29 @@ public class ColorHelper {
         if (!object.has(name)) {
             throw new JsonSyntaxException("Missing " + name + ", expected to find color");
         }
-        JsonObject colorObject = GsonHelper.convertToJsonObject(object.get(name), name);
-        int r = GsonHelper.getAsInt(colorObject, "red");
-        int g = GsonHelper.getAsInt(colorObject, "green");
-        int b = GsonHelper.getAsInt(colorObject, "blue");
-
-        return fromRGB(r, g, b);
+        JsonElement element = object.get(name);
+        if (element.isJsonObject()) {
+            JsonObject colorObject = element.getAsJsonObject();
+            int red = GsonHelper.getAsInt(colorObject, "red");
+            int green = GsonHelper.getAsInt(colorObject, "green");
+            int blue = GsonHelper.getAsInt(colorObject, "blue");
+            return fromRGB(red, green, blue);
+        } else if (element.isJsonPrimitive() && element.getAsJsonPrimitive().isString()) {
+            return parseColor(element.getAsString());
+        } else {
+            throw new JsonParseException(String.format("Expected color to be json object or string, got %s", element));
+        }
     }
 
-    public static JsonObject writeColor(int color) {
-        JsonObject object = new JsonObject();
-        object.addProperty("red", getRed(color));
-        object.addProperty("green", getGreen(color));
-        object.addProperty("blue", getBlue(color));
-        return object;
+    private static int parseColor(String string) {
+        if (string.startsWith("#")) {
+            return Integer.parseInt(string.substring(1), 16);
+        }
+        throw new JsonParseException(String.format("Couldn't parse color string: %s", string));
+    }
+
+    public static JsonElement writeColor(int color) {
+        return new JsonPrimitive(String.format("#%06X", color));
     }
 
     public static int mixColors(int color1, int color2, float a) {

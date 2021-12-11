@@ -18,7 +18,7 @@ public abstract class Brew {
         return brewType;
     }
 
-    protected Cauldron getCauldron() {
+    public Cauldron getCauldron() {
         return cauldron;
     }
 

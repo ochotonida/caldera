@@ -4,11 +4,15 @@ import caldera.common.brew.Brew;
 import caldera.common.brew.BrewType;
 import caldera.common.brew.BrewTypeDeserializationContext;
 import caldera.common.brew.BrewTypeSerializer;
-import caldera.common.brew.generic.component.ActionHandler;
+import caldera.common.brew.generic.component.action.Action;
 import caldera.common.brew.generic.component.effect.EffectProvider;
-import caldera.common.brew.generic.component.effect.EffectProviders;
+import caldera.common.brew.generic.component.trigger.Trigger;
+import caldera.common.brew.generic.component.trigger.TriggerHandler;
+import caldera.common.brew.generic.component.trigger.TriggerType;
+import caldera.common.init.CalderaRegistries;
 import caldera.common.init.ModBrewTypes;
 import caldera.common.recipe.Cauldron;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
@@ -19,18 +23,20 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.registries.ForgeRegistryEntry;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class GenericBrewType implements BrewType {
 
     private final ResourceLocation id;
-    private final ActionHandler actions = ActionHandler.create();
+    private final Map<String, Action> actions;
     private final Map<String, EffectProvider> effects;
+    private final Map<TriggerType<?>, TriggerHandler<?>> triggers; // only exists on server
 
-    protected GenericBrewType(ResourceLocation id, Map<String, EffectProvider> effects) {
+    protected GenericBrewType(ResourceLocation id, Map<String, Action> actions, Map<String, EffectProvider> effects, Map<TriggerType<?>, TriggerHandler<?>> triggers) {
         this.id = id;
+        this.actions = actions;
         this.effects = effects;
+        this.triggers = triggers;
     }
 
     @Override
@@ -38,12 +44,17 @@ public class GenericBrewType implements BrewType {
         return id;
     }
 
-    public ActionHandler getActions() {
-        return actions;
+    public <INSTANCE extends Trigger> TriggerHandler<INSTANCE> getTrigger(TriggerType<INSTANCE> triggerType) {
+        //noinspection unchecked
+        return (TriggerHandler<INSTANCE>) triggers.get(triggerType);
     }
 
     public Map<String, EffectProvider> getEffects() {
         return effects;
+    }
+
+    public Action getAction(String identifier) {
+        return actions.get(identifier);
     }
 
     @Override
@@ -65,19 +76,67 @@ public class GenericBrewType implements BrewType {
 
         @Override
         public GenericBrewType fromJson(JsonObject object, BrewTypeDeserializationContext context) {
+            Map<String, Action> actions = deserializeActions(GsonHelper.getAsJsonObject(object, "actions"));
             Map<String, EffectProvider> effects = deserializeEffects(GsonHelper.getAsJsonObject(object, "effects"));
-            return new GenericBrewType(context.getBrewType(), effects);
+            Map<TriggerType<?>, TriggerHandler<?>> triggers = deserializeTriggers(GsonHelper.getAsJsonArray(object, "events"), actions.keySet());
+            return new GenericBrewType(context.getBrewType(), actions, effects, triggers);
         }
 
         @Override
         public GenericBrewType fromNetwork(ResourceLocation id, FriendlyByteBuf buffer) {
+            Map<String, Action> actions = deserializeActions(buffer);
             Map<String, EffectProvider> effects = deserializeEffects(buffer);
-            return new GenericBrewType(id, effects);
+            return new GenericBrewType(id, actions, effects, Collections.emptyMap());
         }
 
         @Override
         public void toNetwork(FriendlyByteBuf buffer, GenericBrewType brewType) {
+            serializeActions(buffer, brewType);
             serializeEffects(buffer, brewType);
+        }
+
+        public static Map<String, Action> deserializeActions(JsonObject object) {
+            HashMap<String, Action> result = new HashMap<>();
+            for (Map.Entry<String, JsonElement> entry : object.entrySet()) {
+                String identifier = entry.getKey();
+                if (!entry.getValue().isJsonObject()) {
+                    throw new JsonParseException(String.format("Expected value for action '%s' to be an object, was '%s'", identifier, entry.getValue()));
+                }
+                JsonObject actionObject = entry.getValue().getAsJsonObject();
+                ResourceLocation actionId = new ResourceLocation(GsonHelper.getAsString(actionObject, "actionType"));
+                if (!CalderaRegistries.ACTION_TYPES.containsKey(actionId)) {
+                    throw new JsonParseException("Unknown action type: " + actionId);
+                }
+                // noinspection ConstantConditions
+                Action action = CalderaRegistries.ACTION_TYPES.getValue(actionId).deserialize(actionObject);
+                result.put(identifier, action);
+            }
+
+            return result;
+        }
+
+        public static Map<String, Action> deserializeActions(FriendlyByteBuf buffer) {
+            HashMap<String, Action> result = new HashMap<>();
+
+            while (buffer.readBoolean()) {
+                String identifier = buffer.readUtf();
+                ResourceLocation actionId = buffer.readResourceLocation();
+                // noinspection ConstantConditions
+                Action action = CalderaRegistries.ACTION_TYPES.getValue(actionId).deserialize(buffer);
+                result.put(identifier, action);
+            }
+
+            return result;
+        }
+
+        public static void serializeActions(FriendlyByteBuf buffer, GenericBrewType brewType) {
+            brewType.actions.forEach((identifier, action) -> {
+                buffer.writeBoolean(true);
+                buffer.writeUtf(identifier);
+                action.toNetwork(buffer);
+            });
+
+            buffer.writeBoolean(false);
         }
 
         public static Map<String, EffectProvider> deserializeEffects(JsonObject object) {
@@ -88,7 +147,13 @@ public class GenericBrewType implements BrewType {
                     throw new JsonParseException(String.format("Expected value for effect '%s' to be an object, was '%s'", identifier, entry.getValue()));
                 }
 
-                EffectProvider provider = EffectProviders.EFFECTS.fromJson(entry.getValue().getAsJsonObject());
+                JsonObject providerObject = entry.getValue().getAsJsonObject();
+                ResourceLocation providerId = new ResourceLocation(GsonHelper.getAsString(providerObject, "effectType"));
+                if (!CalderaRegistries.EFFECT_PROVIDER_TYPES.containsKey(providerId)) {
+                    throw new JsonParseException("Unknown effect type: " + providerId);
+                }
+                // noinspection ConstantConditions
+                EffectProvider provider = CalderaRegistries.EFFECT_PROVIDER_TYPES.getValue(providerId).deserialize(providerObject, identifier);
                 result.put(identifier, provider);
             }
 
@@ -96,23 +161,69 @@ public class GenericBrewType implements BrewType {
         }
 
         public static Map<String, EffectProvider> deserializeEffects(FriendlyByteBuf buffer) {
-            HashMap<String, EffectProvider> effectProviders = new HashMap<>();
+            HashMap<String, EffectProvider> result = new HashMap<>();
 
             while (buffer.readBoolean()) {
                 String identifier = buffer.readUtf();
-                EffectProvider provider = EffectProviders.EFFECTS.fromNetwork(buffer);
-                effectProviders.put(identifier, provider);
+                ResourceLocation effectProviderId = buffer.readResourceLocation();
+                // noinspection ConstantConditions
+                EffectProvider provider = CalderaRegistries.EFFECT_PROVIDER_TYPES.getValue(effectProviderId).deserialize(buffer, identifier);
+                result.put(identifier, provider);
             }
 
-            return effectProviders;
+            return result;
         }
 
-        public void serializeEffects(FriendlyByteBuf buffer, GenericBrewType brewType) {
+        public static void serializeEffects(FriendlyByteBuf buffer, GenericBrewType brewType) {
             brewType.effects.forEach((identifier, effectProvider) -> {
                 buffer.writeBoolean(true);
+                buffer.writeUtf(identifier);
                 effectProvider.toNetwork(buffer);
             });
+
             buffer.writeBoolean(false);
+        }
+
+        public static Map<TriggerType<?>, TriggerHandler<?>> deserializeTriggers(JsonArray array, Set<String> existingActions) {
+            HashMap<TriggerType<?>, TriggerHandler<?>> result = new HashMap<>();
+            Set<String> usedActions = new HashSet<>();
+            for (JsonElement entry : array) {
+                if (!entry.isJsonObject()) {
+                    throw new JsonParseException(String.format("Expected array entry to be an object, was '%s'", entry));
+                }
+                JsonObject triggerObject = GsonHelper.getAsJsonObject(entry.getAsJsonObject(), "trigger");
+                ResourceLocation triggerTypeId = new ResourceLocation(GsonHelper.getAsString(triggerObject, "triggerType"));
+                if (!CalderaRegistries.TRIGGER_TYPES.containsKey(triggerTypeId)) {
+                    throw new JsonParseException("Unknown trigger type: " + triggerTypeId);
+                }
+                TriggerType<?> triggerType = CalderaRegistries.TRIGGER_TYPES.getValue(triggerTypeId);
+                // noinspection ConstantConditions
+                Trigger trigger = triggerType.deserialize(triggerObject);
+
+                List<String> actions = new ArrayList<>();
+                JsonArray actionArray = GsonHelper.getAsJsonArray(entry.getAsJsonObject(), "actions");
+                for (JsonElement element : actionArray) {
+                    String action = GsonHelper.convertToString(element, "action");
+                    if (!existingActions.contains(action)) {
+                        throw new JsonParseException(String.format("Action with identifier '%s' is undefined", action));
+                    }
+                    actions.add(action);
+                }
+                usedActions.addAll(actions);
+
+                if (!result.containsKey(triggerType)) {
+                    result.put(triggerType, new TriggerHandler<>(triggerType));
+                }
+                result.get(triggerType).addListener(trigger, actions);
+            }
+
+            Set<String> unusedActions = new HashSet<>(existingActions);
+            unusedActions.removeAll(usedActions);
+            if (!unusedActions.isEmpty()) {
+                throw new JsonParseException("Unused actions: " + unusedActions);
+            }
+
+            return result;
         }
     }
 }

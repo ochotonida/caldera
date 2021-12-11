@@ -1,7 +1,6 @@
 package caldera.common.brew.generic.component.trigger;
 
 import caldera.common.brew.generic.GenericBrew;
-import caldera.common.brew.generic.component.action.Action;
 
 import java.util.HashMap;
 import java.util.List;
@@ -10,7 +9,7 @@ import java.util.function.Predicate;
 
 public class TriggerHandler<INSTANCE extends Trigger> {
 
-    private final Map<INSTANCE, List<Action>> triggers = new HashMap<>();
+    private final Map<INSTANCE, List<String>> triggers = new HashMap<>();
     private final TriggerType<INSTANCE> triggerType;
 
     public TriggerHandler(TriggerType<INSTANCE> triggerType) {
@@ -21,18 +20,22 @@ public class TriggerHandler<INSTANCE extends Trigger> {
         return triggerType;
     }
 
-    public void addListener(INSTANCE triggerInstance, List<Action> actions) {
-        triggers.put(triggerInstance, actions);
+    public Map<INSTANCE, List<String>> getTriggers() {
+        return triggers;
     }
 
-    public void removeListener(INSTANCE triggerInstance) {
-        triggers.remove(triggerInstance);
+    public void addListener(Trigger trigger, List<String> actions) {
+        if (!trigger.getType().equals(triggerType.getRegistryName())) {
+            throw new IllegalArgumentException(String.format("Trigger has incorrect type %s, expected %s", trigger.getType(), triggerType.getRegistryName()));
+        }
+        // noinspection unchecked
+        triggers.put((INSTANCE) trigger, actions);
     }
 
     public void trigger(GenericBrew brew, Predicate<INSTANCE> predicate) {
         triggers.forEach((trigger, actions) -> {
             if (predicate.test(trigger)) {
-                actions.forEach(action -> action.accept(brew));
+                actions.forEach(identifier -> brew.getType().getAction(identifier).accept(brew));
             }
         });
     }

@@ -1,13 +1,14 @@
 package caldera.common.brew.generic;
 
-import caldera.common.util.ColorHelper;
 import caldera.common.util.ChasingValue;
+import caldera.common.util.ColorHelper;
 
 public class ColorInfo {
 
     private int color;
     private int previousColor;
     // TODO add alpha
+    // TODO save transition as well
 
     private final ChasingValue progress;
 
@@ -29,10 +30,16 @@ public class ColorInfo {
         return ColorHelper.mixColors(color, previousColor, amount);
     }
 
-    public void setColor(int newColor) {
+    public void changeColor(int newColor, int transitionTime) {
         previousColor = getColor(0);
         color = newColor;
         progress.setValue(0);
+
+        if (transitionTime > 0) {
+            progress.setStep(1F / transitionTime);
+        } else {
+            previousColor = newColor;
+        }
     }
 
     public int getTargetColor() {

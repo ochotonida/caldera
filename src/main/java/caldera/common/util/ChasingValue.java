@@ -4,8 +4,7 @@ import net.minecraft.util.Mth;
 
 public class ChasingValue {
 
-    private final float step;
-
+    private float step;
     private float target;
     private float value;
     private float previousValue;
@@ -15,6 +14,10 @@ public class ChasingValue {
         this.target = initialValue;
         this.value = initialValue;
         this.previousValue = initialValue;
+    }
+
+    public void setStep(float step) {
+        this.step = step;
     }
 
     public void setTarget(float target) {

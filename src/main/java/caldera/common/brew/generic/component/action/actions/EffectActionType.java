@@ -7,14 +7,16 @@ import com.google.gson.JsonObject;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
+import net.minecraftforge.registries.ForgeRegistryEntry;
 
 import java.util.function.BiConsumer;
 
-public record EffectActionType(ResourceLocation id, BiConsumer<GenericBrew, String> action) implements ActionType<EffectActionType.EffectAction> {
+public final class EffectActionType extends ForgeRegistryEntry<ActionType<?>> implements ActionType<EffectActionType.EffectAction> {
 
-    @Override
-    public ResourceLocation getId() {
-        return id();
+    private final BiConsumer<GenericBrew, String> action;
+
+    public EffectActionType(BiConsumer<GenericBrew, String> action) {
+        this.action = action;
     }
 
     @Override
@@ -29,6 +31,7 @@ public record EffectActionType(ResourceLocation id, BiConsumer<GenericBrew, Stri
         return new EffectAction(identifier);
     }
 
+
     public class EffectAction implements Action {
 
         private final String identifier;
@@ -39,7 +42,7 @@ public record EffectActionType(ResourceLocation id, BiConsumer<GenericBrew, Stri
 
         @Override
         public ResourceLocation getType() {
-            return id();
+            return getRegistryName();
         }
 
         @Override
@@ -49,7 +52,7 @@ public record EffectActionType(ResourceLocation id, BiConsumer<GenericBrew, Stri
 
         @Override
         public void serialize(JsonObject object) {
-            object.addProperty("effect", identifier);
+            object.addProperty("identifier", identifier);
         }
 
         @Override

@@ -1,15 +1,16 @@
 package caldera.common.brew.generic.component.trigger;
 
 import caldera.Caldera;
-import caldera.common.brew.generic.component.GenericBrewTypeComponentRegistry;
 import caldera.common.brew.generic.component.trigger.triggers.SimpleTriggerType;
 import caldera.common.brew.generic.component.trigger.triggers.TimerTriggerType;
-import net.minecraft.resources.ResourceLocation;
+import caldera.common.init.CalderaRegistries;
+import net.minecraftforge.fmllegacy.RegistryObject;
+import net.minecraftforge.registries.DeferredRegister;
 
 public class Triggers {
 
-    public static final GenericBrewTypeComponentRegistry<Trigger, TriggerType<?>> TRIGGERS = new GenericBrewTypeComponentRegistry<>("trigger");
+    public static final DeferredRegister<TriggerType<?>> REGISTRY = DeferredRegister.create(CalderaRegistries.TRIGGER_TYPES, Caldera.MODID);
 
-    public static final SimpleTriggerType BREW_CREATED = TRIGGERS.register(new SimpleTriggerType(new ResourceLocation(Caldera.MODID, "brew_created")));
-    public static final TimerTriggerType TIMER = TRIGGERS.register(new TimerTriggerType());
+    public static final RegistryObject<SimpleTriggerType> BREW_CREATED = REGISTRY.register("brew_created", SimpleTriggerType::new);
+    public static final RegistryObject<TimerTriggerType> TIMER = REGISTRY.register("timer", TimerTriggerType::new);
 }

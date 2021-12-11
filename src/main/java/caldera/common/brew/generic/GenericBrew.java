@@ -31,9 +31,13 @@ public class GenericBrew extends Brew {
         return colorInfo.getColor(partialTicks);
     }
 
+    public ColorInfo getColorInfo() {
+        return colorInfo;
+    }
+
     @Override
     public void onBrewed() {
-        Triggers.BREW_CREATED.trigger(this);
+        Triggers.BREW_CREATED.get().trigger(this);
     }
 
     @Override
@@ -44,7 +48,9 @@ public class GenericBrew extends Brew {
             }
         }
 
-        effects.values().forEach(Effect::tick);
+        for (Effect effect : effects.values()) {
+            effect.tick();
+        }
     }
 
     public void startEffect(String identifier) {
@@ -64,10 +70,10 @@ public class GenericBrew extends Brew {
     @Override
     public void load(CompoundTag tag) {
         colorInfo.start(tag.getInt("Color"));
-        loadEffects(tag.getList("ActiveEffects", Tag.TAG_COMPOUND));
+        loadEffects(tag.getList("ActiveEffects", Tag.TAG_LIST));
     }
 
-    private Tag saveEffects() {
+    private ListTag saveEffects() {
         ListTag result = new ListTag();
         effects.forEach((identifier, effect) -> {
             CompoundTag tag = new CompoundTag();

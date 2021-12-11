@@ -17,6 +17,7 @@ import net.minecraftforge.common.crafting.CraftingHelper;
 import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.event.OnDatapackSyncEvent;
 import net.minecraftforge.fmllegacy.network.PacketDistributor;
+import net.minecraftforge.forgespi.Environment;
 
 import javax.annotation.Nullable;
 import java.util.Map;
@@ -81,6 +82,9 @@ public class BrewTypeManager extends SimpleJsonResourceReloadListener {
     }
 
     public static void onDataPackReload(OnDatapackSyncEvent event) {
+        if (Environment.get().getDist().isClient()) {
+            return;
+        }
         if (event.getPlayer() != null) {
             sync(event.getPlayer());
         } else {

@@ -1,11 +1,14 @@
 package caldera.common.brew.generic.component.effect;
 
-import caldera.common.brew.generic.component.GenericBrewTypeComponentRegistry;
+import caldera.Caldera;
 import caldera.common.brew.generic.component.effect.effects.TimerEffectType;
+import caldera.common.init.CalderaRegistries;
+import net.minecraftforge.fmllegacy.RegistryObject;
+import net.minecraftforge.registries.DeferredRegister;
 
 public class EffectProviders {
 
-    public static final GenericBrewTypeComponentRegistry<EffectProvider, EffectProviderType<?>> EFFECTS = new GenericBrewTypeComponentRegistry<>("effect");
+    public static final DeferredRegister<EffectProviderType<?>> REGISTRY = DeferredRegister.create(CalderaRegistries.EFFECT_PROVIDER_TYPES, Caldera.MODID);
 
-    public static final TimerEffectType TIMER = EFFECTS.register(new TimerEffectType());
+    public static final RegistryObject<TimerEffectType> TIMER = REGISTRY.register("timer", TimerEffectType::new);
 }
