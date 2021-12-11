@@ -70,7 +70,7 @@ public class GenericBrew extends Brew {
     @Override
     public void load(CompoundTag tag) {
         colorInfo.start(tag.getInt("Color"));
-        loadEffects(tag.getList("ActiveEffects", Tag.TAG_LIST));
+        loadEffects(tag.getList("ActiveEffects", Tag.TAG_COMPOUND));
     }
 
     private ListTag saveEffects() {
@@ -82,7 +82,6 @@ public class GenericBrew extends Brew {
             result.add(tag);
         });
         return result;
-
     }
 
     private void loadEffects(ListTag list) {
