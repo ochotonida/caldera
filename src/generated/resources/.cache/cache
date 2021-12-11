@@ -1,7 +1,7 @@
 fb1d0a9d8aef85c7a21a54c974ab12576a8f2265 assets/caldera/blockstates/large_cauldron.json
 6f5fd474a6c1290a9b6c06cb2171f643722dedef assets/caldera/models/item/large_cauldron.json
+1fa20d3382581f7f89b730009fbb87f63d1f5d41 data/caldera/caldera/brew_types/test_brew.json
 684ae7f828f57430e4e417cb4374e1941d87eade data/caldera/loot_tables/blocks/large_cauldron.json
-ae2ad0d37084e9f2b393ef015a63b8a3f308aebb data/caldera/recipes/brew_types/sludge.json
 02715b1ccdf357b87f7bf4b5bad4e228a8926233 data/caldera/tags/items/inert.json
 e91376e3309e47efc935f1723a03b066e88062b0 data/forge/tags/items/tools.json
 bdd8ed8cd8be049fc9a86edd32f58de2dc6d6a9e data/forge/tags/items/tools/axes.json

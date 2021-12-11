@@ -1,0 +1,53 @@
+{
+  "type": "caldera:generic_brew",
+  "actions": {
+    "explode": {
+      "actionType": "caldera:explode",
+      "radius": 10.0,
+      "causesFire": false,
+      "mode": "destroy"
+    },
+    "set_starting_color": {
+      "actionType": "caldera:change_color",
+      "color": "#FFDD22",
+      "transitionTime": 0
+    },
+    "play_fuse_sound": {
+      "actionType": "caldera:play_sound",
+      "soundEvent": "minecraft:entity.tnt.primed",
+      "volume": 1.0,
+      "pitch": 1.0
+    },
+    "start_explosion_timer": {
+      "actionType": "caldera:start_effect",
+      "identifier": "explosion_timer"
+    }
+  },
+  "effects": {
+    "explosion_timer": {
+      "effectType": "caldera:timer",
+      "duration": 4
+    }
+  },
+  "events": [
+    {
+      "trigger": {
+        "triggerType": "caldera:brew_created"
+      },
+      "actions": [
+        "set_starting_color",
+        "play_fuse_sound",
+        "start_explosion_timer"
+      ]
+    },
+    {
+      "trigger": {
+        "triggerType": "caldera:timer",
+        "identifier": "explosion_timer"
+      },
+      "actions": [
+        "explode"
+      ]
+    }
+  ]
+}

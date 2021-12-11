@@ -1,0 +1,16 @@
+{
+  "type": "caldera:cauldron_brewing",
+  "fluid": {
+    "fluid": "minecraft:water"
+  },
+  "ingredients": [
+    {
+      "item": "minecraft:tnt"
+    },
+    {
+      "item": "minecraft:blaze_powder"
+    }
+  ],
+  "ordered": false,
+  "result": "caldera:test_brew"
+}
