@@ -1,5 +1,6 @@
 package caldera.common.recipe;
 
+import caldera.common.brew.Brew;
 import caldera.common.util.ColorHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleOptions;
@@ -15,6 +16,8 @@ public interface Cauldron {
 
     boolean hasLevel();
 
+    boolean isRemoved();
+
     /**
      * Returns the position of this cauldron
      *
@@ -28,6 +31,8 @@ public interface Cauldron {
      * @return The center of this cauldron, at the bottom of the basin
      */
     Vec3 getCenter();
+
+    Brew getBrew();
 
     void setChanged();
 
