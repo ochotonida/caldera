@@ -18,8 +18,8 @@ public class TimerEffectType extends ForgeRegistryEntry<EffectProviderType<?>> i
     @Override
     public TimerEffectProvider deserialize(JsonObject object) {
         int time = GsonHelper.getAsInt(object, "duration");
-        if (time < 1) {
-            throw new JsonParseException("Timer duration must be greater than 0");
+        if (time < 10) {
+            throw new JsonParseException("Timer duration must be greater than or equal to 10 ticks");
         }
         return new TimerEffectProvider(time);
     }
@@ -29,16 +29,16 @@ public class TimerEffectType extends ForgeRegistryEntry<EffectProviderType<?>> i
         return new TimerEffectProvider(buffer.readInt());
     }
 
-    public TimerEffectProvider timer(int time) {
-        return new TimerEffectProvider(time);
+    public TimerEffectProvider timer(int duration) {
+        return new TimerEffectProvider(duration);
     }
 
     public class TimerEffectProvider implements EffectProvider {
 
-        private final int time;
+        private final int duration;
 
-        public TimerEffectProvider(int time) {
-            this.time = time;
+        public TimerEffectProvider(int duration) {
+            this.duration = duration;
         }
 
         @Override
@@ -48,17 +48,17 @@ public class TimerEffectType extends ForgeRegistryEntry<EffectProviderType<?>> i
 
         @Override
         public void serialize(JsonObject object) {
-            object.addProperty("duration", time);
+            object.addProperty("duration", duration);
         }
 
         @Override
         public void serialize(FriendlyByteBuf buffer) {
-            buffer.writeInt(time);
+            buffer.writeInt(duration);
         }
 
         @Override
         public Effect create(GenericBrew brew, String identifier) {
-            return new TimerEffect(brew, identifier, time * 20);
+            return new TimerEffect(brew, identifier, duration);
         }
 
         @Override
