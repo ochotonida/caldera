@@ -3,9 +3,9 @@ package caldera.common.brew.generic.component.action.actions;
 import caldera.common.brew.generic.GenericBrew;
 import caldera.common.brew.generic.component.action.Action;
 import caldera.common.brew.generic.component.action.ActionType;
+import caldera.common.init.CalderaRegistries;
 import com.google.gson.JsonObject;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraftforge.registries.ForgeRegistryEntry;
 
@@ -17,6 +17,11 @@ public final class EffectActionType extends ForgeRegistryEntry<ActionType<?>> im
 
     public EffectActionType(BiConsumer<GenericBrew, String> action) {
         this.action = action;
+    }
+
+    @Override
+    public boolean shouldSendToClients() {
+        return true;
     }
 
     @Override
@@ -44,8 +49,8 @@ public final class EffectActionType extends ForgeRegistryEntry<ActionType<?>> im
         }
 
         @Override
-        public ResourceLocation getType() {
-            return getRegistryName();
+        public ActionType<?> getType() {
+            return CalderaRegistries.ACTION_TYPES.getValue(getRegistryName());
         }
 
         @Override

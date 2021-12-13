@@ -3,6 +3,7 @@ package caldera.common.brew.generic.component.action.actions;
 import caldera.common.brew.generic.GenericBrew;
 import caldera.common.brew.generic.component.action.Action;
 import caldera.common.brew.generic.component.action.ActionType;
+import caldera.common.brew.generic.component.action.Actions;
 import caldera.common.recipe.Cauldron;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
@@ -54,27 +55,17 @@ public class PlaySoundActionType extends ForgeRegistryEntry<ActionType<?>> imple
         return new PlaySoundAction(soundEvent, volume, pitch);
     }
 
-    public class PlaySoundAction implements Action {
-
-        private final SoundEvent soundEvent;
-        private final float volume;
-        private final float pitch;
-
-        private PlaySoundAction(SoundEvent soundEvent, float volume, float pitch) {
-            this.soundEvent = soundEvent;
-            this.volume = volume;
-            this.pitch = pitch;
-        }
+    public record PlaySoundAction(SoundEvent soundEvent, float volume, float pitch) implements Action {
 
         @Override
-        public ResourceLocation getType() {
-            return getRegistryName();
+        public ActionType<?> getType() {
+            return Actions.PLAY_SOUND.get();
         }
 
         @Override
         public void accept(GenericBrew brew) {
             Cauldron cauldron = brew.getCauldron();
-            if (cauldron.getLevel() != null && !cauldron.getLevel().isClientSide()) {
+            if (cauldron.getLevel() != null) {
                 Vec3 origin = cauldron.getCenter();
                 cauldron.getLevel().playSound(null, origin.x, origin.y, origin.z, soundEvent, SoundSource.BLOCKS, volume, pitch);
             }

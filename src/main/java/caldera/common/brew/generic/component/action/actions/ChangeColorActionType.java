@@ -3,11 +3,11 @@ package caldera.common.brew.generic.component.action.actions;
 import caldera.common.brew.generic.GenericBrew;
 import caldera.common.brew.generic.component.action.Action;
 import caldera.common.brew.generic.component.action.ActionType;
+import caldera.common.brew.generic.component.action.Actions;
 import caldera.common.util.ColorHelper;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraftforge.registries.ForgeRegistryEntry;
 
@@ -27,6 +27,11 @@ public class ChangeColorActionType extends ForgeRegistryEntry<ActionType<?>> imp
     }
 
     @Override
+    public boolean shouldSendToClients() {
+        return true;
+    }
+
+    @Override
     public ChangeColorAction deserialize(FriendlyByteBuf buffer) {
         int color = buffer.readInt();
         int transitionTime = buffer.readInt();
@@ -41,19 +46,11 @@ public class ChangeColorActionType extends ForgeRegistryEntry<ActionType<?>> imp
         return new ChangeColorAction(color, transitionTime);
     }
 
-    public class ChangeColorAction implements Action {
-
-        private final int color;
-        private final int transitionTime;
-
-        private ChangeColorAction(int color, int transitionTime) {
-            this.color = color;
-            this.transitionTime = transitionTime;
-        }
+    public record ChangeColorAction(int color, int transitionTime) implements Action {
 
         @Override
-        public ResourceLocation getType() {
-            return getRegistryName();
+        public ActionType<?> getType() {
+            return Actions.CHANGE_COLOR.get();
         }
 
         @Override

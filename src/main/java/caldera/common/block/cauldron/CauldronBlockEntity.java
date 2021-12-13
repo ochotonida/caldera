@@ -5,6 +5,8 @@ import caldera.common.brew.Brew;
 import caldera.common.brew.BrewType;
 import caldera.common.brew.BrewTypeManager;
 import caldera.common.init.*;
+import caldera.common.network.BrewUpdatePacket;
+import caldera.common.network.NetworkHandler;
 import caldera.common.recipe.Cauldron;
 import caldera.common.recipe.CauldronRecipe;
 import caldera.mixin.accessor.RecipeManagerAccessor;
@@ -13,11 +15,11 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerChunkCache;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.Container;
@@ -45,6 +47,7 @@ import net.minecraftforge.fluids.FluidUtil;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.templates.EmptyFluidHandler;
+import net.minecraftforge.fmllegacy.network.PacketDistributor;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.wrapper.EmptyHandler;
 
@@ -64,6 +67,7 @@ public class CauldronBlockEntity extends BlockEntity implements Cauldron {
     protected final CauldronItemHandler inventory;
     private Brew brew;
     private int brewingTimeRemaining;
+    // private final CauldronUpdatePacket queuedMessages
 
     protected static final int BREWING_COLOR = 0xA3C740;
 
@@ -201,6 +205,8 @@ public class CauldronBlockEntity extends BlockEntity implements Cauldron {
         if (hasBrew()) {
             brew.tick();
         }
+
+        sendBrewUpdate();
     }
 
     public void spawnParticles(ParticleOptions particleData, int amount, double r, double g, double b) {
@@ -269,7 +275,7 @@ public class CauldronBlockEntity extends BlockEntity implements Cauldron {
             if (inventory.isEmpty()) {
                 transitionHelper.startColorTransition();
             }
-            sendUpdatePacket();
+            sendBlockUpdated();
         }
 
         CompoundTag itemData = itemEntity.getPersistentData();
@@ -427,10 +433,11 @@ public class CauldronBlockEntity extends BlockEntity implements Cauldron {
         fluidTank.clear();
         brewingTimeRemaining = 0;
         transitionHelper.startFluidTransition();
-        sendBlockUpdated();
+        sendUpdatePacket();
         setChanged();
 
         brew.onBrewed();
+        sendBrewUpdate();
     }
 
     protected void setBrewToSludge() {
@@ -467,13 +474,30 @@ public class CauldronBlockEntity extends BlockEntity implements Cauldron {
         return super.getRenderBoundingBox();
     }
 
+    protected void sendBrewUpdate() {
+        if (getLevel() == null || getLevel().isClientSide()) {
+            return;
+        }
+        if (brew == null || !brew.hasUpdate()) {
+            return;
+        }
+
+        NetworkHandler.INSTANCE.send(
+                PacketDistributor.TRACKING_CHUNK.with(() -> getLevel().getChunkAt(getBlockPos())),
+                new BrewUpdatePacket(getBlockPos(), brew.getUpdateTag())
+        );
+
+        brew.clearUpdate();
+    }
+
+    // sendBlockUpdated != markAndNotifyBlock != sendUpdatePacket
     protected void sendBlockUpdated() {
-        if (getLevel() != null && !getLevel().isClientSide()) {
-            BlockState state = getBlockState();
-            getLevel().sendBlockUpdated(getBlockPos(), state, state, Constants.BlockFlags.BLOCK_UPDATE);
+        if (getLevel() instanceof ServerLevel level) {
+            level.getChunkSource().blockChanged(getBlockPos());
         }
     }
 
+    // manually send an update packet immediately
     public void sendUpdatePacket() {
         if (getLevel() != null && !getLevel().isClientSide()) {
             ServerChunkCache chunkCache = ((ServerChunkCache) getLevel().getChunkSource());
@@ -484,12 +508,16 @@ public class CauldronBlockEntity extends BlockEntity implements Cauldron {
         }
     }
 
-    // block update
+    // Called on the client when the block entity is being synced with the block entity on the server
+    // this is for re-syncing, when a block update happens the client data should reflect server data,
+    // probably best to use a separate packet for updating - then it's not possible to wait for block update?
+    // perhaps syncing on the end of the tick is good enough
     @Override
     public void onDataPacket(Connection networkManager, ClientboundBlockEntityDataPacket updatePacket) {
         readUpdateTag(updatePacket.getTag());
     }
 
+    // Called on the server when data is re-synced to the client on block update
     @Override
     public ClientboundBlockEntityDataPacket getUpdatePacket() {
         if (!isController()) {
@@ -502,7 +530,7 @@ public class CauldronBlockEntity extends BlockEntity implements Cauldron {
         brewingTimeRemaining = tag.getInt("BrewingTimeRemaining");
         fluidTank.readFromNBT(tag.getCompound("FluidHandler"));
         inventory.deserializeNBT(tag.getCompound("ItemHandler"));
-        brew = loadBrew(tag.getCompound("Brew"), this);
+        brew = Brew.fromNbt(tag.getCompound("Brew"), this);
         transitionHelper.load(tag.getCompound("Transition"));
     }
 
@@ -511,83 +539,52 @@ public class CauldronBlockEntity extends BlockEntity implements Cauldron {
         tag.put("FluidHandler", fluidTank.writeToNBT(new CompoundTag()));
         tag.put("ItemHandler", inventory.serializeNBT());
         if (hasBrew()) {
-            tag.put("Brew", saveBrew(brew));
+            tag.put("Brew", brew.toNbt());
         }
         tag.put("Transition", transitionHelper.save());
 
         return tag;
     }
 
-    // client loads chunk
+    // called on the client when loading a chunk from the server,
+    // either during initial loading or when several blocks have changed at once
     @Override
     public void handleUpdateTag(CompoundTag tag) {
         super.handleUpdateTag(tag);
         readUpdateTag(tag);
     }
 
+    // called on the server when a client loads a new chunk or when several blocks change at once
     @Override
     public CompoundTag getUpdateTag() {
         CompoundTag updateTag = super.getUpdateTag();
         return createUpdateTag(updateTag);
     }
 
-    // load from disk
+    // called on the server when loading the chunk
     @Override
     public void load(CompoundTag tag) {
         super.load(tag);
         brewingTimeRemaining = tag.getInt("BrewingTimeRemaining");
         fluidTank.readFromNBT(tag.getCompound("FluidHandler"));
         inventory.deserializeNBT(tag.getCompound("ItemHandler"));
-        brew = loadBrew(tag.getCompound("Brew"), this);
+        brew = Brew.fromNbt(tag.getCompound("Brew"), this);
 
         if (!inventory.isEmpty() && fluidTank.isFull()) {
             transitionHelper.setColored();
         }
     }
 
+    // called on the server when saving the chunk
     @Override
     public CompoundTag save(CompoundTag tag) {
         tag.putInt("BrewingTimeRemaining", brewingTimeRemaining);
         tag.put("FluidHandler", fluidTank.writeToNBT(new CompoundTag()));
         tag.put("ItemHandler", inventory.serializeNBT());
         if (hasBrew()) {
-            tag.put("Brew", saveBrew(getBrew()));
+            tag.put("Brew", getBrew().toNbt());
         }
 
         return super.save(tag);
-    }
-
-    protected static Brew loadBrew(CompoundTag tag, CauldronBlockEntity cauldron) {
-        if (!tag.contains("BrewType", Tag.TAG_STRING)) {
-            return null;
-        }
-
-        String brewTypeIdString = tag.getString("BrewType");
-        ResourceLocation brewTypeId = ResourceLocation.tryParse(brewTypeIdString);
-
-        if (brewTypeId == null) {
-            Caldera.LOGGER.error("The cauldron at {} tried to load invalid brew type {}. The brew will be discarded.", cauldron.getBlockPos(), brewTypeIdString);
-            return null;
-        }
-
-        BrewType brewType = BrewTypeManager.get(brewTypeId);
-        if (brewType == null) {
-            Caldera.LOGGER.error("The cauldron at {} tried to load unknown brew type {}. The brew will be discarded.", cauldron.getBlockPos(), brewTypeIdString);
-            return null;
-        }
-
-        Brew result = brewType.create(cauldron);
-        result.load(tag.getCompound("Brew"));
-
-        return result;
-    }
-
-    protected static CompoundTag saveBrew(Brew brew) {
-        CompoundTag result = new CompoundTag();
-        CompoundTag brewTag = new CompoundTag();
-        brew.save(brewTag);
-        result.put("Brew", brewTag);
-        result.putString("BrewType", brew.getType().getId().toString());
-        return result;
     }
 }

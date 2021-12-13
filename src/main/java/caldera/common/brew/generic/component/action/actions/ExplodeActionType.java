@@ -3,11 +3,11 @@ package caldera.common.brew.generic.component.action.actions;
 import caldera.common.brew.generic.GenericBrew;
 import caldera.common.brew.generic.component.action.Action;
 import caldera.common.brew.generic.component.action.ActionType;
+import caldera.common.brew.generic.component.action.Actions;
 import caldera.common.recipe.Cauldron;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.phys.Vec3;
@@ -49,27 +49,17 @@ public class ExplodeActionType extends ForgeRegistryEntry<ActionType<?>> impleme
         return new ExplodeAction(radius, causesFire, mode);
     }
 
-    public class ExplodeAction implements Action {
-
-        private final float radius;
-        private final boolean causesFire;
-        private final Explosion.BlockInteraction mode;
-
-        private ExplodeAction(float radius, boolean causesFire, Explosion.BlockInteraction mode) {
-            this.radius = radius;
-            this.causesFire = causesFire;
-            this.mode = mode;
-        }
+    public record ExplodeAction(float radius, boolean causesFire, Explosion.BlockInteraction mode) implements Action {
 
         @Override
-        public ResourceLocation getType() {
-            return getRegistryName();
+        public ActionType<?> getType() {
+            return Actions.EXPLODE.get();
         }
 
         @Override
         public void accept(GenericBrew brew) {
             Cauldron cauldron = brew.getCauldron();
-            if (cauldron.getLevel() == null || cauldron.getLevel().isClientSide()) {
+            if (cauldron.getLevel() == null) {
                 return;
             }
             Vec3 origin = cauldron.getCenter();

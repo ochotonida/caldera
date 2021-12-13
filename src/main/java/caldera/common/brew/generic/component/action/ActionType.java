@@ -6,6 +6,10 @@ import net.minecraftforge.registries.IForgeRegistryEntry;
 
 public interface ActionType<ACTION extends Action> extends IForgeRegistryEntry<ActionType<?>> {
 
+    default boolean shouldSendToClients() {
+        return false;
+    }
+
     ACTION deserialize(JsonObject object);
 
     ACTION deserialize(FriendlyByteBuf buffer);

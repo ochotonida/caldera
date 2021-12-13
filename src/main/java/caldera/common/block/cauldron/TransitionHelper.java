@@ -98,7 +98,7 @@ public class TransitionHelper {
     public CompoundTag save() {
         CompoundTag result = new CompoundTag();
         if (previousBrew != null) {
-            result.put("PreviousBrew", CauldronBlockEntity.saveBrew(previousBrew));
+            result.put("PreviousBrew", previousBrew.toNbt());
         } else if (!previousFluid.isEmpty()) {
             CompoundTag fluidTag = new CompoundTag();
             previousFluid.writeToNBT(fluidTag);
@@ -112,7 +112,7 @@ public class TransitionHelper {
     }
 
     public void load(CompoundTag tag) {
-        previousBrew = CauldronBlockEntity.loadBrew(tag.getCompound("PreviousBrew"), cauldron);
+        previousBrew = Brew.fromNbt(tag.getCompound("PreviousBrew"), cauldron);
         previousFluid = FluidStack.loadFluidStackFromNBT(tag.getCompound("PreviousFluid"));
 
         loadValue(tag.getCompound("FluidAlphaProgress"), fluidAlphaProgress);

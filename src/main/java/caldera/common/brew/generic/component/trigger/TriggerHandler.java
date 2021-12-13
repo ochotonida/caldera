@@ -26,21 +26,19 @@ public class TriggerHandler<TRIGGER extends Trigger> {
 
     public void trigger(GenericBrew brew, Predicate<TRIGGER> predicate) {
         if (brew.getCauldron().getLevel() != null && brew.getCauldron().getLevel().isClientSide()) {
-            return; // TODO send to clients
+            return;
         }
         Cauldron cauldron = brew.getCauldron();
 
+        loop:
         for (Event<TRIGGER> event : events) {
             if (predicate.test(event.trigger())) {
                 for (String identifier : event.actions()) {
                     if (cauldron.isRemoved() || cauldron.getBrew() != brew) {
-                        break;
+                        break loop;
                     }
-                    brew.getType().getAction(identifier).accept(brew);
+                    brew.executeAction(identifier);
                 }
-            }
-            if (cauldron.isRemoved() || cauldron.getBrew() != brew) {
-                break;
             }
         }
     }

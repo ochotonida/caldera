@@ -53,7 +53,7 @@ public class GenericBrewType implements BrewType {
         return effects;
     }
 
-    public Action getAction(String identifier) {
+    protected Action getAction(String identifier) {
         return actions.get(identifier);
     }
 
