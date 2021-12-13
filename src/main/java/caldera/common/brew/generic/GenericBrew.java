@@ -5,6 +5,7 @@ import caldera.common.brew.Brew;
 import caldera.common.brew.BrewType;
 import caldera.common.brew.generic.component.action.Action;
 import caldera.common.brew.generic.component.effect.Effect;
+import caldera.common.brew.generic.component.effect.EffectProvider;
 import caldera.common.brew.generic.component.trigger.Triggers;
 import caldera.common.recipe.Cauldron;
 import net.minecraft.nbt.CompoundTag;
@@ -143,8 +144,12 @@ public class GenericBrew extends Brew {
         for (Tag element : list) {
             CompoundTag tag = (CompoundTag) element;
             String identifier = tag.getString("Identifier");
-            Effect effect = getType().getEffects().get(identifier).loadEffect(this, tag, identifier);
-            effects.put(identifier, effect);
+            EffectProvider provider = getType().getEffects().get(identifier);
+            if (provider == null) {
+                Caldera.LOGGER.warn("Skipped loading unknown effect '%s' for brew '%s' in cauldron at '%s'".formatted(identifier, getType().getId(), getCauldron().getBlockPos()));
+            } else {
+                effects.put(identifier, provider.loadEffect(this, tag, identifier));
+            }
         }
     }
 }
