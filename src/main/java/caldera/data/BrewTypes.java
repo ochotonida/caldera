@@ -9,6 +9,7 @@ import com.google.common.collect.Sets;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.HashCache;
@@ -49,7 +50,6 @@ public class BrewTypes implements DataProvider {
     private static void saveBrewType(HashCache cache, JsonObject object, Path path) {
         try {
             String json = GSON.toJson(object);
-            //noinspection UnstableApiUsage
             String hash = SHA1.hashUnencodedChars(json).toString();
             if (!Objects.equals(cache.getHash(path), hash) || !Files.exists(path)) {
                 Files.createDirectories(path.getParent());
@@ -69,7 +69,7 @@ public class BrewTypes implements DataProvider {
                 .executeAction("set_starting_color", Actions.CHANGE_COLOR.get().setColor(0xeedd11))
                 .executeAction("fade_to_red", Actions.CHANGE_COLOR.get().changeColor(0xee4411, 100))
                 .executeAction("play_fuse_sound", Actions.PLAY_SOUND.get().playSound(SoundEvents.TNT_PRIMED))
-                .executeAction("spawn_particles", Actions.SPAWN_PARTICLES.get().spawnParticles())
+                .executeAction("spawn_particles", Actions.SPAWN_PARTICLES.get().spawnParticles(ParticleTypes.ENTITY_EFFECT, 50, true))
                 .startTimer("explosion_timer", 100)
                 .end()
 
