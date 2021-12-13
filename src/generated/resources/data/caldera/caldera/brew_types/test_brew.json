@@ -1,6 +1,11 @@
 {
   "type": "caldera:generic_brew",
   "actions": {
+    "fade_to_red": {
+      "actionType": "caldera:change_color",
+      "color": "#EE4411",
+      "transitionTime": 100
+    },
     "explode": {
       "actionType": "caldera:explode",
       "radius": 10.0,
@@ -9,7 +14,7 @@
     },
     "set_starting_color": {
       "actionType": "caldera:change_color",
-      "color": "#FFDD22",
+      "color": "#EEDD11",
       "transitionTime": 0
     },
     "play_fuse_sound": {
@@ -26,7 +31,7 @@
   "effects": {
     "explosion_timer": {
       "effectType": "caldera:timer",
-      "duration": 4
+      "duration": 100
     }
   },
   "events": [
@@ -36,6 +41,7 @@
       },
       "actions": [
         "set_starting_color",
+        "fade_to_red",
         "play_fuse_sound",
         "start_explosion_timer"
       ]
