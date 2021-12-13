@@ -54,7 +54,7 @@ public class CauldronItemHandler extends ItemStackHandler {
     }
 
     protected void onContentsChanged() {
-        cauldron.setChanged();
+        cauldron.setChanged(); // TODO perhaps it's better to do this in the cauldronBlockEntity itself
     }
 
     @Override

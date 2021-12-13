@@ -16,8 +16,8 @@ import net.minecraft.world.level.storage.loot.PredicateManager;
 import net.minecraftforge.common.crafting.CraftingHelper;
 import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.event.OnDatapackSyncEvent;
-import net.minecraftforge.fmllegacy.network.PacketDistributor;
 import net.minecraftforge.forgespi.Environment;
+import net.minecraftforge.network.PacketDistributor;
 
 import javax.annotation.Nullable;
 import java.util.Map;

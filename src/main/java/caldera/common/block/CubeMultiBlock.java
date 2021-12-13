@@ -10,6 +10,7 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.LevelEvent;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -18,7 +19,6 @@ import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.util.Constants;
 
 import javax.annotation.Nullable;
 import java.util.stream.Stream;
@@ -150,8 +150,8 @@ public abstract class CubeMultiBlock extends Block {
             if (state.getValue(FACING) == getFacingFromOffset(offset)
                     && state.getValue(HALF) == getHalfFromOffset(offset)
             ) {
-                level.setBlock(pos, Blocks.AIR.defaultBlockState(), Constants.BlockFlags.DEFAULT);
-                level.levelEvent(Constants.WorldEvents.BREAK_BLOCK_EFFECTS, pos, Block.getId(state));
+                level.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
+                level.levelEvent(LevelEvent.PARTICLES_DESTROY_BLOCK, pos, Block.getId(state));
             }
         }
     }
@@ -185,7 +185,7 @@ public abstract class CubeMultiBlock extends Block {
                     BlockState stateForPlacement = placedState
                             .setValue(FACING, getFacingFromOffset(offset))
                             .setValue(HALF, getHalfFromOffset(offset));
-                    level.setBlock(pos, stateForPlacement, Constants.BlockFlags.DEFAULT);
+                    level.setBlock(pos, stateForPlacement, Block.UPDATE_ALL);
                 });
     }
 

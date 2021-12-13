@@ -15,6 +15,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.resources.ResourceLocation;
@@ -40,16 +41,15 @@ import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidUtil;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.templates.EmptyFluidHandler;
-import net.minecraftforge.fmllegacy.network.PacketDistributor;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.wrapper.EmptyHandler;
+import net.minecraftforge.network.PacketDistributor;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
@@ -257,7 +257,7 @@ public class CauldronBlockEntity extends BlockEntity implements Cauldron {
 
         CompoundTag itemData = itemEntity.getPersistentData();
 
-        if (itemEntity.getDeltaMovement().y() <= 0 && !itemData.contains("InitialDeltaMovement", Constants.NBT.TAG_COMPOUND)) {
+        if (itemEntity.getDeltaMovement().y() <= 0 && !itemData.contains("InitialDeltaMovement", Tag.TAG_COMPOUND)) {
             CompoundTag nbt = new CompoundTag();
             Vec3 deltaMovement = itemEntity.getDeltaMovement();
 
@@ -285,7 +285,7 @@ public class CauldronBlockEntity extends BlockEntity implements Cauldron {
         CompoundTag itemData = itemEntity.getPersistentData();
 
         Vec3 motion;
-        if (itemData.contains("InitialDeltaMovement", Constants.NBT.TAG_COMPOUND)) {
+        if (itemData.contains("InitialDeltaMovement", Tag.TAG_COMPOUND)) {
             CompoundTag nbt = itemData.getCompound("InitialDeltaMovement");
             motion = new Vec3(
                     nbt.getDouble("X"),
@@ -494,7 +494,6 @@ public class CauldronBlockEntity extends BlockEntity implements Cauldron {
         brew.clearUpdate();
     }
 
-    // sendBlockUpdated != markAndNotifyBlock != sendUpdatePacket
     protected void sendBlockUpdated() {
         if (getLevel() instanceof ServerLevel level) {
             level.getChunkSource().blockChanged(getBlockPos());
@@ -513,12 +512,11 @@ public class CauldronBlockEntity extends BlockEntity implements Cauldron {
     }
 
     // Called on the client when the block entity is being synced with the block entity on the server
-    // this is for re-syncing, when a block update happens the client data should reflect server data,
-    // probably best to use a separate packet for updating - then it's not possible to wait for block update?
-    // perhaps syncing on the end of the tick is good enough
     @Override
     public void onDataPacket(Connection networkManager, ClientboundBlockEntityDataPacket updatePacket) {
-        readUpdateTag(updatePacket.getTag());
+        if (updatePacket.getTag() != null) {
+            readUpdateTag(updatePacket.getTag());
+        }
     }
 
     // Called on the server when data is re-synced to the client on block update
@@ -527,7 +525,7 @@ public class CauldronBlockEntity extends BlockEntity implements Cauldron {
         if (!isController()) {
             return null;
         }
-        return new ClientboundBlockEntityDataPacket(getBlockPos(), 0, createUpdateTag(new CompoundTag()));
+        return ClientboundBlockEntityDataPacket.create(this);
     }
 
     protected void readUpdateTag(CompoundTag tag) {

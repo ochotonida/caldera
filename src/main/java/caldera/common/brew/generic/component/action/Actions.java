@@ -4,8 +4,8 @@ import caldera.Caldera;
 import caldera.common.brew.generic.GenericBrew;
 import caldera.common.brew.generic.component.action.actions.*;
 import caldera.common.init.CalderaRegistries;
-import net.minecraftforge.fmllegacy.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.RegistryObject;
 
 public class Actions {
 

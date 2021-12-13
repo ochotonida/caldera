@@ -4,8 +4,8 @@ import caldera.Caldera;
 import caldera.common.brew.BrewTypeSerializer;
 import caldera.common.brew.generic.GenericBrewType;
 import caldera.common.brew.sludge.SludgeBrewType;
-import net.minecraftforge.fmllegacy.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.RegistryObject;
 
 public class ModBrewTypes {
 

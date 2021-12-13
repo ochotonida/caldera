@@ -1,19 +1,18 @@
 buildscript {
     repositories {
         maven { url = 'https://maven.minecraftforge.net' }
-        maven { url = 'https://maven.parchment.org' }
-        maven { url = 'https://repo.spongepowered.org/repository/maven-public/' }
+        // maven { url = 'https://maven.parchment.org' }
         mavenCentral()
     }
     dependencies {
         classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
-        classpath group: 'org.spongepowered', name: 'mixingradle', version: '0.7-SNAPSHOT'
-        classpath 'org.parchmentmc:librarian:1.+'
+        classpath 'org.spongepowered:mixingradle:0.7.+'
+        // classpath 'org.parchmentmc:librarian:1.+'
     }
 }
 
 apply plugin: 'net.minecraftforge.gradle'
-apply plugin: 'org.parchmentmc.librarian.forgegradle'
+// apply plugin: 'org.parchmentmc.librarian.forgegradle'
 
 apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
@@ -23,24 +22,21 @@ mixin {
     add sourceSets.main, "caldera.refmap.json"
 }
 
-version = '1.17.1-0.0.0'
+version = '1.18.1-0.0.0'
 group = 'caldera'
 archivesBaseName = 'caldera'
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(16)
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 println('Java: ' + System.getProperty('java.version') + ' JVM: ' + System.getProperty('java.vm.version') + '(' + System.getProperty('java.vendor') + ') Arch: ' + System.getProperty('os.arch'))
 minecraft {
-    mappings channel: 'parchment', version: '2021.09.05-1.17.1'
+    mappings channel: 'official', version: '1.18'
 
     runs {
         client {
             workingDirectory project.file('run')
-            arg "-mixin.config=caldera.mixins.json"
             property 'forge.logging.markers', ''
             property 'forge.logging.console.level', 'debug'
-            property 'mixin.env.remapRefMap', 'true'
-            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
 
             mods {
                 caldera {
@@ -51,11 +47,8 @@ minecraft {
 
         server {
             workingDirectory project.file('run')
-            arg "-mixin.config=caldera.mixins.json"
             property 'forge.logging.markers', ''
             property 'forge.logging.console.level', 'debug'
-            property 'mixin.env.remapRefMap', 'true'
-            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
 
             mods {
                 caldera {
@@ -66,11 +59,8 @@ minecraft {
 
         data {
             workingDirectory project.file('run')
-            arg "-mixin.config=caldera.mixins.json"
             property 'forge.logging.markers', ''
             property 'forge.logging.console.level', 'debug'
-            property 'mixin.env.remapRefMap', 'true'
-            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
 
             args '--mod', 'caldera', '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
 
@@ -89,17 +79,21 @@ sourceSets.main.resources {
 
 repositories {
     maven {
-        // JEI
-        name = "Progwml6 maven"
+        name = "jei"
         url = "https://dvs1.progwml6.com/files/maven/"
     }
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.17.1-37.0.95'
+    minecraft 'net.minecraftforge:forge:1.18.1-39.0.3'
 
     // compileOnly fg.deobf("mezz.jei:jei-1.16.5:7.6.4.90:api")
     // runtimeOnly fg.deobf("mezz.jei:jei-1.16.5:7.6.4.90")
+}
+
+mixin {
+    add sourceSets.main, 'mixins.caldera.refmap.json'
+    config 'mixins.caldera.json'
 }
 
 jar {
