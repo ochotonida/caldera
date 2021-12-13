@@ -6,6 +6,9 @@
       "color": "#EE4411",
       "transitionTime": 100
     },
+    "spawn_particles": {
+      "actionType": "caldera:spawn_particles"
+    },
     "explode": {
       "actionType": "caldera:explode",
       "radius": 10.0,
@@ -43,6 +46,7 @@
         "set_starting_color",
         "fade_to_red",
         "play_fuse_sound",
+        "spawn_particles",
         "start_explosion_timer"
       ]
     },
@@ -52,6 +56,7 @@
         "identifier": "explosion_timer"
       },
       "actions": [
+        "spawn_particles",
         "explode"
       ]
     }
