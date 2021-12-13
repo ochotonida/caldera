@@ -130,6 +130,16 @@ public class LargeCauldronBlock extends CubeMultiBlock implements EntityBlock {
     }
 
     @Override
+    public void onRemove(BlockState currentState, Level level, BlockPos replacedPos, BlockState newState, boolean isMoving) {
+        if (!level.isClientSide() && currentState.hasBlockEntity() && (!currentState.is(newState.getBlock()) || !newState.hasBlockEntity())) {
+            if (level.getBlockEntity(replacedPos) instanceof CauldronBlockEntity cauldron) {
+                cauldron.onRemove();
+            }
+        }
+        super.onRemove(currentState, level, replacedPos, newState, isMoving);
+    }
+
+    @Override
     @SuppressWarnings("deprecation")
     public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext selectionContext) {
         if (state.getValue(HALF) == DoubleBlockHalf.LOWER) {

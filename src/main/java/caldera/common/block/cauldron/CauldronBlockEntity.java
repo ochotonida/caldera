@@ -166,6 +166,10 @@ public class CauldronBlockEntity extends BlockEntity implements Cauldron {
         oldFluidHandler.invalidate();
     }
 
+    public void onRemove() {
+        sendBrewUpdate();
+    }
+
     public void tick() {
         if (!fluidHandler.isPresent()) {
             setupCapabilities();
