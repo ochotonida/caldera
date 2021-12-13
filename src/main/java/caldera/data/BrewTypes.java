@@ -66,13 +66,16 @@ public class BrewTypes implements DataProvider {
     protected void buildBrewTypes(Consumer<FinishedBrewType> consumer) {
         genericBrew("test_brew")
                 .onTrigger(Triggers.BREW_CREATED.get().create())
-                .executeAction("set_starting_color", Actions.CHANGE_COLOR.get().setColor(0xFFDD22))
+                .executeAction("set_starting_color", Actions.CHANGE_COLOR.get().setColor(0xeedd11))
+                .executeAction("fade_to_red", Actions.CHANGE_COLOR.get().changeColor(0xee4411, 100))
                 .executeAction("play_fuse_sound", Actions.PLAY_SOUND.get().playSound(SoundEvents.TNT_PRIMED))
-                .startTimer("explosion_timer", 4)
+                .startTimer("explosion_timer", 100)
                 .end()
+
                 .onTimer("explosion_timer")
                 .executeAction("explode", Actions.EXPLODE.get().explode(10))
                 .end()
+
                 .save(consumer);
     }
 
