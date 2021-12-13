@@ -5,15 +5,13 @@ import caldera.common.brew.generic.component.action.Action;
 import caldera.common.brew.generic.component.action.ActionType;
 import caldera.common.brew.generic.component.action.Actions;
 import caldera.common.recipe.Cauldron;
+import caldera.common.util.JsonHelper;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParseException;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.registries.ForgeRegistryEntry;
-
-import java.util.Locale;
 
 public class ExplodeActionType extends ForgeRegistryEntry<ActionType<?>> implements ActionType<ExplodeActionType.ExplodeAction> {
 
@@ -22,12 +20,7 @@ public class ExplodeActionType extends ForgeRegistryEntry<ActionType<?>> impleme
         float radius = GsonHelper.getAsFloat(object, "radius");
         Explosion.BlockInteraction mode = Explosion.BlockInteraction.DESTROY;
         if (object.has("mode")) {
-            String modeName = GsonHelper.getAsString(object, "mode").toUpperCase(Locale.ROOT);
-            try {
-                mode = Explosion.BlockInteraction.valueOf(modeName);
-            } catch (IllegalArgumentException exception) {
-                throw new JsonParseException("Invalid explosion mode: " + modeName);
-            }
+            mode = JsonHelper.getAsEnumValue(object, "mode", Explosion.BlockInteraction.class);
         }
         boolean causesFire = false;
         if (object.has("causesFire")) {
@@ -59,10 +52,8 @@ public class ExplodeActionType extends ForgeRegistryEntry<ActionType<?>> impleme
         @Override
         public void accept(GenericBrew brew) {
             Cauldron cauldron = brew.getCauldron();
-            if (cauldron.getLevel() == null) {
-                return;
-            }
             Vec3 origin = cauldron.getCenter();
+            // noinspection ConstantConditions
             cauldron.getLevel().explode(null, origin.x, origin.y, origin.z, radius, causesFire, mode);
         }
 
@@ -70,7 +61,7 @@ public class ExplodeActionType extends ForgeRegistryEntry<ActionType<?>> impleme
         public void serialize(JsonObject object) {
             object.addProperty("radius", radius);
             object.addProperty("causesFire", causesFire);
-            object.addProperty("mode", mode.name().toLowerCase(Locale.ROOT));
+            object.add("mode", JsonHelper.writeEnumValue(mode));
         }
 
         @Override

@@ -25,7 +25,7 @@ public class TriggerHandler<TRIGGER extends Trigger> {
     }
 
     public void trigger(GenericBrew brew, Predicate<TRIGGER> predicate) {
-        if (brew.getCauldron().getLevel() != null && brew.getCauldron().getLevel().isClientSide()) {
+        if (brew.getCauldron().getLevel() == null || brew.getCauldron().getLevel().isClientSide()) {
             return;
         }
         Cauldron cauldron = brew.getCauldron();
