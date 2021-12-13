@@ -7,7 +7,12 @@
       "transitionTime": 100
     },
     "spawn_particles": {
-      "actionType": "caldera:spawn_particles"
+      "actionType": "caldera:spawn_particles",
+      "particle": {
+        "type": "minecraft:entity_effect"
+      },
+      "count": 50,
+      "colored": true
     },
     "explode": {
       "actionType": "caldera:explode",
