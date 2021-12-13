@@ -69,10 +69,12 @@ public class BrewTypes implements DataProvider {
                 .executeAction("set_starting_color", Actions.CHANGE_COLOR.get().setColor(0xeedd11))
                 .executeAction("fade_to_red", Actions.CHANGE_COLOR.get().changeColor(0xee4411, 100))
                 .executeAction("play_fuse_sound", Actions.PLAY_SOUND.get().playSound(SoundEvents.TNT_PRIMED))
+                .executeAction("spawn_particles", Actions.SPAWN_PARTICLES.get().spawnParticles())
                 .startTimer("explosion_timer", 100)
                 .end()
 
                 .onTimer("explosion_timer")
+                .executeAction("spawn_particles")
                 .executeAction("explode", Actions.EXPLODE.get().explode(10))
                 .end()
 

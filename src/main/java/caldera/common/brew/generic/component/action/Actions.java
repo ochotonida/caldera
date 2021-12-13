@@ -2,10 +2,7 @@ package caldera.common.brew.generic.component.action;
 
 import caldera.Caldera;
 import caldera.common.brew.generic.GenericBrew;
-import caldera.common.brew.generic.component.action.actions.ChangeColorActionType;
-import caldera.common.brew.generic.component.action.actions.EffectActionType;
-import caldera.common.brew.generic.component.action.actions.ExplodeActionType;
-import caldera.common.brew.generic.component.action.actions.PlaySoundActionType;
+import caldera.common.brew.generic.component.action.actions.*;
 import caldera.common.init.CalderaRegistries;
 import net.minecraftforge.fmllegacy.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
@@ -19,4 +16,5 @@ public class Actions {
     public static final RegistryObject<ExplodeActionType> EXPLODE = REGISTRY.register("explode", ExplodeActionType::new);
     public static final RegistryObject<PlaySoundActionType> PLAY_SOUND = REGISTRY.register("play_sound", PlaySoundActionType::new);
     public static final RegistryObject<ChangeColorActionType> CHANGE_COLOR = REGISTRY.register("change_color", ChangeColorActionType::new);
+    public static final RegistryObject<SpawnParticlesActionType> SPAWN_PARTICLES = REGISTRY.register("spawn_particles", SpawnParticlesActionType::new);
 }
