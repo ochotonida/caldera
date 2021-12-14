@@ -1,5 +1,6 @@
 package caldera.common.util;
 
+import caldera.mixin.accessor.RecipeManagerAccessor;
 import com.google.gson.*;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.nbt.CompoundTag;
@@ -7,14 +8,19 @@ import net.minecraft.nbt.TagParser;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
+import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeManager;
+import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public class CraftingHelper {
@@ -140,5 +146,10 @@ public class CraftingHelper {
         }
 
         return new FluidStack(fluid, amount, nbt);
+    }
+
+    public static <RECIPE extends Recipe<Container>> Collection<RECIPE> getRecipesByType(RecipeManager manager, RecipeType<RECIPE> type) {
+        // noinspection unchecked
+        return (Collection<RECIPE>) ((RecipeManagerAccessor) manager).caldera$callByType(type).values();
     }
 }

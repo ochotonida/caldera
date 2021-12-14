@@ -17,6 +17,7 @@ import net.minecraft.data.DataProvider;
 import net.minecraft.data.HashCache;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.level.Explosion;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -74,11 +75,12 @@ public class BrewTypes implements DataProvider {
                 .executeAction("spawn_particles", Actions.SPAWN_PARTICLES.get().spawnParticles(new BrewParticleProvider(ParticleTypes.ENTITY_EFFECT, true), 50))
                 .startEffect("swirl_particles", EffectProviders.PARTICLE_EMITTER.get().emitter(new BrewParticleProvider(ParticleTypes.ENTITY_EFFECT, true), 2))
                 .startTimer("explosion_timer", 100)
+                .startEffect("transmute_metal", EffectProviders.ITEM_TRANSMUTATION.get().transmute(new ResourceLocation(Caldera.MODID, "transmute_metal"), 5))
                 .end()
 
                 .onTimer("explosion_timer")
                 .executeAction("spawn_particles")
-                .executeAction("explode", Actions.EXPLODE.get().explode(10))
+                .executeAction("explode", Actions.EXPLODE.get().explode(10, false, Explosion.BlockInteraction.NONE))
                 .end()
 
                 .save(consumer);

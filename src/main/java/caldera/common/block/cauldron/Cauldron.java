@@ -4,6 +4,10 @@ import caldera.common.brew.Brew;
 import caldera.common.util.ColorHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
@@ -33,6 +37,22 @@ public interface Cauldron {
     Brew getBrew();
 
     void setChanged();
+
+    /**
+     * Spawns an item stack inside the cauldron
+     *
+     * @param stack the item to spawn
+     * @param previousMotion the motion of an item previously thrown into the cauldron. The discarded item is thrown back
+     *                       into the direction it came from
+     */
+    void discardItem(ItemStack stack, Vec3 previousMotion);
+
+    /**
+     * Spawns an item inside the cauldron
+     */
+    default void spawnItem(ItemStack stack) {
+        discardItem(stack, Vec3.ZERO);
+    }
 
     /**
      * Spawn particles at random positions in the cauldron at the current fluid height
@@ -67,4 +87,17 @@ public interface Cauldron {
      * @param particle the particle to spawn
      */
     void spawnParticle(ParticleOptions particle, double xOffset, double yOffset, double zOffset, double xSpeed, double ySpeed, double zSpeed, boolean useFluidHeight);
+
+    /**
+     * Returns the initial motion vector this item entity had as it entered the cauldron,
+     * or it's current motion if it never entered a cauldron
+     */
+    static Vec3 getInitialDeltaMovement(ItemEntity itemEntity) {
+        CompoundTag itemData = itemEntity.getPersistentData();
+        if (itemData.contains("InitialDeltaMovement", Tag.TAG_COMPOUND)) {
+            CompoundTag nbt = itemData.getCompound("InitialDeltaMovement");
+            return new Vec3(nbt.getDouble("X"), nbt.getDouble("Y"), nbt.getDouble("Z"));
+        }
+        return itemEntity.getDeltaMovement();
+    }
 }

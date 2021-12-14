@@ -1,6 +1,7 @@
 package caldera.common.recipe.transmutation;
 
 import caldera.common.init.ModRecipeTypes;
+import caldera.common.recipe.ItemResultRecipe;
 import caldera.common.recipe.ItemResultRecipeSerializer;
 import com.google.gson.JsonElement;
 import net.minecraft.network.FriendlyByteBuf;
@@ -11,7 +12,7 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraftforge.common.crafting.CraftingHelper;
 
-public record ItemTransmutationRecipe(ResourceLocation id, ResourceLocation transmutationType, Ingredient ingredient, ItemStack result) implements TransmutationRecipe<ItemStack, ItemStack, Ingredient> {
+public record ItemTransmutationRecipe(ResourceLocation id, ResourceLocation transmutationType, Ingredient ingredient, ItemStack result) implements ItemResultRecipe, IngredientTransmutationRecipe<ItemStack, ItemStack, Ingredient> {
 
     @Override
     public ItemStack assemble(ResourceLocation transmutationType, ItemStack stack) {
@@ -28,7 +29,7 @@ public record ItemTransmutationRecipe(ResourceLocation id, ResourceLocation tran
         return ModRecipeTypes.ITEM_TRANSMUTATION;
     }
 
-    public static class Serializer extends TransmutationRecipe.Serializer<ItemStack, ItemStack, Ingredient, ItemTransmutationRecipe> implements ItemResultRecipeSerializer<ItemTransmutationRecipe> {
+    public static class Serializer extends IngredientTransmutationRecipe.Serializer<ItemStack, Ingredient, ItemTransmutationRecipe> implements ItemResultRecipeSerializer<ItemTransmutationRecipe> {
 
         @Override
         public ItemTransmutationRecipe createRecipe(ResourceLocation id, ResourceLocation transmutationType, Ingredient ingredient, ItemStack result) {

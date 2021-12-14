@@ -8,7 +8,7 @@ import caldera.common.init.*;
 import caldera.common.network.BrewUpdatePacket;
 import caldera.common.network.NetworkHandler;
 import caldera.common.recipe.cauldron.CauldronRecipe;
-import caldera.mixin.accessor.RecipeManagerAccessor;
+import caldera.common.util.CraftingHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleOptions;
@@ -22,15 +22,12 @@ import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.Container;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -231,10 +228,12 @@ public class CauldronBlockEntity extends BlockEntity implements Cauldron {
     }
 
     protected void onEntityInside(Entity entity, double yOffset) {
+        if (entity instanceof ItemEntity) {
+            onItemInside((ItemEntity) entity, yOffset);
+        }
+
         if (hasBrew()) {
             getBrew().onEntityInside(entity, yOffset);
-        } else if (entity instanceof ItemEntity) {
-            onItemInside((ItemEntity) entity, yOffset);
         }
     }
 
@@ -256,7 +255,7 @@ public class CauldronBlockEntity extends BlockEntity implements Cauldron {
             itemData.put("InitialDeltaMovement", nbt);
         }
 
-        if (fluidTank.isFull() && itemEntity.getDeltaMovement().y() <= 0 && yOffset < 0.2) {
+        if (!hasBrew() && fluidTank.isFull() && itemEntity.getDeltaMovement().y() <= 0 && yOffset < 0.2) {
             addItemToCauldron(itemEntity);
         }
     }
@@ -270,19 +269,7 @@ public class CauldronBlockEntity extends BlockEntity implements Cauldron {
             sendBlockUpdated();
         }
 
-        CompoundTag itemData = itemEntity.getPersistentData();
-
-        Vec3 motion;
-        if (itemData.contains("InitialDeltaMovement", Tag.TAG_COMPOUND)) {
-            CompoundTag nbt = itemData.getCompound("InitialDeltaMovement");
-            motion = new Vec3(
-                    nbt.getDouble("X"),
-                    nbt.getDouble("Y"),
-                    nbt.getDouble("Z")
-            );
-        } else {
-            motion = itemEntity.getDeltaMovement();
-        }
+        Vec3 motion = Cauldron.getInitialDeltaMovement(itemEntity);
 
         motion = motion
                 .multiply(-1, 0, -1)
@@ -297,7 +284,7 @@ public class CauldronBlockEntity extends BlockEntity implements Cauldron {
 
             if (stack.hasContainerItem()) {
                 ItemStack containerStack = stack.getContainerItem();
-                spawnInCauldron(containerStack, motion);
+                discardItem(containerStack, motion);
             }
 
             inventory.addItem(stack);
@@ -305,7 +292,7 @@ public class CauldronBlockEntity extends BlockEntity implements Cauldron {
             itemEntity.level.playSound(null, itemEntity.getX(), itemEntity.getY(), itemEntity.getZ(), ModSoundEvents.CAULDRON_RETURN_INERT_INGREDIENT.get(), SoundSource.BLOCKS, 0.5F, 1);
         }
 
-        spawnInCauldron(remainder, motion);
+        discardItem(remainder, motion);
 
         itemEntity.level.playSound(null, itemEntity.getX(), itemEntity.getY(), itemEntity.getZ(), SoundEvents.GENERIC_SPLASH, SoundSource.BLOCKS, 1, 1);
         itemEntity.discard();
@@ -315,10 +302,16 @@ public class CauldronBlockEntity extends BlockEntity implements Cauldron {
         return !ModTags.INERT.contains(stack.getItem());
     }
 
-    private void spawnInCauldron(ItemStack stack, Vec3 motion) {
+    public void discardItem(ItemStack stack, Vec3 previousMotion) {
         if (getLevel() == null) {
             return;
         }
+
+        Vec3 motion = previousMotion
+                .multiply(-1, 0, -1)
+                .normalize()
+                .scale(0.2)
+                .add(0, 0.425, 0);
 
         Vec3 position = getCenter();
 
@@ -359,18 +352,13 @@ public class CauldronBlockEntity extends BlockEntity implements Cauldron {
     @Nullable
     private <RECIPE extends CauldronRecipe<?>> RECIPE findMatchingRecipe(RecipeType<RECIPE> type) {
         // noinspection ConstantConditions
-        Collection<RECIPE> itemRecipes = getRecipesByType(getLevel().getRecipeManager(), type);
+        Collection<RECIPE> itemRecipes = CraftingHelper.getRecipesByType(getLevel().getRecipeManager(), type);
         for (RECIPE recipe : itemRecipes) {
             if (matchesRecipe(recipe)) {
                 return recipe;
             }
         }
         return null;
-    }
-
-    private static <RECIPE extends Recipe<Container>> Collection<RECIPE> getRecipesByType(RecipeManager manager, RecipeType<RECIPE> type) {
-        // noinspection unchecked
-        return (Collection<RECIPE>) ((RecipeManagerAccessor) manager).caldera$callByType(type).values();
     }
 
     private boolean matchesRecipe(CauldronRecipe<?> recipe) {
@@ -383,7 +371,7 @@ public class CauldronBlockEntity extends BlockEntity implements Cauldron {
 
     private void craftItem(CauldronRecipe<ItemStack> recipe) {
         ItemStack result = assembleRecipe(recipe);
-        spawnInCauldron(result, new Vec3(0, 0.5, 0));
+        spawnItem(result);
 
         inventory.clear();
         fluidTank.clear();

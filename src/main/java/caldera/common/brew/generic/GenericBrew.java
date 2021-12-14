@@ -12,11 +12,15 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.level.Level;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 public class GenericBrew extends Brew {
 
@@ -53,6 +57,19 @@ public class GenericBrew extends Brew {
         Triggers.BREW_CREATED.get().trigger(this);
     }
 
+    /**
+     * Applies the consumer to each active effect, in the order the effects were added to the brew.
+     * The consumer will not be applied to effects that are added while executing the method, and any
+     * effects that are removed while executing this method will be skipped.
+     */
+    private void forEachEffect(Consumer<Effect> consumer) {
+        for (Effect effect : getEffects()) {
+            if (effects.containsValue(effect)) {
+                consumer.accept(effect);
+            }
+        }
+    }
+
     @Override
     public void tick() {
         if (!colorInfo.hasSettled()) {
@@ -60,10 +77,23 @@ public class GenericBrew extends Brew {
         }
         colorInfo.tick();
 
-        for (Effect effect : getEffects()) {
-            if (effects.containsValue(effect)) {
-                effect.tick();
+        forEachEffect(Effect::tick);
+    }
+
+    @Override
+    public void onEntityInside(Entity entity, double yOffset) {
+        if (getCauldron().getLevel() == null) {
+            return;
+        }
+        Level level = getCauldron().getLevel();
+
+        if (!level.isClientSide() && entity instanceof ItemEntity item && item.getDeltaMovement().y() <= 0 && yOffset < 0.2) {
+            entity.remove(Entity.RemovalReason.DISCARDED);
+            forEachEffect(effect -> effect.consumeItem(item));
+            if (item.getItem().isEmpty()) {
+                return;
             }
+            getCauldron().discardItem(item.getItem(), item.getDeltaMovement());
         }
     }
 
