@@ -8,11 +8,11 @@
     },
     "spawn_particles": {
       "actionType": "caldera:spawn_particles",
+      "count": 50,
       "particle": {
         "type": "minecraft:entity_effect"
       },
-      "count": 50,
-      "colored": true
+      "useBrewColor": true
     },
     "explode": {
       "actionType": "caldera:explode",
@@ -31,12 +31,24 @@
       "volume": 1.0,
       "pitch": 1.0
     },
+    "start_swirl_particles": {
+      "actionType": "caldera:start_effect",
+      "identifier": "swirl_particles"
+    },
     "start_explosion_timer": {
       "actionType": "caldera:start_effect",
       "identifier": "explosion_timer"
     }
   },
   "effects": {
+    "swirl_particles": {
+      "effectType": "caldera:particle_emitter",
+      "count": 2.0,
+      "particle": {
+        "type": "minecraft:entity_effect"
+      },
+      "useBrewColor": true
+    },
     "explosion_timer": {
       "effectType": "caldera:timer",
       "duration": 100
@@ -52,6 +64,7 @@
         "fade_to_red",
         "play_fuse_sound",
         "spawn_particles",
+        "start_swirl_particles",
         "start_explosion_timer"
       ]
     },
