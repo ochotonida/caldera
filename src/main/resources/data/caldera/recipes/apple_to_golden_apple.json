@@ -1,0 +1,10 @@
+{
+  "type": "caldera:item_transmutation",
+  "transmutationType": "caldera:transmute_metal",
+  "ingredient": {
+    "item": "minecraft:apple"
+  },
+  "result": {
+    "item": "minecraft:golden_apple"
+  }
+}

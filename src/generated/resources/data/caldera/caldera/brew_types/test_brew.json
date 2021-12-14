@@ -18,7 +18,7 @@
       "actionType": "caldera:explode",
       "radius": 10.0,
       "causesFire": false,
-      "mode": "destroy"
+      "mode": "none"
     },
     "set_starting_color": {
       "actionType": "caldera:change_color",
@@ -35,12 +35,21 @@
       "actionType": "caldera:start_effect",
       "identifier": "swirl_particles"
     },
+    "start_transmute_metal": {
+      "actionType": "caldera:start_effect",
+      "identifier": "transmute_metal"
+    },
     "start_explosion_timer": {
       "actionType": "caldera:start_effect",
       "identifier": "explosion_timer"
     }
   },
   "effects": {
+    "transmute_metal": {
+      "effectType": "caldera:item_transmutation",
+      "transmutationType": "caldera:transmute_metal",
+      "maxAmount": 5
+    },
     "swirl_particles": {
       "effectType": "caldera:particle_emitter",
       "count": 2.0,
@@ -65,7 +74,8 @@
         "play_fuse_sound",
         "spawn_particles",
         "start_swirl_particles",
-        "start_explosion_timer"
+        "start_explosion_timer",
+        "start_transmute_metal"
       ]
     },
     {
