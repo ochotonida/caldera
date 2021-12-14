@@ -14,14 +14,14 @@ import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 public class GenericBrew extends Brew {
 
     private final ColorInfo colorInfo = new ColorInfo();
-    private final Map<String, Effect> effects = new HashMap<>();
+    private final Map<String, Effect> effects = new LinkedHashMap<>();
 
     private final List<String> queuedUpdates = new ArrayList<>();
 
@@ -32,6 +32,10 @@ public class GenericBrew extends Brew {
     @Override
     public GenericBrewType getType() {
         return (GenericBrewType) super.getType();
+    }
+
+    private List<Effect> getEffects() {
+        return new ArrayList<>(effects.values());
     }
 
     @Override
@@ -56,7 +60,7 @@ public class GenericBrew extends Brew {
         }
         colorInfo.tick();
 
-        for (Effect effect : new ArrayList<>(effects.values())) {
+        for (Effect effect : getEffects()) {
             if (effects.containsValue(effect)) {
                 effect.tick();
             }
