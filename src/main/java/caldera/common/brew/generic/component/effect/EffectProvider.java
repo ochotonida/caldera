@@ -4,7 +4,6 @@ import caldera.common.brew.generic.GenericBrew;
 import com.google.gson.JsonObject;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
 
 public interface EffectProvider {
 
@@ -12,17 +11,19 @@ public interface EffectProvider {
 
     Effect loadEffect(GenericBrew brew, CompoundTag tag, String identifier);
 
-    ResourceLocation getType();
+    EffectProviderType<?> getType();
 
     default JsonObject toJson() {
         JsonObject result = new JsonObject();
-        result.addProperty("effectType", getType().toString());
+        //noinspection ConstantConditions
+        result.addProperty("effectType", getType().getRegistryName().toString());
         serialize(result);
         return result;
     }
 
     default void toNetwork(FriendlyByteBuf buffer) {
-        buffer.writeResourceLocation(getType());
+        // noinspection ConstantConditions
+        buffer.writeResourceLocation(getType().getRegistryName());
         serialize(buffer);
     }
 

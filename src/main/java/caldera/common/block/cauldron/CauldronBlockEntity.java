@@ -213,33 +213,22 @@ public class CauldronBlockEntity extends BlockEntity implements Cauldron {
         sendBrewUpdate();
     }
 
-    public void spawnParticles(ParticleOptions particleData, int amount, double r, double g, double b) {
-        if (getLevel() == null) {
+    public void spawnParticle(ParticleOptions particleData, double xOffset, double yOffset, double zOffset, double xSpeed, double ySpeed, double zSpeed, boolean useFluidHeight) {
+        if (level == null) {
             return;
         }
 
-        double y = getBlockPos().getY() + getFluidLevel() + 4 / 16D + 0.5 / 16D;
+        Vec3 center = getCenter();
 
-        for (int i = 0; i < amount; i++) {
-            double x = getBlockPos().getX() + getLevel().getRandom().nextDouble() * 26 / 16D + 3 / 16D;
-            double z = getBlockPos().getZ() + getLevel().getRandom().nextDouble() * 26 / 16D + 3 / 16D;
+        double x = center.x() + xOffset;
+        double y = center.y() + yOffset;
+        double z = center.z() + zOffset;
 
-            getLevel().addParticle(particleData, x, y, z, r, g, b);
-        }
-    }
-
-    @Override
-    public void spawnSplashParticles(double x, double z, double r, double g, double b) {
-        if (getLevel() == null) {
-            return;
+        if (useFluidHeight) {
+            y += getFluidLevel();
         }
 
-        double y = getBlockPos().getY() + getFluidLevel() + 4 / 16D + 0.5 / 16D;
-        int amount = 6;
-
-        for (int i = 0; i < amount; i++) {
-            getLevel().addParticle(ModParticleTypes.CAULDRON_SPLASH.get(), x, y, z, r, g, b);
-        }
+        level.addParticle(particleData, x, y, z, xSpeed, ySpeed, zSpeed);
     }
 
     protected void onEntityInside(Entity entity, double yOffset) {

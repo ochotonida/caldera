@@ -1,7 +1,9 @@
 package caldera.data;
 
 import caldera.Caldera;
+import caldera.common.brew.generic.component.BrewParticleProvider;
 import caldera.common.brew.generic.component.action.Actions;
+import caldera.common.brew.generic.component.effect.EffectProviders;
 import caldera.common.brew.generic.component.trigger.Triggers;
 import caldera.data.brewtype.FinishedBrewType;
 import caldera.data.brewtype.GenericBrewTypeBuilder;
@@ -69,7 +71,8 @@ public class BrewTypes implements DataProvider {
                 .executeAction("set_starting_color", Actions.CHANGE_COLOR.get().setColor(0xeedd11))
                 .executeAction("fade_to_red", Actions.CHANGE_COLOR.get().changeColor(0xee4411, 100))
                 .executeAction("play_fuse_sound", Actions.PLAY_SOUND.get().playSound(SoundEvents.TNT_PRIMED))
-                .executeAction("spawn_particles", Actions.SPAWN_PARTICLES.get().spawnParticles(ParticleTypes.ENTITY_EFFECT, 50, true))
+                .executeAction("spawn_particles", Actions.SPAWN_PARTICLES.get().spawnParticles(new BrewParticleProvider(ParticleTypes.ENTITY_EFFECT, true), 50))
+                .startEffect("swirl_particles", EffectProviders.PARTICLE_EMITTER.get().emitter(new BrewParticleProvider(ParticleTypes.ENTITY_EFFECT, true), 2))
                 .startTimer("explosion_timer", 100)
                 .end()
 

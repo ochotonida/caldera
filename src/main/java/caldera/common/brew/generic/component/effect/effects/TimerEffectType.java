@@ -4,12 +4,12 @@ import caldera.common.brew.generic.GenericBrew;
 import caldera.common.brew.generic.component.effect.Effect;
 import caldera.common.brew.generic.component.effect.EffectProvider;
 import caldera.common.brew.generic.component.effect.EffectProviderType;
+import caldera.common.brew.generic.component.effect.EffectProviders;
 import caldera.common.brew.generic.component.trigger.Triggers;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraftforge.registries.ForgeRegistryEntry;
 
@@ -33,17 +33,11 @@ public class TimerEffectType extends ForgeRegistryEntry<EffectProviderType<?>> i
         return new TimerEffectProvider(duration);
     }
 
-    public class TimerEffectProvider implements EffectProvider {
-
-        private final int duration;
-
-        public TimerEffectProvider(int duration) {
-            this.duration = duration;
-        }
+    public record TimerEffectProvider(int duration) implements EffectProvider {
 
         @Override
-        public ResourceLocation getType() {
-            return getRegistryName();
+        public EffectProviderType<?> getType() {
+            return EffectProviders.TIMER.get();
         }
 
         @Override
