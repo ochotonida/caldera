@@ -7,6 +7,7 @@ import caldera.common.recipe.ingredient.FluidIngredient;
 import caldera.common.util.CraftingHelper;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
+import net.minecraft.core.NonNullList;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -15,20 +16,11 @@ import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.items.IItemHandler;
 
-import java.util.List;
-
-public class CauldronFluidRecipe extends OrderedCauldronRecipe<FluidStack> {
-
-    private final FluidStack result;
-
-    public CauldronFluidRecipe(ResourceLocation id, FluidStack result, boolean isOrdered, FluidIngredient fluidIngredient, List<Ingredient> ingredients) {
-        super(id, isOrdered, fluidIngredient, ingredients);
-        this.result = result;
-    }
+public record CauldronFluidRecipe(ResourceLocation id, boolean isOrdered, FluidIngredient fluidIngredient, NonNullList<Ingredient> ingredients, FluidStack result) implements OrderedCauldronRecipe<FluidStack> {
 
     @Override
     public FluidStack assemble(FluidStack fluid, IItemHandler inventory, Cauldron cauldron) {
-        return result.copy();
+        return result().copy();
     }
 
     @Override
@@ -44,14 +36,8 @@ public class CauldronFluidRecipe extends OrderedCauldronRecipe<FluidStack> {
     public static class Serializer extends OrderedCauldronRecipe.Serializer<CauldronFluidRecipe, FluidStack> {
 
         @Override
-        public CauldronFluidRecipe createRecipe(
-                ResourceLocation id,
-                FluidStack result,
-                boolean isOrdered,
-                FluidIngredient fluidIngredient,
-                List<Ingredient> ingredients
-        ) {
-            return new CauldronFluidRecipe(id, result, isOrdered, fluidIngredient, ingredients);
+        public CauldronFluidRecipe createRecipe(ResourceLocation id, FluidStack result, boolean isOrdered, FluidIngredient fluidIngredient, NonNullList<Ingredient> ingredients) {
+            return new CauldronFluidRecipe(id, isOrdered, fluidIngredient, ingredients, result);
         }
 
         @Override
@@ -59,9 +45,7 @@ public class CauldronFluidRecipe extends OrderedCauldronRecipe<FluidStack> {
             FluidStack result = CraftingHelper.readFluidStack(object, "result", true, true);
 
             if (result.getAmount() > CauldronFluidTank.CAPACITY) {
-                throw new JsonParseException(
-                        "Fluid amount must be smaller than %s mB, is %s".formatted(CauldronFluidTank.CAPACITY, result.getAmount())
-                );
+                throw new JsonParseException("Fluid amount must be smaller than %s mB, is %s".formatted(CauldronFluidTank.CAPACITY, result.getAmount()));
             }
 
             return result;

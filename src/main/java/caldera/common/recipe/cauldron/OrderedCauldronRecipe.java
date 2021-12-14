@@ -20,41 +20,27 @@ import net.minecraftforge.registries.ForgeRegistryEntry;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class OrderedCauldronRecipe<RESULT> implements CauldronRecipe<RESULT> {
+public interface OrderedCauldronRecipe<RESULT> extends CauldronRecipe<RESULT> {
 
-    private final ResourceLocation id;
-    private final boolean isOrdered;
-    private final FluidIngredient fluidIngredient;
-    private final NonNullList<Ingredient> ingredients;
+    ResourceLocation id();
+    boolean isOrdered();
+    FluidIngredient fluidIngredient();
+    NonNullList<Ingredient> ingredients();
 
-    public OrderedCauldronRecipe(ResourceLocation id, boolean isOrdered, FluidIngredient fluidIngredient, List<Ingredient> ingredients) {
-        this.id = id;
-        this.isOrdered = isOrdered;
-        this.fluidIngredient = fluidIngredient;
-        this.ingredients = NonNullList.of(Ingredient.EMPTY, ingredients.toArray(new Ingredient[0]));
-    }
 
-    public boolean isOrdered() {
-        return isOrdered;
-    }
-
-    public FluidIngredient getFluidIngredient() {
-        return fluidIngredient;
+    @Override
+    default ResourceLocation getId() {
+        return id();
     }
 
     @Override
-    public ResourceLocation getId() {
-        return id;
+    default NonNullList<Ingredient> getIngredients() {
+        return ingredients();
     }
 
     @Override
-    public NonNullList<Ingredient> getIngredients() {
-        return ingredients;
-    }
-
-    @Override
-    public boolean matches(FluidStack fluid, IItemHandler inventory, Cauldron cauldron) {
-        if (!getFluidIngredient().test(fluid)) {
+    default boolean matches(FluidStack fluid, IItemHandler inventory, Cauldron cauldron) {
+        if (!fluidIngredient().test(fluid)) {
             return false;
         }
 
@@ -65,7 +51,7 @@ public abstract class OrderedCauldronRecipe<RESULT> implements CauldronRecipe<RE
         }
     }
 
-    public boolean matchesOrdered(IItemHandler inventory) {
+    default boolean matchesOrdered(IItemHandler inventory) {
         int slot = -1;
 
         for (Ingredient ingredient : getIngredients()) {
@@ -92,7 +78,7 @@ public abstract class OrderedCauldronRecipe<RESULT> implements CauldronRecipe<RE
         return true;
     }
 
-    public boolean matchesUnordered(IItemHandler inventory) {
+    default boolean matchesUnordered(IItemHandler inventory) {
         List<ItemStack> inputs = new ArrayList<>();
 
         for (int slot = 0; slot < inventory.getSlots(); slot++) {
@@ -105,17 +91,11 @@ public abstract class OrderedCauldronRecipe<RESULT> implements CauldronRecipe<RE
         return RecipeMatcher.findMatches(inputs, getIngredients()) != null;
     }
 
-    public static abstract class Serializer<RECIPE extends OrderedCauldronRecipe<RESULT>, RESULT>
+    abstract class Serializer<RECIPE extends OrderedCauldronRecipe<RESULT>, RESULT>
             extends ForgeRegistryEntry<RecipeSerializer<?>>
             implements SingleResultRecipeSerializer<RESULT, RECIPE> {
 
-        public abstract RECIPE createRecipe(
-                ResourceLocation id,
-                RESULT result,
-                boolean isOrdered,
-                FluidIngredient fluidIngredient,
-                List<Ingredient> ingredients
-        );
+        public abstract RECIPE createRecipe(ResourceLocation id, RESULT result, boolean isOrdered, FluidIngredient fluidIngredient, NonNullList<Ingredient> ingredients);
 
         @Override
         public RECIPE fromJson(ResourceLocation id, JsonObject object) {
@@ -124,7 +104,7 @@ public abstract class OrderedCauldronRecipe<RESULT> implements CauldronRecipe<RE
             RESULT result = readResult(object);
             boolean isOrdered = GsonHelper.getAsBoolean(object, "ordered");
 
-            return createRecipe(id, result, isOrdered, fluidIngredient, ingredients);
+            return createRecipe(id, result, isOrdered, fluidIngredient, toNonNullList(ingredients));
         }
 
         @Override
@@ -134,13 +114,17 @@ public abstract class OrderedCauldronRecipe<RESULT> implements CauldronRecipe<RE
             RESULT result = readResult(buffer);
             boolean isOrdered = buffer.readBoolean();
 
-            return createRecipe(id, result, isOrdered, fluidIngredient, ingredients);
+            return createRecipe(id, result, isOrdered, fluidIngredient, toNonNullList(ingredients));
+        }
+
+        private static NonNullList<Ingredient> toNonNullList(List<Ingredient> ingredients) {
+            return NonNullList.of(Ingredient.EMPTY, ingredients.toArray(new Ingredient[0]));
         }
 
         @Override
         public void toNetwork(FriendlyByteBuf buffer, RECIPE recipe) {
             CraftingHelper.writeIngredients(buffer, recipe.getIngredients());
-            recipe.getFluidIngredient().toBuffer(buffer);
+            recipe.fluidIngredient().toBuffer(buffer);
             writeResult(buffer, recipe);
             buffer.writeBoolean(recipe.isOrdered());
         }
