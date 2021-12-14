@@ -1,5 +1,7 @@
-package caldera.common.recipe;
+package caldera.common.recipe.cauldron;
 
+import caldera.common.block.cauldron.Cauldron;
+import caldera.common.recipe.SingleResultRecipeSerializer;
 import caldera.common.recipe.ingredient.FluidIngredient;
 import caldera.common.util.CraftingHelper;
 import com.google.gson.JsonObject;
@@ -105,7 +107,7 @@ public abstract class OrderedCauldronRecipe<RESULT> implements CauldronRecipe<RE
 
     public static abstract class Serializer<RECIPE extends OrderedCauldronRecipe<RESULT>, RESULT>
             extends ForgeRegistryEntry<RecipeSerializer<?>>
-            implements RecipeSerializer<RECIPE> {
+            implements SingleResultRecipeSerializer<RESULT, RECIPE> {
 
         public abstract RECIPE createRecipe(
                 ResourceLocation id,
@@ -114,12 +116,6 @@ public abstract class OrderedCauldronRecipe<RESULT> implements CauldronRecipe<RE
                 FluidIngredient fluidIngredient,
                 List<Ingredient> ingredients
         );
-
-        public abstract RESULT readResult(JsonObject object);
-
-        public abstract RESULT readResult(FriendlyByteBuf buffer);
-
-        public abstract void writeResult(FriendlyByteBuf buffer, RECIPE recipe);
 
         @Override
         public RECIPE fromJson(ResourceLocation id, JsonObject object) {

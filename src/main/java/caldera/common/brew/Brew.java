@@ -1,8 +1,8 @@
 package caldera.common.brew;
 
 import caldera.Caldera;
+import caldera.common.block.cauldron.Cauldron;
 import caldera.common.block.cauldron.CauldronBlockEntity;
-import caldera.common.recipe.Cauldron;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;

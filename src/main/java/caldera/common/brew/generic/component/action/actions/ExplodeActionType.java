@@ -1,10 +1,10 @@
 package caldera.common.brew.generic.component.action.actions;
 
+import caldera.common.block.cauldron.Cauldron;
 import caldera.common.brew.generic.GenericBrew;
 import caldera.common.brew.generic.component.action.Action;
 import caldera.common.brew.generic.component.action.ActionType;
 import caldera.common.brew.generic.component.action.Actions;
-import caldera.common.recipe.Cauldron;
 import caldera.common.util.JsonHelper;
 import com.google.gson.JsonObject;
 import net.minecraft.network.FriendlyByteBuf;

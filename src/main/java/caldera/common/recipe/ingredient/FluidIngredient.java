@@ -14,17 +14,9 @@ import net.minecraftforge.fluids.FluidStack;
 
 import java.util.function.Predicate;
 
-public class FluidIngredient implements Predicate<FluidStack> {
+public record FluidIngredient(FluidStack fluidStack, Tag<Fluid> fluidTag) implements Predicate<FluidStack> {
 
     public static final FluidIngredient EMPTY = of(FluidStack.EMPTY);
-
-    private final FluidStack fluidStack;
-    private final Tag<Fluid> fluidTag;
-
-    private FluidIngredient(FluidStack fluidStack, Tag<Fluid> fluidTag) {
-        this.fluidStack = fluidStack;
-        this.fluidTag = fluidTag;
-    }
 
     public static FluidIngredient of(FluidStack fluidStack) {
         if (fluidStack.isEmpty()) {

@@ -1,5 +1,6 @@
-package caldera.common.recipe;
+package caldera.common.recipe.cauldron;
 
+import caldera.common.block.cauldron.Cauldron;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;

@@ -1,13 +1,13 @@
 package caldera.common.brew.generic;
 
 import caldera.Caldera;
+import caldera.common.block.cauldron.Cauldron;
 import caldera.common.brew.Brew;
 import caldera.common.brew.BrewType;
 import caldera.common.brew.generic.component.action.Action;
 import caldera.common.brew.generic.component.effect.Effect;
 import caldera.common.brew.generic.component.effect.EffectProvider;
 import caldera.common.brew.generic.component.trigger.Triggers;
-import caldera.common.recipe.Cauldron;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;

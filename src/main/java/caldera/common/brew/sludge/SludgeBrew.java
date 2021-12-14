@@ -1,7 +1,7 @@
 package caldera.common.brew.sludge;
 
+import caldera.common.block.cauldron.Cauldron;
 import caldera.common.brew.Brew;
-import caldera.common.recipe.Cauldron;
 import caldera.common.util.ColorHelper;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;

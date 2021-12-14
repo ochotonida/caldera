@@ -1,6 +1,6 @@
 package caldera.common.brew;
 
-import caldera.common.recipe.Cauldron;
+import caldera.common.block.cauldron.Cauldron;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.items.IItemHandler;

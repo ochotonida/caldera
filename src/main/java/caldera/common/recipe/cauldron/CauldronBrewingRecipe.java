@@ -1,5 +1,6 @@
-package caldera.common.recipe;
+package caldera.common.recipe.cauldron;
 
+import caldera.common.block.cauldron.Cauldron;
 import caldera.common.init.ModRecipeTypes;
 import caldera.common.recipe.ingredient.FluidIngredient;
 import caldera.common.util.CraftingHelper;

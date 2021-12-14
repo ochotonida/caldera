@@ -1,10 +1,10 @@
 package caldera.common.brew.sludge;
 
+import caldera.common.block.cauldron.Cauldron;
 import caldera.common.brew.BrewType;
 import caldera.common.brew.BrewTypeDeserializationContext;
 import caldera.common.brew.BrewTypeSerializer;
 import caldera.common.init.ModBrewTypes;
-import caldera.common.recipe.Cauldron;
 import caldera.common.util.ColorHelper;
 import com.google.gson.JsonObject;
 import net.minecraft.network.FriendlyByteBuf;

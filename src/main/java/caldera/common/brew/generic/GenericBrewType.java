@@ -1,5 +1,6 @@
 package caldera.common.brew.generic;
 
+import caldera.common.block.cauldron.Cauldron;
 import caldera.common.brew.Brew;
 import caldera.common.brew.BrewType;
 import caldera.common.brew.BrewTypeDeserializationContext;
@@ -11,7 +12,6 @@ import caldera.common.brew.generic.component.trigger.TriggerHandler;
 import caldera.common.brew.generic.component.trigger.TriggerType;
 import caldera.common.init.CalderaRegistries;
 import caldera.common.init.ModBrewTypes;
-import caldera.common.recipe.Cauldron;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;

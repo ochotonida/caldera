@@ -1,7 +1,7 @@
 package caldera.common.brew.generic.component.trigger;
 
+import caldera.common.block.cauldron.Cauldron;
 import caldera.common.brew.generic.GenericBrew;
-import caldera.common.recipe.Cauldron;
 
 import java.util.ArrayList;
 import java.util.List;

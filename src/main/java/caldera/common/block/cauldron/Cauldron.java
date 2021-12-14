@@ -1,4 +1,4 @@
-package caldera.common.recipe;
+package caldera.common.block.cauldron;
 
 import caldera.common.brew.Brew;
 import caldera.common.util.ColorHelper;
@@ -13,8 +13,6 @@ public interface Cauldron {
 
     @Nullable
     Level getLevel();
-
-    boolean hasLevel();
 
     boolean isRemoved();
 
