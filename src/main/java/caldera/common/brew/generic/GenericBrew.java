@@ -124,16 +124,13 @@ public class GenericBrew extends Brew {
     }
 
     /**
-     * Removes the effect with the specified identifier and triggers the effect_ended trigger
-     *
-     * @throws IllegalArgumentException the brew has no active effect with the specified identifier
+     * If an effect with the specified identifier exists, it is removed and the effect_ended trigger is triggered
      */
     public void endEffect(String identifier) {
-        if (!effects.containsKey(identifier)) {
-            throw new IllegalArgumentException("No active effect with identifier %s".formatted(identifier));
+        if (effects.containsKey(identifier)) {
+            removeEffect(identifier);
+            Triggers.EFFECT_ENDED.get().trigger(this, identifier);
         }
-        removeEffect(identifier);
-        Triggers.EFFECT_ENDED.get().trigger(this, identifier);
     }
 
     @Override

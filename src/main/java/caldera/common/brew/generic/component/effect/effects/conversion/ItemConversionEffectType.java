@@ -6,6 +6,7 @@ import caldera.common.brew.generic.component.effect.Effect;
 import caldera.common.brew.generic.component.effect.EffectProvider;
 import caldera.common.brew.generic.component.effect.EffectProviderType;
 import caldera.common.brew.generic.component.effect.EffectProviders;
+import caldera.common.brew.generic.component.trigger.Triggers;
 import caldera.common.init.ModRecipeTypes;
 import caldera.common.recipe.conversion.ConversionRecipe;
 import caldera.common.util.ConversionRecipeHelper;
@@ -123,6 +124,8 @@ public class ItemConversionEffectType extends ForgeRegistryEntry<EffectProviderT
                     ItemStack result = recipe.get().assemble(conversionHelper.getConversionType(), toTransmute);
                     itemEntity.getItem().shrink(1);
                     brew.getCauldron().discardItem(result, Cauldron.getInitialDeltaMovement(itemEntity));
+
+                    Triggers.ITEM_CONVERTED.get().trigger(brew, getIdentifier(), toTransmute, result);
 
                     if (itemsRemaining > 0) {
                         brew.getCauldron().setChanged();
