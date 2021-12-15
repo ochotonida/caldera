@@ -39,7 +39,15 @@ public class ParticleEmitterEffectType extends ForgeRegistryEntry<EffectProvider
         return new ParticleEmitterEffectProvider(particle, count);
     }
 
-    public record ParticleEmitterEffectProvider(BrewParticleProvider particle, double count) implements EffectProvider {
+    public static final class ParticleEmitterEffectProvider extends EffectProvider {
+
+        private final BrewParticleProvider particle;
+        private final double count;
+
+        public ParticleEmitterEffectProvider(BrewParticleProvider particle, double count) {
+            this.particle = particle;
+            this.count = count;
+        }
 
         @Override
         public EffectProviderType<?> getType() {
@@ -59,12 +67,12 @@ public class ParticleEmitterEffectType extends ForgeRegistryEntry<EffectProvider
         }
 
         @Override
-        public Effect create(GenericBrew brew, String identifier) {
+        public Effect create(GenericBrew brew) {
             return new ParticleEmitterEffect(brew);
         }
 
         @Override
-        public Effect loadEffect(GenericBrew brew, CompoundTag tag, String identifier) {
+        public Effect loadEffect(GenericBrew brew, CompoundTag tag) {
             return new ParticleEmitterEffect(brew);
         }
 

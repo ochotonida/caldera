@@ -5,15 +5,25 @@ import com.google.gson.JsonObject;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 
-public interface EffectProvider {
+public abstract class EffectProvider {
 
-    Effect create(GenericBrew brew, String identifier);
+    private String identifier;
 
-    Effect loadEffect(GenericBrew brew, CompoundTag tag, String identifier);
+    public void setIdentifier(String identifier) {
+        this.identifier = identifier;
+    }
 
-    EffectProviderType<?> getType();
+    public String getIdentifier() {
+        return identifier;
+    }
 
-    default JsonObject toJson() {
+    public abstract Effect create(GenericBrew brew);
+
+    public abstract Effect loadEffect(GenericBrew brew, CompoundTag tag);
+
+    public abstract EffectProviderType<?> getType();
+
+    public JsonObject toJson() {
         JsonObject result = new JsonObject();
         //noinspection ConstantConditions
         result.addProperty("effectType", getType().getRegistryName().toString());
@@ -21,14 +31,14 @@ public interface EffectProvider {
         return result;
     }
 
-    default void toNetwork(FriendlyByteBuf buffer) {
+    public void toNetwork(FriendlyByteBuf buffer) {
         // noinspection ConstantConditions
         buffer.writeResourceLocation(getType().getRegistryName());
         serialize(buffer);
     }
 
-    void serialize(JsonObject object);
+    public abstract void serialize(JsonObject object);
 
-    void serialize(FriendlyByteBuf buffer);
+    public abstract void serialize(FriendlyByteBuf buffer);
 
 }

@@ -5,7 +5,6 @@ import caldera.common.brew.generic.component.effect.Effect;
 import caldera.common.brew.generic.component.effect.EffectProvider;
 import caldera.common.brew.generic.component.effect.EffectProviderType;
 import caldera.common.brew.generic.component.effect.EffectProviders;
-import caldera.common.brew.generic.component.trigger.Triggers;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import net.minecraft.nbt.CompoundTag;
@@ -33,7 +32,13 @@ public class TimerEffectType extends ForgeRegistryEntry<EffectProviderType<?>> i
         return new TimerEffectProvider(duration);
     }
 
-    public record TimerEffectProvider(int duration) implements EffectProvider {
+    public static final class TimerEffectProvider extends EffectProvider {
+
+        private final int duration;
+
+        public TimerEffectProvider(int duration) {
+            this.duration = duration;
+        }
 
         @Override
         public EffectProviderType<?> getType() {
@@ -51,42 +56,39 @@ public class TimerEffectType extends ForgeRegistryEntry<EffectProviderType<?>> i
         }
 
         @Override
-        public Effect create(GenericBrew brew, String identifier) {
-            return new TimerEffect(brew, identifier, duration);
+        public Effect create(GenericBrew brew) {
+            return new TimerEffect(brew, duration);
         }
 
         @Override
-        public Effect loadEffect(GenericBrew brew, CompoundTag tag, String identifier) {
+        public Effect loadEffect(GenericBrew brew, CompoundTag tag) {
             int time = tag.getInt("TimeRemaining");
-            return new TimerEffect(brew, identifier, time);
-        }
-    }
-
-    public static class TimerEffect implements Effect {
-
-        private final GenericBrew brew;
-        private final String identifier;
-        private int timeRemaining;
-
-        public TimerEffect(GenericBrew brew, String identifier, int timeRemaining) {
-            this.brew = brew;
-            this.identifier = identifier;
-            this.timeRemaining = timeRemaining;
+            return new TimerEffect(brew, time);
         }
 
-        @Override
-        public void tick() {
-            if (--timeRemaining <= 0) {
-                brew.removeEffect(identifier);
-                Triggers.TIMER.get().trigger(brew, identifier);
-            } else {
-                brew.getCauldron().setChanged();
+        public class TimerEffect implements Effect {
+
+            private final GenericBrew brew;
+            private int timeRemaining;
+
+            public TimerEffect(GenericBrew brew, int timeRemaining) {
+                this.brew = brew;
+                this.timeRemaining = timeRemaining;
             }
-        }
 
-        @Override
-        public void save(CompoundTag tag) {
-            tag.putInt("TimeRemaining", timeRemaining);
+            @Override
+            public void tick() {
+                if (--timeRemaining <= 0) {
+                    brew.endEffect(getIdentifier());
+                } else {
+                    brew.getCauldron().setChanged();
+                }
+            }
+
+            @Override
+            public void save(CompoundTag tag) {
+                tag.putInt("TimeRemaining", timeRemaining);
+            }
         }
     }
 }

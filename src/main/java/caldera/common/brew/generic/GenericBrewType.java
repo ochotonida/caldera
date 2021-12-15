@@ -25,6 +25,7 @@ import net.minecraftforge.registries.ForgeRegistryEntry;
 
 import java.util.*;
 
+@SuppressWarnings("ClassCanBeRecord")
 public class GenericBrewType implements BrewType {
 
     private final ResourceLocation id;
@@ -37,6 +38,12 @@ public class GenericBrewType implements BrewType {
         this.actions = actions;
         this.effects = effects;
         this.triggers = triggers;
+
+        effects.forEach((identifier, effect) -> {
+            if (!identifier.equals(effect.getIdentifier())) {
+                throw new IllegalArgumentException();
+            }
+        });
     }
 
     @Override
@@ -154,6 +161,7 @@ public class GenericBrewType implements BrewType {
                 }
                 // noinspection ConstantConditions
                 EffectProvider provider = CalderaRegistries.EFFECT_PROVIDER_TYPES.getValue(providerId).deserialize(providerObject);
+                provider.setIdentifier(identifier);
                 result.put(identifier, provider);
             }
 
@@ -168,6 +176,7 @@ public class GenericBrewType implements BrewType {
                 ResourceLocation effectProviderId = buffer.readResourceLocation();
                 // noinspection ConstantConditions
                 EffectProvider provider = CalderaRegistries.EFFECT_PROVIDER_TYPES.getValue(effectProviderId).deserialize(buffer);
+                provider.setIdentifier(identifier);
                 result.put(identifier, provider);
             }
 

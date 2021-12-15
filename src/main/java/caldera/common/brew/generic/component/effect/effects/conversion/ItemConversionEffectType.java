@@ -23,10 +23,10 @@ import net.minecraftforge.registries.ForgeRegistryEntry;
 
 import java.util.Optional;
 
-public class ItemConversionEffectType extends ForgeRegistryEntry<EffectProviderType<?>> implements EffectProviderType<ItemConversionEffectType.ItemTransmutationEffectProvider> {
+public class ItemConversionEffectType extends ForgeRegistryEntry<EffectProviderType<?>> implements EffectProviderType<ItemConversionEffectType.ItemConversionEffectProvider> {
 
     @Override
-    public ItemTransmutationEffectProvider deserialize(JsonObject object) {
+    public ItemConversionEffectProvider deserialize(JsonObject object) {
         ResourceLocation transmutationType = CraftingHelper.readResourceLocation(object, "conversionType");
         int maxAmount = -1;
         if (object.has("maxAmount")) {
@@ -35,46 +35,46 @@ public class ItemConversionEffectType extends ForgeRegistryEntry<EffectProviderT
                 throw new JsonParseException("Maximum amount of items transmuted must be positive");
             }
         }
-        return new ItemTransmutationEffectProvider(transmutationType, maxAmount);
+        return new ItemConversionEffectProvider(transmutationType, maxAmount);
     }
 
     @Override
-    public ItemTransmutationEffectProvider deserialize(FriendlyByteBuf buffer) {
+    public ItemConversionEffectProvider deserialize(FriendlyByteBuf buffer) {
         ResourceLocation transmutationType = buffer.readResourceLocation();
         int maxAmount = buffer.readInt();
-        return new ItemTransmutationEffectProvider(transmutationType, maxAmount);
+        return new ItemConversionEffectProvider(transmutationType, maxAmount);
     }
 
-    public ItemTransmutationEffectProvider transmute(ResourceLocation transmutationType) {
+    public ItemConversionEffectProvider transmute(ResourceLocation transmutationType) {
         return transmute(transmutationType, -1);
     }
 
-    public ItemTransmutationEffectProvider transmute(ResourceLocation transmutationType, int maxAmount) {
-        return new ItemTransmutationEffectProvider(transmutationType, maxAmount);
+    public ItemConversionEffectProvider transmute(ResourceLocation transmutationType, int maxAmount) {
+        return new ItemConversionEffectProvider(transmutationType, maxAmount);
     }
 
-    public static class ItemTransmutationEffectProvider implements EffectProvider {
+    public static class ItemConversionEffectProvider extends EffectProvider {
 
         private final ConversionRecipeHelper<ItemStack, ConversionRecipe<ItemStack, ItemStack>> conversionHelper;
         private final int maxAmount;
 
-        public ItemTransmutationEffectProvider(ResourceLocation transmutationType, int maxAmount) {
+        public ItemConversionEffectProvider(ResourceLocation transmutationType, int maxAmount) {
              this.conversionHelper = new ConversionRecipeHelper<>(ModRecipeTypes.ITEM_CONVERSION, transmutationType);
              this.maxAmount = maxAmount;
         }
 
         @Override
-        public Effect create(GenericBrew brew, String identifier) {
-            return new ItemTransmutationEffect(brew, identifier, maxAmount);
+        public Effect create(GenericBrew brew) {
+            return new ItemConversionEffect(brew, maxAmount);
         }
 
         @Override
-        public Effect loadEffect(GenericBrew brew, CompoundTag tag, String identifier) {
+        public Effect loadEffect(GenericBrew brew, CompoundTag tag) {
             int itemsRemaining = maxAmount;
             if (tag.contains("ItemsRemaining", Tag.TAG_INT)) {
                 itemsRemaining = tag.getInt("ItemsRemaining");
             }
-            return new ItemTransmutationEffect(brew, identifier, itemsRemaining);
+            return new ItemConversionEffect(brew, itemsRemaining);
         }
 
         @Override
@@ -96,16 +96,14 @@ public class ItemConversionEffectType extends ForgeRegistryEntry<EffectProviderT
             buffer.writeInt(maxAmount);
         }
 
-        public class ItemTransmutationEffect implements Effect {
+        public class ItemConversionEffect implements Effect {
 
             private final GenericBrew brew;
-            private final String identifier;
 
             private int itemsRemaining;
 
-            public ItemTransmutationEffect(GenericBrew brew, String identifier, int itemsRemaining) {
+            public ItemConversionEffect(GenericBrew brew, int itemsRemaining) {
                 this.brew = brew;
-                this.identifier = identifier;
                 this.itemsRemaining = itemsRemaining;
             }
 
@@ -129,7 +127,7 @@ public class ItemConversionEffectType extends ForgeRegistryEntry<EffectProviderT
                     if (itemsRemaining > 0) {
                         brew.getCauldron().setChanged();
                         if (--itemsRemaining == 0) {
-                            brew.removeEffect(identifier);
+                            brew.endEffect(getIdentifier());
                         }
                     }
                 }

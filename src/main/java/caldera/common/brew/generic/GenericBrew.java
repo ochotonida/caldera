@@ -110,13 +110,30 @@ public class GenericBrew extends Brew {
     }
 
     public void startEffect(String identifier) {
-        effects.put(identifier, getType().getEffects().get(identifier).create(this, identifier));
+        Effect effect = getType().getEffects().get(identifier).create(this);
+        effects.put(identifier, effect);
         getCauldron().setChanged();
     }
 
+    /**
+     * Removes the effect with the specified identifier from the brew if it is active
+     */
     public void removeEffect(String identifier) {
         effects.remove(identifier);
         getCauldron().setChanged();
+    }
+
+    /**
+     * Removes the effect with the specified identifier and triggers the effect_ended trigger
+     *
+     * @throws IllegalArgumentException the brew has no active effect with the specified identifier
+     */
+    public void endEffect(String identifier) {
+        if (!effects.containsKey(identifier)) {
+            throw new IllegalArgumentException("No active effect with identifier %s".formatted(identifier));
+        }
+        removeEffect(identifier);
+        Triggers.EFFECT_ENDED.get().trigger(this, identifier);
     }
 
     @Override
@@ -186,7 +203,7 @@ public class GenericBrew extends Brew {
             if (provider == null) {
                 Caldera.LOGGER.warn("Skipped loading unknown effect '%s' for brew '%s' in cauldron at '%s'".formatted(identifier, getType().getId(), getCauldron().getBlockPos()));
             } else {
-                effects.put(identifier, provider.loadEffect(this, tag, identifier));
+                effects.put(identifier, provider.loadEffect(this, tag));
             }
         }
     }
