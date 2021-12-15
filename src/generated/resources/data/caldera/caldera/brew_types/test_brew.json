@@ -1,11 +1,6 @@
 {
   "type": "caldera:generic_brew",
   "actions": {
-    "fade_to_red": {
-      "actionType": "caldera:change_color",
-      "color": "#EE4411",
-      "transitionTime": 100
-    },
     "spawn_particles": {
       "actionType": "caldera:spawn_particles",
       "count": 50,
@@ -14,15 +9,20 @@
       },
       "useBrewColor": true
     },
+    "fade_to_red": {
+      "actionType": "caldera:change_color",
+      "color": "#EE4411",
+      "transitionTime": 80
+    },
     "start_transmute_iron": {
       "actionType": "caldera:start_effect",
       "identifier": "transmute_iron"
     },
     "explode": {
       "actionType": "caldera:explode",
-      "radius": 10.0,
+      "radius": 3.0,
       "causesFire": false,
-      "mode": "none"
+      "mode": "destroy"
     },
     "set_starting_color": {
       "actionType": "caldera:change_color",
@@ -35,9 +35,9 @@
       "volume": 1.0,
       "pitch": 1.0
     },
-    "start_swirl_particles": {
+    "start_emit_swirls": {
       "actionType": "caldera:start_effect",
-      "identifier": "swirl_particles"
+      "identifier": "emit_swirls"
     },
     "start_explosion_timer": {
       "actionType": "caldera:start_effect",
@@ -45,22 +45,22 @@
     }
   },
   "effects": {
-    "transmute_iron": {
-      "effectType": "caldera:item_conversion",
-      "conversionType": "caldera:iron_to_gold",
-      "maxAmount": 5
-    },
-    "swirl_particles": {
+    "emit_swirls": {
       "effectType": "caldera:particle_emitter",
-      "count": 2.0,
+      "count": 0.5,
       "particle": {
         "type": "minecraft:entity_effect"
       },
       "useBrewColor": true
     },
+    "transmute_iron": {
+      "effectType": "caldera:item_conversion",
+      "conversionType": "caldera:iron_to_gold",
+      "maxAmount": 5
+    },
     "explosion_timer": {
       "effectType": "caldera:timer",
-      "duration": 100
+      "duration": 80
     }
   },
   "events": [
@@ -69,22 +69,30 @@
         "triggerType": "caldera:brew_created"
       },
       "actions": [
+        "start_transmute_iron",
         "set_starting_color",
-        "fade_to_red",
-        "play_fuse_sound",
         "spawn_particles",
-        "start_swirl_particles",
-        "start_explosion_timer",
-        "start_transmute_iron"
+        "start_emit_swirls"
       ]
     },
     {
       "trigger": {
-        "triggerType": "caldera:timer",
-        "identifier": "explosion_timer"
+        "triggerType": "caldera:effect_ended",
+        "identifier": "transmute_iron"
       },
       "actions": [
         "spawn_particles",
+        "fade_to_red",
+        "play_fuse_sound",
+        "start_explosion_timer"
+      ]
+    },
+    {
+      "trigger": {
+        "triggerType": "caldera:effect_ended",
+        "identifier": "explosion_timer"
+      },
+      "actions": [
         "explode"
       ]
     }
