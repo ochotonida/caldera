@@ -98,9 +98,8 @@ public class ItemTransmutationEffectType extends ForgeRegistryEntry<EffectProvid
 
         public class ItemTransmutationEffect implements Effect {
 
-            // TODO prevent transmuting more than 1 item at once
             private final GenericBrew brew;
-            private final String identifier; // TODO move identifier to effect provider (same in timer effect)
+            private final String identifier;
 
             private int itemsRemaining;
 
@@ -116,27 +115,22 @@ public class ItemTransmutationEffectType extends ForgeRegistryEntry<EffectProvid
                     return;
                 }
 
-                int count = itemEntity.getItem().getCount();
-                if (itemsRemaining != -1) {
-                    count = Math.min(count, itemsRemaining);
-                }
-
                 ItemStack toTransmute = itemEntity.getItem().copy();
-                toTransmute.setCount(count);
+                toTransmute.setCount(1);
 
                 Optional<TransmutationRecipe<ItemStack, ItemStack>> recipe =
                         transmutationHelper.findMatchingRecipe(brew.getCauldron().getLevel().getRecipeManager(), toTransmute);
 
                 if (recipe.isPresent()) {
                     ItemStack result = recipe.get().assemble(transmutationHelper.getTransmutationType(), toTransmute);
-                    itemEntity.getItem().shrink(count);
-                    if (itemsRemaining != -1) {
-                        itemsRemaining -= count;
-                        brew.getCauldron().setChanged();
-                    }
+                    itemEntity.getItem().shrink(1);
                     brew.getCauldron().discardItem(result, Cauldron.getInitialDeltaMovement(itemEntity));
-                    if (itemsRemaining == 0) {
-                        brew.removeEffect(identifier);
+
+                    if (itemsRemaining > 0) {
+                        brew.getCauldron().setChanged();
+                        if (--itemsRemaining == 0) {
+                            brew.removeEffect(identifier);
+                        }
                     }
                 }
             }

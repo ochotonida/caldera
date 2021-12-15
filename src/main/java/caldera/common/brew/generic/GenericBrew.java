@@ -89,7 +89,11 @@ public class GenericBrew extends Brew {
 
         if (!level.isClientSide() && entity instanceof ItemEntity item && item.getDeltaMovement().y() <= 0 && yOffset < 0.2) {
             entity.remove(Entity.RemovalReason.DISCARDED);
-            forEachEffect(effect -> effect.consumeItem(item));
+            forEachEffect(effect -> {
+                if (!item.getItem().isEmpty()) {
+                    effect.consumeItem(item);
+                }
+            });
             if (item.getItem().isEmpty()) {
                 return;
             }
