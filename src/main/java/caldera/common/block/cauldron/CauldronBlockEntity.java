@@ -555,14 +555,12 @@ public class CauldronBlockEntity extends BlockEntity implements Cauldron {
 
     // called on the server when saving the chunk
     @Override
-    public CompoundTag save(CompoundTag tag) {
+    protected void saveAdditional(CompoundTag tag) {
         tag.putInt("BrewingTimeRemaining", brewingTimeRemaining);
         tag.put("FluidHandler", fluidTank.writeToNBT(new CompoundTag()));
         tag.put("ItemHandler", inventory.serializeNBT());
         if (hasBrew()) {
             tag.put("Brew", getBrew().toNbt());
         }
-
-        return super.save(tag);
     }
 }

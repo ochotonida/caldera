@@ -98,7 +98,6 @@ public class ItemTransmutationEffectType extends ForgeRegistryEntry<EffectProvid
 
         public class ItemTransmutationEffect implements Effect {
 
-            // TODO fix cauldrons not saving (see Trofers 1.17 -> 1.18)
             // TODO prevent transmuting more than 1 item at once
             private final GenericBrew brew;
             private final String identifier; // TODO move identifier to effect provider (same in timer effect)
