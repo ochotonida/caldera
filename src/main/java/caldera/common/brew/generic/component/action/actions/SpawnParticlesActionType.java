@@ -41,7 +41,7 @@ public class SpawnParticlesActionType extends ForgeRegistryEntry<ActionType<?>> 
         return new SpawnParticlesAction(particle, count);
     }
 
-    public SpawnParticlesAction spawnParticles(BrewParticleProvider particle, int count) {
+    public static SpawnParticlesAction spawnParticles(BrewParticleProvider particle, int count) {
         return new SpawnParticlesAction(particle, count);
     }
 

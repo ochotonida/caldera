@@ -24,86 +24,86 @@ import net.minecraftforge.registries.ForgeRegistryEntry;
 
 import java.util.Optional;
 
-public class ItemConversionEffectType extends ForgeRegistryEntry<EffectProviderType<?>> implements EffectProviderType<ItemConversionEffectType.ItemConversionEffectProvider> {
+public class ConvertItemsEffectType extends ForgeRegistryEntry<EffectProviderType<?>> implements EffectProviderType<ConvertItemsEffectType.ConvertItemsEffectProvider> {
 
     @Override
-    public ItemConversionEffectProvider deserialize(JsonObject object) {
-        ResourceLocation transmutationType = CraftingHelper.readResourceLocation(object, "conversionType");
-        int maxAmount = -1;
-        if (object.has("maxAmount")) {
-            maxAmount = GsonHelper.getAsInt(object, "maxAmount");
-            if (maxAmount <= 0) {
-                throw new JsonParseException("Maximum amount of items transmuted must be positive");
+    public ConvertItemsEffectProvider deserialize(JsonObject object) {
+        ResourceLocation conversionType = CraftingHelper.readResourceLocation(object, "conversionType");
+        int maxConverted = -1;
+        if (object.has("maxConverted")) {
+            maxConverted = GsonHelper.getAsInt(object, "maxConverted");
+            if (maxConverted <= 0) {
+                throw new JsonParseException("Maximum amount of items converted must be positive");
             }
         }
-        return new ItemConversionEffectProvider(transmutationType, maxAmount);
+        return new ConvertItemsEffectProvider(conversionType, maxConverted);
     }
 
     @Override
-    public ItemConversionEffectProvider deserialize(FriendlyByteBuf buffer) {
-        ResourceLocation transmutationType = buffer.readResourceLocation();
-        int maxAmount = buffer.readInt();
-        return new ItemConversionEffectProvider(transmutationType, maxAmount);
+    public ConvertItemsEffectProvider deserialize(FriendlyByteBuf buffer) {
+        ResourceLocation conversionType = buffer.readResourceLocation();
+        int maxConverted = buffer.readInt();
+        return new ConvertItemsEffectProvider(conversionType, maxConverted);
     }
 
-    public ItemConversionEffectProvider transmute(ResourceLocation transmutationType) {
-        return transmute(transmutationType, -1);
+    public static ConvertItemsEffectProvider convertItems(ResourceLocation conversionType) {
+        return convertItems(conversionType, -1);
     }
 
-    public ItemConversionEffectProvider transmute(ResourceLocation transmutationType, int maxAmount) {
-        return new ItemConversionEffectProvider(transmutationType, maxAmount);
+    public static ConvertItemsEffectProvider convertItems(ResourceLocation conversionType, int maxConverted) {
+        return new ConvertItemsEffectProvider(conversionType, maxConverted);
     }
 
-    public static class ItemConversionEffectProvider extends EffectProvider {
+    public static class ConvertItemsEffectProvider extends EffectProvider {
 
         private final ConversionRecipeHelper<ItemStack, ConversionRecipe<ItemStack, ItemStack>> conversionHelper;
-        private final int maxAmount;
+        private final int maxConverted;
 
-        public ItemConversionEffectProvider(ResourceLocation transmutationType, int maxAmount) {
-             this.conversionHelper = new ConversionRecipeHelper<>(ModRecipeTypes.ITEM_CONVERSION, transmutationType);
-             this.maxAmount = maxAmount;
+        public ConvertItemsEffectProvider(ResourceLocation conversionType, int maxConverted) {
+             this.conversionHelper = new ConversionRecipeHelper<>(ModRecipeTypes.ITEM_CONVERSION, conversionType);
+             this.maxConverted = maxConverted;
         }
 
         @Override
         public Effect create(GenericBrew brew) {
-            return new ItemConversionEffect(brew, maxAmount);
+            return new ConvertItemsEffect(brew, maxConverted);
         }
 
         @Override
         public Effect loadEffect(GenericBrew brew, CompoundTag tag) {
-            int itemsRemaining = maxAmount;
+            int itemsRemaining = maxConverted;
             if (tag.contains("ItemsRemaining", Tag.TAG_INT)) {
                 itemsRemaining = tag.getInt("ItemsRemaining");
             }
-            return new ItemConversionEffect(brew, itemsRemaining);
+            return new ConvertItemsEffect(brew, itemsRemaining);
         }
 
         @Override
         public EffectProviderType<?> getType() {
-            return EffectProviders.ITEM_CONVERSION.get();
+            return EffectProviders.CONVERT_ITEMS.get();
         }
 
         @Override
         public void serialize(JsonObject object) {
             object.addProperty("conversionType", conversionHelper.getConversionType().toString());
-            if (maxAmount != -1) {
-                object.addProperty("maxAmount", maxAmount);
+            if (maxConverted != -1) {
+                object.addProperty("maxConverted", maxConverted);
             }
         }
 
         @Override
         public void serialize(FriendlyByteBuf buffer) {
             buffer.writeResourceLocation(conversionHelper.getConversionType());
-            buffer.writeInt(maxAmount);
+            buffer.writeInt(maxConverted);
         }
 
-        public class ItemConversionEffect implements Effect {
+        public class ConvertItemsEffect implements Effect {
 
             private final GenericBrew brew;
 
             private int itemsRemaining;
 
-            public ItemConversionEffect(GenericBrew brew, int itemsRemaining) {
+            public ConvertItemsEffect(GenericBrew brew, int itemsRemaining) {
                 this.brew = brew;
                 this.itemsRemaining = itemsRemaining;
             }
@@ -114,18 +114,18 @@ public class ItemConversionEffectType extends ForgeRegistryEntry<EffectProviderT
                     return;
                 }
 
-                ItemStack toTransmute = itemEntity.getItem().copy();
-                toTransmute.setCount(1);
+                ItemStack toConvert = itemEntity.getItem().copy();
+                toConvert.setCount(1);
 
                 Optional<ConversionRecipe<ItemStack, ItemStack>> recipe =
-                        conversionHelper.findMatchingRecipe(brew.getCauldron().getLevel().getRecipeManager(), toTransmute);
+                        conversionHelper.findMatchingRecipe(brew.getCauldron().getLevel().getRecipeManager(), toConvert);
 
                 if (recipe.isPresent()) {
-                    ItemStack result = recipe.get().assemble(conversionHelper.getConversionType(), toTransmute);
+                    ItemStack result = recipe.get().assemble(conversionHelper.getConversionType(), toConvert);
                     itemEntity.getItem().shrink(1);
                     brew.getCauldron().discardItem(result, Cauldron.getInitialDeltaMovement(itemEntity));
 
-                    Triggers.ITEM_CONVERTED.get().trigger(brew, getIdentifier(), toTransmute, result);
+                    Triggers.ITEM_CONVERTED.get().trigger(brew, getIdentifier(), toConvert, result);
 
                     if (itemsRemaining > 0) {
                         brew.getCauldron().setChanged();

@@ -3,8 +3,8 @@ package caldera.common.brew.generic.component.trigger.triggers;
 import caldera.common.brew.generic.GenericBrew;
 import caldera.common.brew.generic.component.trigger.Trigger;
 import caldera.common.brew.generic.component.trigger.TriggerType;
+import caldera.common.brew.generic.component.trigger.Triggers;
 import com.google.gson.JsonObject;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 
 public class EffectEndedTriggerType extends TriggerType<EffectEndedTriggerType.EffectEndedTrigger> {
@@ -19,21 +19,15 @@ public class EffectEndedTriggerType extends TriggerType<EffectEndedTriggerType.E
         return new EffectEndedTrigger(identifier);
     }
 
-    public EffectEndedTrigger effectEnded(String identifier) {
+    public static EffectEndedTrigger effectEnded(String identifier) {
         return new EffectEndedTrigger(identifier);
     }
 
-    public class EffectEndedTrigger implements Trigger {
-
-        private final String identifier;
-
-        public EffectEndedTrigger(String identifier) {
-            this.identifier = identifier;
-        }
+    public record EffectEndedTrigger(String identifier) implements Trigger {
 
         @Override
-        public ResourceLocation getType() {
-            return getRegistryName();
+        public TriggerType<?> getType() {
+            return Triggers.EFFECT_ENDED.get();
         }
 
         @Override

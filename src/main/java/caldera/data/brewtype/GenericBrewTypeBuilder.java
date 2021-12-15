@@ -3,11 +3,11 @@ package caldera.data.brewtype;
 import caldera.Caldera;
 import caldera.common.brew.BrewTypeSerializer;
 import caldera.common.brew.generic.component.action.Action;
-import caldera.common.brew.generic.component.action.Actions;
+import caldera.common.brew.generic.component.action.actions.EffectActionType;
 import caldera.common.brew.generic.component.effect.EffectProvider;
-import caldera.common.brew.generic.component.effect.EffectProviders;
+import caldera.common.brew.generic.component.effect.effects.TimerEffectType;
 import caldera.common.brew.generic.component.trigger.Trigger;
-import caldera.common.brew.generic.component.trigger.Triggers;
+import caldera.common.brew.generic.component.trigger.triggers.EffectEndedTriggerType;
 import caldera.common.init.ModBrewTypes;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -53,7 +53,7 @@ public class GenericBrewTypeBuilder {
     }
 
     public EventBuilder onEffectEnded(String timerIdentifier) {
-        return onTrigger(Triggers.EFFECT_ENDED.get().effectEnded(timerIdentifier));
+        return onTrigger(EffectEndedTriggerType.effectEnded(timerIdentifier));
     }
 
     public static GenericBrewTypeBuilder builder(String id) {
@@ -97,15 +97,15 @@ public class GenericBrewTypeBuilder {
 
         public EventBuilder startEffect(String identifier, EffectProvider effectProvider) {
             addEffect(identifier, effectProvider);
-            return executeAction("start_" + identifier, Actions.START_EFFECT.get().effect(identifier));
+            return executeAction("start_" + identifier, EffectActionType.start(identifier));
         }
 
         public EventBuilder removeEffect(String identifier) {
-            return executeAction("remove_" + identifier, Actions.REMOVE_EFFECT.get().effect(identifier));
+            return executeAction("remove_" + identifier, EffectActionType.remove(identifier));
         }
 
         public EventBuilder startTimer(String identifier, int timerDuration) {
-            return startEffect(identifier, EffectProviders.TIMER.get().timer(timerDuration));
+            return startEffect(identifier, TimerEffectType.timer(timerDuration));
         }
 
         public GenericBrewTypeBuilder end() {

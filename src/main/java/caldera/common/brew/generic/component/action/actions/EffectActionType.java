@@ -3,6 +3,7 @@ package caldera.common.brew.generic.component.action.actions;
 import caldera.common.brew.generic.GenericBrew;
 import caldera.common.brew.generic.component.action.Action;
 import caldera.common.brew.generic.component.action.ActionType;
+import caldera.common.brew.generic.component.action.Actions;
 import caldera.common.init.CalderaRegistries;
 import com.google.gson.JsonObject;
 import net.minecraft.network.FriendlyByteBuf;
@@ -38,6 +39,14 @@ public final class EffectActionType extends ForgeRegistryEntry<ActionType<?>> im
 
     public EffectAction effect(String identifier) {
         return new EffectAction(identifier);
+    }
+
+    public static EffectAction start(String identifier) {
+        return Actions.START_EFFECT.get().new EffectAction(identifier);
+    }
+
+    public static EffectAction remove(String identifier) {
+        return Actions.REMOVE_EFFECT.get().new EffectAction(identifier);
     }
 
     public class EffectAction implements Action {

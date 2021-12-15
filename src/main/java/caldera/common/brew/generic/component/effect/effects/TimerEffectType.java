@@ -28,7 +28,7 @@ public class TimerEffectType extends ForgeRegistryEntry<EffectProviderType<?>> i
         return new TimerEffectProvider(buffer.readInt());
     }
 
-    public TimerEffectProvider timer(int duration) {
+    public static TimerEffectProvider timer(int duration) {
         return new TimerEffectProvider(duration);
     }
 

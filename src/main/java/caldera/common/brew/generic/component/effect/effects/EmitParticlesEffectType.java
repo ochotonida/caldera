@@ -13,10 +13,10 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.util.GsonHelper;
 import net.minecraftforge.registries.ForgeRegistryEntry;
 
-public class ParticleEmitterEffectType extends ForgeRegistryEntry<EffectProviderType<?>> implements EffectProviderType<ParticleEmitterEffectType.ParticleEmitterEffectProvider> {
+public class EmitParticlesEffectType extends ForgeRegistryEntry<EffectProviderType<?>> implements EffectProviderType<EmitParticlesEffectType.EmitParticlesEffectProvider> {
 
     @Override
-    public ParticleEmitterEffectProvider deserialize(JsonObject object) {
+    public EmitParticlesEffectProvider deserialize(JsonObject object) {
         double count = GsonHelper.getAsDouble(object, "count");
 
         if (count <= 0) {
@@ -25,26 +25,26 @@ public class ParticleEmitterEffectType extends ForgeRegistryEntry<EffectProvider
 
         BrewParticleProvider particle = BrewParticleProvider.deserialize(object);
 
-        return new ParticleEmitterEffectProvider(particle, count);
+        return new EmitParticlesEffectProvider(particle, count);
     }
 
     @Override
-    public ParticleEmitterEffectProvider deserialize(FriendlyByteBuf buffer) {
+    public EmitParticlesEffectProvider deserialize(FriendlyByteBuf buffer) {
         double count = buffer.readFloat();
         BrewParticleProvider particle = BrewParticleProvider.deserialize(buffer);
-        return new ParticleEmitterEffectProvider(particle, count);
+        return new EmitParticlesEffectProvider(particle, count);
     }
 
-    public ParticleEmitterEffectProvider emitter(BrewParticleProvider particle, double count) {
-        return new ParticleEmitterEffectProvider(particle, count);
+    public static EmitParticlesEffectProvider emitParticles(BrewParticleProvider particle, double count) {
+        return new EmitParticlesEffectProvider(particle, count);
     }
 
-    public static final class ParticleEmitterEffectProvider extends EffectProvider {
+    public static final class EmitParticlesEffectProvider extends EffectProvider {
 
         private final BrewParticleProvider particle;
         private final double count;
 
-        public ParticleEmitterEffectProvider(BrewParticleProvider particle, double count) {
+        public EmitParticlesEffectProvider(BrewParticleProvider particle, double count) {
             this.particle = particle;
             this.count = count;
         }
@@ -68,19 +68,19 @@ public class ParticleEmitterEffectType extends ForgeRegistryEntry<EffectProvider
 
         @Override
         public Effect create(GenericBrew brew) {
-            return new ParticleEmitterEffect(brew);
+            return new EmitParticlesEffect(brew);
         }
 
         @Override
         public Effect loadEffect(GenericBrew brew, CompoundTag tag) {
-            return new ParticleEmitterEffect(brew);
+            return new EmitParticlesEffect(brew);
         }
 
-        public class ParticleEmitterEffect implements Effect {
+        public class EmitParticlesEffect implements Effect {
 
             private final GenericBrew brew;
 
-            public ParticleEmitterEffect(GenericBrew brew) {
+            public EmitParticlesEffect(GenericBrew brew) {
                 this.brew = brew;
             }
 

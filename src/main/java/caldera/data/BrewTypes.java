@@ -2,21 +2,28 @@ package caldera.data;
 
 import caldera.Caldera;
 import caldera.common.brew.generic.component.BrewParticleProvider;
-import caldera.common.brew.generic.component.action.Actions;
-import caldera.common.brew.generic.component.effect.EffectProviders;
+import caldera.common.brew.generic.component.action.actions.ChangeColorActionType;
+import caldera.common.brew.generic.component.action.actions.ExplodeActionType;
+import caldera.common.brew.generic.component.action.actions.PlaySoundActionType;
+import caldera.common.brew.generic.component.action.actions.SpawnParticlesActionType;
+import caldera.common.brew.generic.component.effect.effects.EmitParticlesEffectType;
+import caldera.common.brew.generic.component.effect.effects.conversion.ConvertItemsEffectType;
 import caldera.common.brew.generic.component.trigger.Triggers;
+import caldera.common.brew.generic.component.trigger.triggers.ItemConvertedTriggerType;
 import caldera.data.brewtype.FinishedBrewType;
 import caldera.data.brewtype.GenericBrewTypeBuilder;
 import com.google.common.collect.Sets;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
+import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.HashCache;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraftforge.common.Tags;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -61,21 +68,25 @@ public record BrewTypes(DataGenerator generator) implements DataProvider {
     protected void buildBrewTypes(Consumer<FinishedBrewType> consumer) {
         genericBrew("test_brew")
                 .onTrigger(Triggers.BREW_CREATED.get().create())
-                .startEffect("transmute_iron", EffectProviders.ITEM_CONVERSION.get().transmute(new ResourceLocation(Caldera.MODID, "iron_to_gold"), 5))
-                .executeAction("set_starting_color", Actions.CHANGE_COLOR.get().setColor(0xeedd11))
-                .executeAction("spawn_particles", Actions.SPAWN_PARTICLES.get().spawnParticles(new BrewParticleProvider(ParticleTypes.ENTITY_EFFECT, true), 50))
-                .startEffect("emit_swirls", EffectProviders.PARTICLE_EMITTER.get().emitter(new BrewParticleProvider(ParticleTypes.ENTITY_EFFECT, true), 0.5))
+                .startEffect("transmute_iron", ConvertItemsEffectType.convertItems(new ResourceLocation(Caldera.MODID, "iron_to_gold"), 5))
+                .executeAction("set_starting_color", ChangeColorActionType.setColor(0xeedd11))
+                .executeAction("spawn_particles", SpawnParticlesActionType.spawnParticles(new BrewParticleProvider(ParticleTypes.ENTITY_EFFECT, true), 50))
+                .startEffect("emit_swirls", EmitParticlesEffectType.emitParticles(new BrewParticleProvider(ParticleTypes.ENTITY_EFFECT, true), 0.5))
                 .end()
 
                 .onEffectEnded("transmute_iron")
                 .executeAction("spawn_particles")
-                .executeAction("fade_to_red", Actions.CHANGE_COLOR.get().changeColor(0xee4411, 80))
-                .executeAction("play_fuse_sound", Actions.PLAY_SOUND.get().playSound(SoundEvents.TNT_PRIMED))
+                .executeAction("fade_to_red", ChangeColorActionType.changeColor(0xee4411, 80))
+                .executeAction("play_fuse_sound", PlaySoundActionType.playSound(SoundEvents.TNT_PRIMED))
                 .startTimer("explosion_timer", 80)
                 .end()
 
+                .onTrigger(ItemConvertedTriggerType.itemConverted("transmute_iron", ItemPredicate.Builder.item().of(Tags.Items.ORES_IRON).build(), ItemPredicate.ANY))
+                .executeAction("play_transmutation_sound", PlaySoundActionType.playSound(SoundEvents.ENCHANTMENT_TABLE_USE))
+                .end()
+
                 .onEffectEnded("explosion_timer")
-                .executeAction("explode", Actions.EXPLODE.get().explode(3))
+                .executeAction("explode", ExplodeActionType.explode(3))
                 .end()
 
                 .save(consumer);

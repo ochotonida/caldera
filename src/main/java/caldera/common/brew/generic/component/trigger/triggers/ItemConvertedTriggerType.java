@@ -3,9 +3,9 @@ package caldera.common.brew.generic.component.trigger.triggers;
 import caldera.common.brew.generic.GenericBrew;
 import caldera.common.brew.generic.component.trigger.Trigger;
 import caldera.common.brew.generic.component.trigger.TriggerType;
+import caldera.common.brew.generic.component.trigger.Triggers;
 import com.google.gson.JsonObject;
 import net.minecraft.advancements.critereon.ItemPredicate;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.ItemStack;
 
@@ -28,22 +28,11 @@ public class ItemConvertedTriggerType extends TriggerType<ItemConvertedTriggerTy
         return new ItemConvertedTrigger(identifier, item, result);
     }
 
-    public ItemConvertedTrigger itemConverted(@Nullable String identifier, ItemPredicate item, ItemPredicate result) {
+    public static ItemConvertedTrigger itemConverted(@Nullable String identifier, ItemPredicate item, ItemPredicate result) {
         return new ItemConvertedTrigger(identifier, item, result);
     }
 
-    public class ItemConvertedTrigger implements Trigger {
-
-        @Nullable
-        private final String identifier;
-        private final ItemPredicate itemPredicate;
-        private final ItemPredicate resultPredicate;
-
-        public ItemConvertedTrigger(@Nullable String identifier, ItemPredicate itemPredicate, ItemPredicate resultPredicate) {
-            this.identifier = identifier;
-            this.itemPredicate = itemPredicate;
-            this.resultPredicate = resultPredicate;
-        }
+    public record ItemConvertedTrigger(@Nullable String identifier, ItemPredicate itemPredicate, ItemPredicate resultPredicate) implements Trigger {
 
         private boolean matches(String identifier, ItemStack input, ItemStack result) {
             return (this.identifier == null || this.identifier.equals(identifier))
@@ -52,8 +41,8 @@ public class ItemConvertedTriggerType extends TriggerType<ItemConvertedTriggerTy
         }
 
         @Override
-        public ResourceLocation getType() {
-            return getRegistryName();
+        public TriggerType<?> getType() {
+            return Triggers.ITEM_CONVERTED.get();
         }
 
         @Override

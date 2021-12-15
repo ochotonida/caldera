@@ -34,11 +34,11 @@ public class ExplodeActionType extends ForgeRegistryEntry<ActionType<?>> impleme
         return new ExplodeAction(buffer.readFloat(), buffer.readBoolean(), buffer.readEnum(Explosion.BlockInteraction.class));
     }
 
-    public ExplodeAction explode(float radius) {
+    public static ExplodeAction explode(float radius) {
         return explode(radius, false, Explosion.BlockInteraction.DESTROY);
     }
 
-    public ExplodeAction explode(float radius, boolean causesFire, Explosion.BlockInteraction mode) {
+    public static ExplodeAction explode(float radius, boolean causesFire, Explosion.BlockInteraction mode) {
         return new ExplodeAction(radius, causesFire, mode);
     }
 

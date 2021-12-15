@@ -17,8 +17,8 @@ public class TriggerHandler<TRIGGER extends Trigger> {
     }
 
     public void addListener(Trigger trigger, List<String> actions) {
-        if (!trigger.getType().equals(triggerType.getRegistryName())) {
-            throw new IllegalArgumentException("Trigger has incorrect type %s, expected %s".formatted(trigger.getType(), triggerType.getRegistryName()));
+        if (trigger.getType() != triggerType) {
+            throw new IllegalArgumentException("Trigger has incorrect type %s, expected %s".formatted(trigger.getType().getRegistryName(), triggerType.getRegistryName()));
         }
         // noinspection unchecked
         events.add(new Event<>((TRIGGER) trigger, actions));
