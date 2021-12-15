@@ -72,11 +72,17 @@ public class CraftingHelper {
     }
 
     public static JsonObject writeItemStack(ItemStack stack) {
+        return writeItemStack(stack, true);
+    }
+
+    public static JsonObject writeItemStack(ItemStack stack, boolean writeCount) {
         JsonObject object = new JsonObject();
 
         // noinspection ConstantConditions
         object.addProperty("item", stack.getItem().getRegistryName().toString());
-        object.addProperty("count", stack.getCount());
+        if (writeCount && stack.getCount() != 1) {
+            object.addProperty("count", stack.getCount());
+        }
         if (stack.hasTag()) {
             // noinspection ConstantConditions
             object.addProperty("nbt", stack.getTag().toString());

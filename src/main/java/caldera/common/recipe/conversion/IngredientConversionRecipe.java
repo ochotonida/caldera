@@ -1,4 +1,4 @@
-package caldera.common.recipe.transmutation;
+package caldera.common.recipe.conversion;
 
 import caldera.common.recipe.SingleResultRecipeSerializer;
 import caldera.common.util.CraftingHelper;
@@ -12,7 +12,7 @@ import net.minecraftforge.registries.ForgeRegistryEntry;
 
 import java.util.function.Predicate;
 
-public interface IngredientTransmutationRecipe<RESULT, INPUT, INGREDIENT extends Predicate<INPUT>> extends TransmutationRecipe<RESULT, INPUT> {
+public interface IngredientConversionRecipe<RESULT, INPUT, INGREDIENT extends Predicate<INPUT>> extends ConversionRecipe<RESULT, INPUT> {
 
     INGREDIENT ingredient();
 
@@ -21,13 +21,13 @@ public interface IngredientTransmutationRecipe<RESULT, INPUT, INGREDIENT extends
         return ingredient().test(input);
     }
 
-    abstract class Serializer<RESULT, INGREDIENT extends Predicate<?>, RECIPE extends IngredientTransmutationRecipe<RESULT, ?, INGREDIENT>>
+    abstract class Serializer<RESULT, INGREDIENT extends Predicate<?>, RECIPE extends IngredientConversionRecipe<RESULT, ?, INGREDIENT>>
             extends ForgeRegistryEntry<RecipeSerializer<?>>
             implements SingleResultRecipeSerializer<RESULT, RECIPE> {
 
         public abstract RECIPE createRecipe(
                 ResourceLocation id,
-                ResourceLocation transmutationType,
+                ResourceLocation conversionType,
                 INGREDIENT ingredient,
                 RESULT result
         );
@@ -40,28 +40,28 @@ public interface IngredientTransmutationRecipe<RESULT, INPUT, INGREDIENT extends
 
         @Override
         public RECIPE fromJson(ResourceLocation id, JsonObject object) {
-            ResourceLocation transmutationType = CraftingHelper.readResourceLocation(object, "transmutationType");
+            ResourceLocation conversionType = CraftingHelper.readResourceLocation(object, "conversionType");
             if (!object.has("ingredient")) {
                 throw new JsonParseException("Missing ingredient");
             }
             INGREDIENT ingredient = readIngredient(object.get("ingredient"));
             RESULT result = readResult(object);
 
-            return createRecipe(id, transmutationType, ingredient, result);
+            return createRecipe(id, conversionType, ingredient, result);
         }
 
         @Override
         public RECIPE fromNetwork(ResourceLocation id, FriendlyByteBuf buffer) {
-            ResourceLocation transmutationType = buffer.readResourceLocation();
+            ResourceLocation conversionType = buffer.readResourceLocation();
             INGREDIENT ingredient = readIngredient(buffer);
             RESULT result = readResult(buffer);
 
-            return createRecipe(id, transmutationType, ingredient, result);
+            return createRecipe(id, conversionType, ingredient, result);
         }
 
         @Override
         public void toNetwork(FriendlyByteBuf buffer, RECIPE recipe) {
-            buffer.writeResourceLocation(recipe.transmutationType());
+            buffer.writeResourceLocation(recipe.conversionType());
             writeIngredient(recipe.ingredient(), buffer);
             writeResult(buffer, recipe);
         }

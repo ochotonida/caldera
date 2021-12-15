@@ -1,14 +1,14 @@
-package caldera.common.brew.generic.component.effect.effects.transmutation;
+package caldera.common.brew.generic.component.effect.effects.conversion;
 
 import caldera.common.block.cauldron.Cauldron;
 import caldera.common.brew.generic.GenericBrew;
-import caldera.common.brew.generic.component.TransmutationHelper;
 import caldera.common.brew.generic.component.effect.Effect;
 import caldera.common.brew.generic.component.effect.EffectProvider;
 import caldera.common.brew.generic.component.effect.EffectProviderType;
 import caldera.common.brew.generic.component.effect.EffectProviders;
 import caldera.common.init.ModRecipeTypes;
-import caldera.common.recipe.transmutation.TransmutationRecipe;
+import caldera.common.recipe.conversion.ConversionRecipe;
+import caldera.common.util.ConversionRecipeHelper;
 import caldera.common.util.CraftingHelper;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
@@ -23,11 +23,11 @@ import net.minecraftforge.registries.ForgeRegistryEntry;
 
 import java.util.Optional;
 
-public class ItemTransmutationEffectType extends ForgeRegistryEntry<EffectProviderType<?>> implements EffectProviderType<ItemTransmutationEffectType.ItemTransmutationEffectProvider> {
+public class ItemConversionEffectType extends ForgeRegistryEntry<EffectProviderType<?>> implements EffectProviderType<ItemConversionEffectType.ItemTransmutationEffectProvider> {
 
     @Override
     public ItemTransmutationEffectProvider deserialize(JsonObject object) {
-        ResourceLocation transmutationType = CraftingHelper.readResourceLocation(object, "transmutationType");
+        ResourceLocation transmutationType = CraftingHelper.readResourceLocation(object, "conversionType");
         int maxAmount = -1;
         if (object.has("maxAmount")) {
             maxAmount = GsonHelper.getAsInt(object, "maxAmount");
@@ -55,11 +55,11 @@ public class ItemTransmutationEffectType extends ForgeRegistryEntry<EffectProvid
 
     public static class ItemTransmutationEffectProvider implements EffectProvider {
 
-        private final TransmutationHelper<ItemStack, TransmutationRecipe<ItemStack, ItemStack>> transmutationHelper;
+        private final ConversionRecipeHelper<ItemStack, ConversionRecipe<ItemStack, ItemStack>> conversionHelper;
         private final int maxAmount;
 
         public ItemTransmutationEffectProvider(ResourceLocation transmutationType, int maxAmount) {
-             this.transmutationHelper = new TransmutationHelper<>(ModRecipeTypes.ITEM_TRANSMUTATION, transmutationType);
+             this.conversionHelper = new ConversionRecipeHelper<>(ModRecipeTypes.ITEM_CONVERSION, transmutationType);
              this.maxAmount = maxAmount;
         }
 
@@ -79,12 +79,12 @@ public class ItemTransmutationEffectType extends ForgeRegistryEntry<EffectProvid
 
         @Override
         public EffectProviderType<?> getType() {
-            return EffectProviders.ITEM_TRANSMUTATION.get();
+            return EffectProviders.ITEM_CONVERSION.get();
         }
 
         @Override
         public void serialize(JsonObject object) {
-            object.addProperty("transmutationType", transmutationHelper.getTransmutationType().toString());
+            object.addProperty("conversionType", conversionHelper.getConversionType().toString());
             if (maxAmount != -1) {
                 object.addProperty("maxAmount", maxAmount);
             }
@@ -92,7 +92,7 @@ public class ItemTransmutationEffectType extends ForgeRegistryEntry<EffectProvid
 
         @Override
         public void serialize(FriendlyByteBuf buffer) {
-            buffer.writeResourceLocation(transmutationHelper.getTransmutationType());
+            buffer.writeResourceLocation(conversionHelper.getConversionType());
             buffer.writeInt(maxAmount);
         }
 
@@ -118,11 +118,11 @@ public class ItemTransmutationEffectType extends ForgeRegistryEntry<EffectProvid
                 ItemStack toTransmute = itemEntity.getItem().copy();
                 toTransmute.setCount(1);
 
-                Optional<TransmutationRecipe<ItemStack, ItemStack>> recipe =
-                        transmutationHelper.findMatchingRecipe(brew.getCauldron().getLevel().getRecipeManager(), toTransmute);
+                Optional<ConversionRecipe<ItemStack, ItemStack>> recipe =
+                        conversionHelper.findMatchingRecipe(brew.getCauldron().getLevel().getRecipeManager(), toTransmute);
 
                 if (recipe.isPresent()) {
-                    ItemStack result = recipe.get().assemble(transmutationHelper.getTransmutationType(), toTransmute);
+                    ItemStack result = recipe.get().assemble(conversionHelper.getConversionType(), toTransmute);
                     itemEntity.getItem().shrink(1);
                     brew.getCauldron().discardItem(result, Cauldron.getInitialDeltaMovement(itemEntity));
 

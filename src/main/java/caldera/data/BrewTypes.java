@@ -75,7 +75,7 @@ public class BrewTypes implements DataProvider {
                 .executeAction("spawn_particles", Actions.SPAWN_PARTICLES.get().spawnParticles(new BrewParticleProvider(ParticleTypes.ENTITY_EFFECT, true), 50))
                 .startEffect("swirl_particles", EffectProviders.PARTICLE_EMITTER.get().emitter(new BrewParticleProvider(ParticleTypes.ENTITY_EFFECT, true), 2))
                 .startTimer("explosion_timer", 100)
-                .startEffect("transmute_metal", EffectProviders.ITEM_TRANSMUTATION.get().transmute(new ResourceLocation(Caldera.MODID, "transmute_metal"), 5))
+                .startEffect("transmute_iron", EffectProviders.ITEM_CONVERSION.get().transmute(new ResourceLocation(Caldera.MODID, "iron_to_gold"), 5))
                 .end()
 
                 .onTimer("explosion_timer")

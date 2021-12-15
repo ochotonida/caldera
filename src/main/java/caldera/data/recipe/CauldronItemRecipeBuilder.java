@@ -23,8 +23,8 @@ public class CauldronItemRecipeBuilder extends OrderedCauldronRecipeBuilder {
 
     }
 
-    public static CauldronItemRecipeBuilder builder(ItemStack result, FluidIngredient fluidIngredient) {
-        return new CauldronItemRecipeBuilder(result, fluidIngredient);
+    public static void builder(Consumer<FinishedRecipe> consumer, ItemStack result, FluidIngredient fluidIngredient) {
+        consumer.accept(new CauldronItemRecipeBuilder(result, fluidIngredient));
     }
 
     @Override

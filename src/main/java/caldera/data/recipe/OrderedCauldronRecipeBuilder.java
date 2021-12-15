@@ -33,11 +33,11 @@ public abstract class OrderedCauldronRecipeBuilder implements FinishedRecipe {
         return this;
     }
 
-    public void build(Consumer<FinishedRecipe> consumer, String location) {
-        build(consumer, new ResourceLocation(Caldera.MODID, "brew_types/" + location));
+    public void save(Consumer<FinishedRecipe> consumer, String location) {
+        save(consumer, new ResourceLocation(Caldera.MODID, "brew_types/" + location));
     }
 
-    public void build(Consumer<FinishedRecipe> consumer, ResourceLocation id) {
+    public void save(Consumer<FinishedRecipe> consumer, ResourceLocation id) {
         this.id = id;
         consumer.accept(this);
     }

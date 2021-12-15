@@ -22,8 +22,8 @@ public class CauldronFluidRecipeBuilder extends OrderedCauldronRecipeBuilder {
     public static void addRecipes(Consumer<FinishedRecipe> consumer) {
     }
 
-    public static CauldronFluidRecipeBuilder builder(FluidStack result, FluidIngredient fluidIngredient) {
-        return new CauldronFluidRecipeBuilder(result, fluidIngredient);
+    public static void builder(Consumer<FinishedRecipe> consumer, FluidStack result, FluidIngredient fluidIngredient) {
+        consumer.accept(new CauldronFluidRecipeBuilder(result, fluidIngredient));
     }
 
     @Override
