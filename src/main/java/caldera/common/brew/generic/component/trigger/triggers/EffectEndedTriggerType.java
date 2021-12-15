@@ -7,27 +7,27 @@ import com.google.gson.JsonObject;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 
-public class TimerTriggerType extends TriggerType<TimerTriggerType.TimerTrigger> {
+public class EffectEndedTriggerType extends TriggerType<EffectEndedTriggerType.EffectEndedTrigger> {
 
     public void trigger(GenericBrew brew, String identifier) {
         trigger(brew, trigger -> identifier.equals(trigger.identifier));
     }
 
     @Override
-    public TimerTrigger deserialize(JsonObject object) {
+    public EffectEndedTrigger deserialize(JsonObject object) {
         String identifier = GsonHelper.getAsString(object, "identifier");
-        return new TimerTrigger(identifier);
+        return new EffectEndedTrigger(identifier);
     }
 
-    public TimerTrigger timerFinished(String identifier) {
-        return new TimerTrigger(identifier);
+    public EffectEndedTrigger effectEnded(String identifier) {
+        return new EffectEndedTrigger(identifier);
     }
 
-    public class TimerTrigger implements Trigger {
+    public class EffectEndedTrigger implements Trigger {
 
         private final String identifier;
 
-        public TimerTrigger(String identifier) {
+        public EffectEndedTrigger(String identifier) {
             this.identifier = identifier;
         }
 

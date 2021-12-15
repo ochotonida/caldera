@@ -53,7 +53,7 @@ public class GenericBrewTypeBuilder {
     }
 
     public EventBuilder onTimer(String timerIdentifier) {
-        return onTrigger(Triggers.TIMER.get().timerFinished(timerIdentifier));
+        return onTrigger(Triggers.TIMER.get().effectEnded(timerIdentifier));
     }
 
     public static GenericBrewTypeBuilder builder(String id) {
