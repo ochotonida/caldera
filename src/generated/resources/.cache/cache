@@ -1,6 +1,6 @@
 fb1d0a9d8aef85c7a21a54c974ab12576a8f2265 assets/caldera/blockstates/large_cauldron.json
 6f5fd474a6c1290a9b6c06cb2171f643722dedef assets/caldera/models/item/large_cauldron.json
-7e7ea2b8df0e59ea598bb6befc5c01aba5a08634 data/caldera/caldera/brew_types/test_brew.json
+0ae76cca95c58cafeb7b610fb0c4a1b84897616e data/caldera/caldera/brew_types/test_brew.json
 b262d270aca6561a448e95de0e30c28d39f22bd5 data/caldera/loot_tables/blocks/large_cauldron.json
 28b2a7fc3497ad8aeb620e35a9345dd113a18da4 data/caldera/recipes/brew_types/test_brew.json
 af0057d917f7b26de14000b18a8939ba6e771fb4 data/caldera/recipes/conversion/item/iron_to_gold/clock.json
