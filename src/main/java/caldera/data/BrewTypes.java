@@ -6,9 +6,11 @@ import caldera.common.brew.generic.component.action.actions.ChangeColorActionTyp
 import caldera.common.brew.generic.component.action.actions.ExplodeActionType;
 import caldera.common.brew.generic.component.action.actions.PlaySoundActionType;
 import caldera.common.brew.generic.component.action.actions.SpawnParticlesActionType;
+import caldera.common.brew.generic.component.effect.effects.ConsumeItemsEffectType;
 import caldera.common.brew.generic.component.effect.effects.EmitParticlesEffectType;
 import caldera.common.brew.generic.component.effect.effects.conversion.ConvertItemsEffectType;
 import caldera.common.brew.generic.component.trigger.Triggers;
+import caldera.common.brew.generic.component.trigger.triggers.ItemConsumedTriggerType;
 import caldera.common.brew.generic.component.trigger.triggers.ItemConvertedTriggerType;
 import caldera.data.brewtype.FinishedBrewType;
 import caldera.data.brewtype.GenericBrewTypeBuilder;
@@ -23,7 +25,7 @@ import net.minecraft.data.DataProvider;
 import net.minecraft.data.HashCache;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraftforge.common.Tags;
+import net.minecraft.world.item.Items;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -69,20 +71,29 @@ public record BrewTypes(DataGenerator generator) implements DataProvider {
         genericBrew("test_brew")
                 .onTrigger(Triggers.BREW_CREATED.get().create())
                 .startEffect("transmute_iron", ConvertItemsEffectType.convertItems(new ResourceLocation(Caldera.MODID, "iron_to_gold"), 5))
+                .startEffect("consume_tnt", ConsumeItemsEffectType.consumeItems(ItemPredicate.Builder.item().of(Items.TNT).build(), 1))
                 .executeAction("set_starting_color", ChangeColorActionType.setColor(0xeedd11))
                 .executeAction("spawn_particles", SpawnParticlesActionType.spawnParticles(new BrewParticleProvider(ParticleTypes.ENTITY_EFFECT, true), 50))
                 .startEffect("emit_swirls", EmitParticlesEffectType.emitParticles(new BrewParticleProvider(ParticleTypes.ENTITY_EFFECT, true), 0.5))
                 .end()
 
                 .onEffectEnded("transmute_iron")
+                .removeEffect("consume_tnt")
                 .executeAction("spawn_particles")
                 .executeAction("fade_to_red", ChangeColorActionType.changeColor(0xee4411, 80))
                 .executeAction("play_fuse_sound", PlaySoundActionType.playSound(SoundEvents.TNT_PRIMED))
                 .startTimer("explosion_timer", 80)
                 .end()
 
-                .onTrigger(ItemConvertedTriggerType.itemConverted("transmute_iron", ItemPredicate.Builder.item().of(Tags.Items.ORES_IRON).build(), ItemPredicate.ANY))
+                .onTrigger(ItemConvertedTriggerType.itemConverted("transmute_iron", ItemPredicate.ANY, ItemPredicate.ANY))
                 .executeAction("play_transmutation_sound", PlaySoundActionType.playSound(SoundEvents.ENCHANTMENT_TABLE_USE))
+                .end()
+
+                .onTrigger(ItemConsumedTriggerType.itemConverted(null, ItemPredicate.ANY))
+                .startEffect("explosion_timer")
+                .executeAction("spawn_particles")
+                .executeAction("fade_to_red")
+                .executeAction("play_fuse_sound")
                 .end()
 
                 .onEffectEnded("explosion_timer")

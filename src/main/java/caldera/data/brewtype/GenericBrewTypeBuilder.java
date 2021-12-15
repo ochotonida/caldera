@@ -23,6 +23,8 @@ import java.util.function.Consumer;
 @SuppressWarnings("UnusedReturnValue")
 public class GenericBrewTypeBuilder {
 
+    // TODO switch to prefix notation for start/remove effect
+    // TODO add some way to bundle actions
     private final ResourceLocation id;
     private final Map<String, Action> actions = new HashMap<>();
     private final Map<String, EffectProvider> effects = new HashMap<>();
@@ -121,6 +123,10 @@ public class GenericBrewTypeBuilder {
 
         public EventBuilder startEffect(String identifier, EffectProvider effectProvider) {
             addEffect(identifier, effectProvider);
+            return startEffect(identifier);
+        }
+
+        public EventBuilder startEffect(String identifier) {
             return executeAction(identifier + ".start");
         }
 
