@@ -23,7 +23,6 @@ import java.util.function.Consumer;
 @SuppressWarnings("UnusedReturnValue")
 public class GenericBrewTypeBuilder {
 
-    // TODO switch to prefix notation for start/remove effect
     // TODO add some way to bundle actions
     private final ResourceLocation id;
     private final Map<String, Action> actions = new HashMap<>();
@@ -92,7 +91,7 @@ public class GenericBrewTypeBuilder {
     private void validateTriggers() {
         triggers.forEach(entry -> entry.getValue()
                 .stream()
-                .filter(identifier -> !identifier.endsWith(".start") && !identifier.endsWith(".remove"))
+                .filter(identifier -> !identifier.startsWith("start.") && !identifier.startsWith("remove."))
                 .forEach(identifier -> {
                     if (actions.keySet().stream().noneMatch(identifier::equals)) {
                         throw new IllegalStateException("Undefined action '%s'".formatted(identifier));
@@ -127,11 +126,11 @@ public class GenericBrewTypeBuilder {
         }
 
         public EventBuilder startEffect(String identifier) {
-            return executeAction(identifier + ".start");
+            return executeAction("start." + identifier);
         }
 
         public EventBuilder removeEffect(String identifier) {
-            return executeAction(identifier + ".remove");
+            return executeAction("remove." + identifier);
         }
 
         public EventBuilder startTimer(String identifier, int timerDuration) {

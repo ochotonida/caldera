@@ -109,12 +109,12 @@ public class GenericBrew extends Brew {
                 queuedUpdates.add(identifier);
             }
         } else {
-            String effect = getType().getEffectFromAction(identifier, ".start");
+            String effect = getType().getEffectFromAction(identifier, "start.");
             if (effect != null) {
                 startEffect(effect);
                 queuedUpdates.add(identifier);
             } else {
-                effect = getType().getEffectFromAction(identifier, ".remove");
+                effect = getType().getEffectFromAction(identifier, "remove.");
                 if (effect != null) {
                     removeEffect(effect);
                     queuedUpdates.add(identifier);
@@ -145,7 +145,7 @@ public class GenericBrew extends Brew {
         }
         if (effects.containsKey(identifier)) {
             removeEffect(identifier);
-            queuedUpdates.add(identifier + ".remove");
+            queuedUpdates.add("remove." + identifier);
             Triggers.EFFECT_ENDED.get().trigger(this, identifier);
         }
     }

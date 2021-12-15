@@ -66,14 +66,14 @@ public class GenericBrewType implements BrewType {
     }
 
     @Nullable
-    public String getEffectFromAction(String actionIdentifier, String suffix) {
-        return getEffectFromAction(getEffects().keySet(), actionIdentifier, suffix);
+    public String getEffectFromAction(String actionIdentifier, String prefix) {
+        return getEffectFromAction(getEffects().keySet(), actionIdentifier, prefix);
     }
 
     @Nullable
-    private static String getEffectFromAction(Set<String> effects, String actionIdentifier, String suffix) {
-        if (actionIdentifier.endsWith(suffix)) {
-            String effectId = actionIdentifier.substring(0, actionIdentifier.length() - suffix.length());
+    private static String getEffectFromAction(Set<String> effects, String actionIdentifier, String prefix) {
+        if (actionIdentifier.startsWith(prefix)) {
+            String effectId = actionIdentifier.substring(prefix.length());
             if (effects.contains(effectId)) {
                 return effectId;
             }
@@ -238,7 +238,7 @@ public class GenericBrewType implements BrewType {
                 for (JsonElement element : actionArray) {
                     String action = GsonHelper.convertToString(element, "action");
                     if (!existingActions.contains(action)) {
-                        if (getEffectFromAction(existingEffects, action, ".start") == null && getEffectFromAction(existingEffects, action, ".remove") == null) {
+                        if (getEffectFromAction(existingEffects, action, "start.") == null && getEffectFromAction(existingEffects, action, "remove.") == null) {
                             throw new JsonParseException("Action with identifier '%s' is undefined".formatted(action));
                         }
                     }
