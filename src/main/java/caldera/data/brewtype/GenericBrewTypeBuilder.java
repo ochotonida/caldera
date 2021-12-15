@@ -2,8 +2,8 @@ package caldera.data.brewtype;
 
 import caldera.Caldera;
 import caldera.common.brew.BrewTypeSerializer;
+import caldera.common.brew.generic.GenericBrewType;
 import caldera.common.brew.generic.component.action.Action;
-import caldera.common.brew.generic.component.action.actions.EffectActionType;
 import caldera.common.brew.generic.component.effect.EffectProvider;
 import caldera.common.brew.generic.component.effect.effects.TimerEffectType;
 import caldera.common.brew.generic.component.trigger.Trigger;
@@ -61,18 +61,42 @@ public class GenericBrewTypeBuilder {
     }
 
     public void save(Consumer<FinishedBrewType> brewTypeConsumer) {
+        validateActions();
+        validateEffects();
+        validateTriggers();
+
+        brewTypeConsumer.accept(new Result(id, actions, effects, triggers));
+    }
+
+    private void validateActions() {
         actions.forEach((identifier, _action) -> {
+            if (!GenericBrewType.Serializer.isValidIdentifier(identifier)) {
+                throw new IllegalStateException("Non [a-z0-9_-] character in action identifier: " + identifier);
+            }
             if (triggers.stream().noneMatch(entry -> entry.getValue().contains(identifier))) {
                 throw new IllegalStateException("Action '%s' is never used".formatted(identifier));
             }
         });
-        triggers.forEach(entry -> entry.getValue().forEach(identifier -> {
-            if (actions.keySet().stream().noneMatch(identifier::equals)) {
-                throw new IllegalStateException("Undefined action '%s'".formatted(identifier));
-            }
-        }));
+    }
 
-        brewTypeConsumer.accept(new Result(id, actions, effects, triggers));
+    private void validateEffects() {
+        effects.keySet().forEach(identifier -> {
+            if (!GenericBrewType.Serializer.isValidIdentifier(identifier)) {
+                throw new IllegalStateException("Non [a-z0-9_-] character in effect identifier: " + identifier);
+            }
+        });
+    }
+
+    private void validateTriggers() {
+        triggers.forEach(entry -> entry.getValue()
+                .stream()
+                .filter(identifier -> !identifier.endsWith(".start") && !identifier.endsWith(".remove"))
+                .forEach(identifier -> {
+                    if (actions.keySet().stream().noneMatch(identifier::equals)) {
+                        throw new IllegalStateException("Undefined action '%s'".formatted(identifier));
+                    }
+                })
+        );
     }
 
     public class EventBuilder {
@@ -97,11 +121,11 @@ public class GenericBrewTypeBuilder {
 
         public EventBuilder startEffect(String identifier, EffectProvider effectProvider) {
             addEffect(identifier, effectProvider);
-            return executeAction("start_" + identifier, EffectActionType.start(identifier));
+            return executeAction(identifier + ".start");
         }
 
         public EventBuilder removeEffect(String identifier) {
-            return executeAction("remove_" + identifier, EffectActionType.remove(identifier));
+            return executeAction(identifier + ".remove");
         }
 
         public EventBuilder startTimer(String identifier, int timerDuration) {

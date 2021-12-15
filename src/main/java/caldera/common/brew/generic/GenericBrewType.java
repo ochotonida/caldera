@@ -23,6 +23,7 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.registries.ForgeRegistryEntry;
 
+import javax.annotation.Nullable;
 import java.util.*;
 
 @SuppressWarnings("ClassCanBeRecord")
@@ -64,6 +65,23 @@ public class GenericBrewType implements BrewType {
         return actions.get(identifier);
     }
 
+    @Nullable
+    public String getEffectFromAction(String actionIdentifier, String suffix) {
+        return getEffectFromAction(getEffects().keySet(), actionIdentifier, suffix);
+    }
+
+    @Nullable
+    private static String getEffectFromAction(Set<String> effects, String actionIdentifier, String suffix) {
+        if (actionIdentifier.endsWith(suffix)) {
+            String effectId = actionIdentifier.substring(0, actionIdentifier.length() - suffix.length());
+            if (effects.contains(effectId)) {
+                return effectId;
+            }
+        }
+        return null;
+    }
+
+
     @Override
     public Brew assemble(FluidStack fluid, IItemHandler inventory, Cauldron cauldron) {
         return new GenericBrew(this, cauldron);
@@ -85,7 +103,7 @@ public class GenericBrewType implements BrewType {
         public GenericBrewType fromJson(JsonObject object, BrewTypeDeserializationContext context) {
             Map<String, Action> actions = deserializeActions(GsonHelper.getAsJsonObject(object, "actions"));
             Map<String, EffectProvider> effects = deserializeEffects(GsonHelper.getAsJsonObject(object, "effects"));
-            Map<TriggerType<?>, TriggerHandler<?>> triggers = deserializeTriggers(GsonHelper.getAsJsonArray(object, "events"), actions.keySet());
+            Map<TriggerType<?>, TriggerHandler<?>> triggers = deserializeTriggers(GsonHelper.getAsJsonArray(object, "events"), actions.keySet(), effects.keySet());
             return new GenericBrewType(context.getBrewType(), actions, effects, triggers);
         }
 
@@ -106,6 +124,9 @@ public class GenericBrewType implements BrewType {
             HashMap<String, Action> result = new HashMap<>();
             for (Map.Entry<String, JsonElement> entry : object.entrySet()) {
                 String identifier = entry.getKey();
+                if (!isValidIdentifier(identifier)) {
+                    throw new JsonParseException("Non [a-z0-9_-] character in action identifier: " + identifier);
+                }
                 if (!entry.getValue().isJsonObject()) {
                     throw new JsonParseException("Expected value for action '%s' to be an object, was '%s'".formatted(identifier, entry.getValue()));
                 }
@@ -150,6 +171,9 @@ public class GenericBrewType implements BrewType {
             HashMap<String, EffectProvider> result = new HashMap<>();
             for (Map.Entry<String, JsonElement> entry : object.entrySet()) {
                 String identifier = entry.getKey();
+                if (!isValidIdentifier(identifier)) {
+                    throw new JsonParseException("Non [a-z0-9_-] character in effect identifier: " + identifier);
+                }
                 if (!entry.getValue().isJsonObject()) {
                     throw new JsonParseException("Expected value for effect '%s' to be an object, was '%s'".formatted(identifier, entry.getValue()));
                 }
@@ -193,7 +217,7 @@ public class GenericBrewType implements BrewType {
             buffer.writeBoolean(false);
         }
 
-        public static Map<TriggerType<?>, TriggerHandler<?>> deserializeTriggers(JsonArray array, Set<String> existingActions) {
+        public static Map<TriggerType<?>, TriggerHandler<?>> deserializeTriggers(JsonArray array, Set<String> existingActions, Set<String> existingEffects) {
             HashMap<TriggerType<?>, TriggerHandler<?>> result = new HashMap<>();
             Set<String> usedActions = new HashSet<>();
             for (JsonElement entry : array) {
@@ -214,7 +238,9 @@ public class GenericBrewType implements BrewType {
                 for (JsonElement element : actionArray) {
                     String action = GsonHelper.convertToString(element, "action");
                     if (!existingActions.contains(action)) {
-                        throw new JsonParseException("Action with identifier '%s' is undefined".formatted(action));
+                        if (getEffectFromAction(existingEffects, action, ".start") == null && getEffectFromAction(existingEffects, action, ".remove") == null) {
+                            throw new JsonParseException("Action with identifier '%s' is undefined".formatted(action));
+                        }
                     }
                     actions.add(action);
                 }
@@ -233,6 +259,20 @@ public class GenericBrewType implements BrewType {
             }
 
             return result;
+        }
+
+        public static boolean isValidIdentifier(String identifier) {
+            for (int i = 0; i < identifier.length(); ++i) {
+                if (!isValidIdentifierCharacter(identifier.charAt(i))) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        private static boolean isValidIdentifierCharacter(char c) {
+            return c >= 'a' && c <= 'z' || c >= '0' && c <= '9' || c == '_' || c == '-' ;
         }
     }
 }

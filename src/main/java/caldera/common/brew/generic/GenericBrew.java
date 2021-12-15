@@ -103,9 +103,25 @@ public class GenericBrew extends Brew {
 
     public void executeAction(String identifier) {
         Action action = getType().getAction(identifier);
-        action.accept(this);
-        if (action.getType().shouldSendToClients()) {
-            queuedUpdates.add(identifier);
+        if (action != null) {
+            action.accept(this);
+            if (action.getType().shouldSendToClients() && getCauldron().getLevel() != null && !getCauldron().getLevel().isClientSide()) {
+                queuedUpdates.add(identifier);
+            }
+        } else {
+            String effect = getType().getEffectFromAction(identifier, ".start");
+            if (effect != null) {
+                startEffect(effect);
+                queuedUpdates.add(identifier);
+            } else {
+                effect = getType().getEffectFromAction(identifier, ".remove");
+                if (effect != null) {
+                    removeEffect(effect);
+                    queuedUpdates.add(identifier);
+                } else {
+                    throw new IllegalArgumentException("Invalid identifier " + identifier);
+                }
+            }
         }
     }
 
@@ -123,12 +139,13 @@ public class GenericBrew extends Brew {
         getCauldron().setChanged();
     }
 
-    /**
-     * If an effect with the specified identifier exists, it is removed and the effect_ended trigger is triggered
-     */
     public void endEffect(String identifier) {
+        if (getCauldron().getLevel() != null && getCauldron().getLevel().isClientSide()) {
+            throw new UnsupportedOperationException("Effects should only be ended server-side");
+        }
         if (effects.containsKey(identifier)) {
             removeEffect(identifier);
+            queuedUpdates.add(identifier + ".remove");
             Triggers.EFFECT_ENDED.get().trigger(this, identifier);
         }
     }
@@ -160,7 +177,7 @@ public class GenericBrew extends Brew {
         ListTag list = tag.getList("actions", Tag.TAG_STRING);
         for (int i = 0; i < list.size(); i++) {
             String identifier = list.getString(i);
-            getType().getAction(identifier).accept(this);
+            executeAction(identifier);
             if (getCauldron().isRemoved() || getCauldron().getBrew() != this) {
                 Caldera.LOGGER.error("Brew in cauldron at %s was removed client-side while executing action %s".formatted(getCauldron().getBlockPos(), identifier));
                 break;

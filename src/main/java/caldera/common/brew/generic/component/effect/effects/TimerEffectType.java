@@ -78,6 +78,9 @@ public class TimerEffectType extends ForgeRegistryEntry<EffectProviderType<?>> i
 
             @Override
             public void tick() {
+                if (brew.getCauldron().getLevel() != null && brew.getCauldron().getLevel().isClientSide()) {
+                    return;
+                }
                 if (--timeRemaining <= 0) {
                     brew.endEffect(getIdentifier());
                 } else {
