@@ -1,0 +1,10 @@
+{
+  "type": "caldera:item_conversion",
+  "conversionType": "caldera:iron_to_gold",
+  "ingredient": {
+    "item": "minecraft:deepslate_iron_ore"
+  },
+  "result": {
+    "item": "minecraft:deepslate_gold_ore"
+  }
+}

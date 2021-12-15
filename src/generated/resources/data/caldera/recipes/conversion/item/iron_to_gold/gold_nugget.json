@@ -1,0 +1,10 @@
+{
+  "type": "caldera:item_conversion",
+  "conversionType": "caldera:iron_to_gold",
+  "ingredient": {
+    "tag": "forge:nuggets/iron"
+  },
+  "result": {
+    "item": "minecraft:gold_nugget"
+  }
+}

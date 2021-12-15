@@ -1,6 +1,6 @@
 {
-  "type": "caldera:item_transmutation",
-  "transmutationType": "caldera:transmute_metal",
+  "type": "caldera:item_conversion",
+  "conversionType": "caldera:iron_to_gold",
   "ingredient": {
     "item": "minecraft:apple"
   },

@@ -14,6 +14,10 @@
       },
       "useBrewColor": true
     },
+    "start_transmute_iron": {
+      "actionType": "caldera:start_effect",
+      "identifier": "transmute_iron"
+    },
     "explode": {
       "actionType": "caldera:explode",
       "radius": 10.0,
@@ -35,19 +39,15 @@
       "actionType": "caldera:start_effect",
       "identifier": "swirl_particles"
     },
-    "start_transmute_metal": {
-      "actionType": "caldera:start_effect",
-      "identifier": "transmute_metal"
-    },
     "start_explosion_timer": {
       "actionType": "caldera:start_effect",
       "identifier": "explosion_timer"
     }
   },
   "effects": {
-    "transmute_metal": {
-      "effectType": "caldera:item_transmutation",
-      "transmutationType": "caldera:transmute_metal",
+    "transmute_iron": {
+      "effectType": "caldera:item_conversion",
+      "conversionType": "caldera:iron_to_gold",
       "maxAmount": 5
     },
     "swirl_particles": {
@@ -75,7 +75,7 @@
         "spawn_particles",
         "start_swirl_particles",
         "start_explosion_timer",
-        "start_transmute_metal"
+        "start_transmute_iron"
       ]
     },
     {

@@ -5,10 +5,10 @@
   },
   "ingredients": [
     {
-      "item": "minecraft:tnt"
+      "item": "minecraft:blaze_powder"
     },
     {
-      "item": "minecraft:blaze_powder"
+      "tag": "forge:gunpowder"
     }
   ],
   "ordered": false,

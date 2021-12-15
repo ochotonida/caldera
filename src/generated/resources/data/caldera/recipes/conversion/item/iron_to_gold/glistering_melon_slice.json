@@ -1,0 +1,10 @@
+{
+  "type": "caldera:item_conversion",
+  "conversionType": "caldera:iron_to_gold",
+  "ingredient": {
+    "item": "minecraft:melon_slice"
+  },
+  "result": {
+    "item": "minecraft:glistering_melon_slice"
+  }
+}

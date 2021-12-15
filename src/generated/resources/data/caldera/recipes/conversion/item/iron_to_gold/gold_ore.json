@@ -1,0 +1,10 @@
+{
+  "type": "caldera:item_conversion",
+  "conversionType": "caldera:iron_to_gold",
+  "ingredient": {
+    "item": "minecraft:iron_ore"
+  },
+  "result": {
+    "item": "minecraft:gold_ore"
+  }
+}
