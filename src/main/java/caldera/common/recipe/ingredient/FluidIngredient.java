@@ -32,6 +32,14 @@ public record FluidIngredient(FluidStack fluidStack, Tag<Fluid> fluidTag) implem
         return new FluidIngredient(null, tag);
     }
 
+    @Override
+    public boolean test(FluidStack fluidStack) {
+        if (this.fluidStack != null) {
+            return this.fluidStack.isFluidEqual(fluidStack);
+        }
+        return fluidStack.getFluid().is(fluidTag);
+    }
+
     public static FluidIngredient fromJson(JsonObject object, String name) {
         JsonObject ingredient = GsonHelper.getAsJsonObject(object, name);
 
@@ -75,13 +83,5 @@ public record FluidIngredient(FluidStack fluidStack, Tag<Fluid> fluidTag) implem
             ResourceLocation tagName = SerializationTags.getInstance().getIdOrThrow(Registry.FLUID_REGISTRY, fluidTag, () -> null);
             buffer.writeResourceLocation(tagName);
         }
-    }
-
-    @Override
-    public boolean test(FluidStack fluidStack) {
-        if (this.fluidStack != null) {
-            return this.fluidStack.isFluidEqual(fluidStack);
-        }
-        return fluidStack.getFluid().is(fluidTag);
     }
 }
