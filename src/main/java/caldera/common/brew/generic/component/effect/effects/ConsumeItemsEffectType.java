@@ -91,6 +91,9 @@ public class ConsumeItemsEffectType extends ForgeRegistryEntry<EffectProviderTyp
             if (maxStackSize != -1) {
                 object.addProperty("maxStackSize", maxStackSize);
             }
+            if (itemPredicate != ItemPredicate.ANY) {
+                object.add("item", itemPredicate.serializeToJson());
+            }
         }
 
         @Override
