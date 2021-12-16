@@ -26,14 +26,17 @@ import java.util.Map;
 public class GenericBrewType implements BrewType {
 
     private final ResourceLocation id;
-    private final Map<String, Action> actions;
+    // All effects are sent to the client. Effects are always added/removed by the server
     private final Map<String, EffectProvider> effects;
-    private final Map<TriggerType<?>, TriggerHandler<?>> triggers; // only exists on server
+    // GroupActions are not sent to the clients, as these are only triggered on the server
+    private final Map<String, Action> actions;
+    // Triggers only exist on the server. On the client this is an empty map
+    private final Map<TriggerType<?>, TriggerHandler<?>> triggers;
 
-    protected GenericBrewType(ResourceLocation id, Map<String, Action> actions, Map<String, EffectProvider> effects, Map<TriggerType<?>, TriggerHandler<?>> triggers) {
+    protected GenericBrewType(ResourceLocation id, Map<String, EffectProvider> effects, Map<String, Action> actions, Map<TriggerType<?>, TriggerHandler<?>> triggers) {
         this.id = id;
-        this.actions = actions;
         this.effects = effects;
+        this.actions = actions;
         this.triggers = triggers;
 
         effects.forEach((identifier, effect) -> {
@@ -49,7 +52,7 @@ public class GenericBrewType implements BrewType {
     }
 
     public <INSTANCE extends Trigger> TriggerHandler<INSTANCE> getTrigger(TriggerType<INSTANCE> triggerType) {
-        //noinspection unchecked
+        // noinspection unchecked
         return (TriggerHandler<INSTANCE>) triggers.get(triggerType);
     }
 
@@ -82,15 +85,15 @@ public class GenericBrewType implements BrewType {
         public GenericBrewType fromJson(JsonObject object, BrewTypeDeserializationContext context) {
             Map<String, EffectProvider> effects = EffectProvider.fromJson(GsonHelper.getAsJsonObject(object, "effects"));
             Map<String, Action> actions = Action.fromJson(GsonHelper.getAsJsonObject(object, "actions"), effects.keySet());
-            Map<TriggerType<?>, TriggerHandler<?>> triggers = TriggerHandler.fromJson(GsonHelper.getAsJsonArray(object, "events"), actions.keySet());
-            return new GenericBrewType(context.getBrewType(), actions, effects, triggers);
+            Map<TriggerType<?>, TriggerHandler<?>> triggers = TriggerHandler.fromJson(GsonHelper.getAsJsonArray(object, "triggers"), actions.keySet());
+            return new GenericBrewType(context.getBrewType(), effects, actions, triggers);
         }
 
         @Override
         public GenericBrewType fromNetwork(ResourceLocation id, FriendlyByteBuf buffer) {
             Map<String, EffectProvider> effects = EffectProvider.fromNetwork(buffer);
             Map<String, Action> actions = Action.fromNetwork(buffer, effects.keySet());
-            return new GenericBrewType(id, actions, effects, Collections.emptyMap());
+            return new GenericBrewType(id, effects, actions, Collections.emptyMap());
         }
 
         @Override

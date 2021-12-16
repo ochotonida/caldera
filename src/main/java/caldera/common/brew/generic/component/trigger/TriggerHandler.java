@@ -15,7 +15,7 @@ import java.util.function.Predicate;
 
 public class TriggerHandler<TRIGGER extends Trigger> {
 
-    private final Map<TRIGGER, String> events = new LinkedHashMap<>();
+    private final Map<TRIGGER, String> triggers = new LinkedHashMap<>();
     private final TriggerType<TRIGGER> triggerType;
 
     public TriggerHandler(TriggerType<TRIGGER> triggerType) {
@@ -28,10 +28,10 @@ public class TriggerHandler<TRIGGER extends Trigger> {
         }
         // noinspection unchecked
         TRIGGER t = (TRIGGER) trigger;
-        if (events.containsKey(t)) {
+        if (triggers.containsKey(t)) {
             throw new JsonParseException("Duplicate trigger for type " + trigger.getType().getRegistryName());
         }
-        events.put(t, action);
+        triggers.put(t, action);
     }
 
     public void trigger(GenericBrew brew, Predicate<TRIGGER> predicate) {
@@ -40,12 +40,12 @@ public class TriggerHandler<TRIGGER extends Trigger> {
         }
         Cauldron cauldron = brew.getCauldron();
 
-        for (Map.Entry<TRIGGER, String> event : events.entrySet()) {
+        for (Map.Entry<TRIGGER, String> trigger : triggers.entrySet()) {
             if (cauldron.isRemoved() || cauldron.getBrew() != brew) {
                 break; // do not execute the remaining actions if a previous action removed the brew
             }
-            if (predicate.test(event.getKey())) {
-                brew.executeAction(event.getValue());
+            if (predicate.test(trigger.getKey())) {
+                brew.executeAction(trigger.getValue());
             }
         }
     }

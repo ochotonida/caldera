@@ -48,11 +48,11 @@ public class GenericBrewTypeBuilder {
         return this;
     }
 
-    public EventBuilder onTrigger(Trigger event) {
-        return new EventBuilder(event);
+    public TriggerBuilder onTrigger(Trigger trigger) {
+        return new TriggerBuilder(trigger);
     }
 
-    public EventBuilder onEffectEnded(String timerIdentifier) {
+    public TriggerBuilder onEffectEnded(String timerIdentifier) {
         return onTrigger(EffectEndedTriggerType.effectEnded(timerIdentifier));
     }
 
@@ -99,40 +99,40 @@ public class GenericBrewTypeBuilder {
         );
     }
 
-    public class EventBuilder {
+    public class TriggerBuilder {
 
         private final Trigger trigger;
         private final List<String> actions = new ArrayList<>();
 
-        private EventBuilder(Trigger trigger) {
+        private TriggerBuilder(Trigger trigger) {
             this.trigger = trigger;
         }
 
-        public EventBuilder executeAction(String identifier) {
+        public TriggerBuilder executeAction(String identifier) {
             actions.add(identifier);
             return this;
         }
 
-        public EventBuilder executeAction(String identifier, SimpleAction action) {
+        public TriggerBuilder executeAction(String identifier, SimpleAction action) {
             GenericBrewTypeBuilder.this.addAction(identifier, action);
             executeAction(identifier);
             return this;
         }
 
-        public EventBuilder startEffect(String identifier, EffectProvider effectProvider) {
+        public TriggerBuilder startEffect(String identifier, EffectProvider effectProvider) {
             addEffect(identifier, effectProvider);
             return startEffect(identifier);
         }
 
-        public EventBuilder startEffect(String identifier) {
+        public TriggerBuilder startEffect(String identifier) {
             return executeAction("start." + identifier);
         }
 
-        public EventBuilder removeEffect(String identifier) {
+        public TriggerBuilder removeEffect(String identifier) {
             return executeAction("remove." + identifier);
         }
 
-        public EventBuilder startTimer(String identifier, int timerDuration) {
+        public TriggerBuilder startTimer(String identifier, int timerDuration) {
             return startEffect(identifier, TimerEffectType.timer(timerDuration));
         }
 
@@ -160,7 +160,7 @@ public class GenericBrewTypeBuilder {
         public void serializeBrewTypeData(JsonObject object) {
             object.add("actions", serializeActions());
             object.add("effects", serializeEffects());
-            object.add("events", serializeTriggers());
+            object.add("triggers", serializeTriggers());
         }
 
         private JsonElement serializeActions() {
