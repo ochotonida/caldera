@@ -5,6 +5,7 @@ import caldera.common.block.cauldron.Cauldron;
 import caldera.common.brew.Brew;
 import caldera.common.brew.BrewType;
 import caldera.common.brew.generic.component.action.Action;
+import caldera.common.brew.generic.component.action.EffectAction;
 import caldera.common.brew.generic.component.effect.Effect;
 import caldera.common.brew.generic.component.effect.EffectProvider;
 import caldera.common.brew.generic.component.trigger.Triggers;
@@ -101,30 +102,22 @@ public class GenericBrew extends Brew {
         }
     }
 
+    /**
+     * Executes the action with the specified identifier
+     */
     public void executeAction(String identifier) {
         Action action = getType().getAction(identifier);
         if (action != null) {
             action.accept(this);
-            if (action.getType().shouldSendToClients() && getCauldron().getLevel() != null && !getCauldron().getLevel().isClientSide()) {
-                queuedUpdates.add(identifier);
-            }
         } else {
-            String effect = getType().getEffectFromAction(identifier, "start.");
-            if (effect != null) {
-                startEffect(effect);
-                queuedUpdates.add(identifier);
-            } else {
-                effect = getType().getEffectFromAction(identifier, "remove.");
-                if (effect != null) {
-                    removeEffect(effect);
-                    queuedUpdates.add(identifier);
-                } else {
-                    throw new IllegalArgumentException("Invalid identifier " + identifier);
-                }
-            }
+            throw new IllegalArgumentException("Invalid action identifier: " + identifier);
         }
     }
 
+    /**
+     * Starts the effect with the specified identifier.
+     * Does not notify clients.
+     */
     public void startEffect(String identifier) {
         Effect effect = getType().getEffects().get(identifier).create(this);
         effects.put(identifier, effect);
@@ -132,21 +125,40 @@ public class GenericBrew extends Brew {
     }
 
     /**
-     * Removes the effect with the specified identifier from the brew if it is active
+     * Removes the effect with the specified identifier, does nothing if no such effect is active.
+     * Does not notify clients.
      */
     public void removeEffect(String identifier) {
         effects.remove(identifier);
         getCauldron().setChanged();
     }
 
+    /**
+     * Removes the effect with the specified identifier, queues the action to be executed on tracking clients,
+     * and triggers the effect ended trigger for the specified identifier.
+     *
+     * If no effect with the specified identifier exists, nothing happens.
+     *
+     * @throws IllegalStateException the method was called from the client
+     */
     public void endEffect(String identifier) {
         if (getCauldron().getLevel() != null && getCauldron().getLevel().isClientSide()) {
-            throw new UnsupportedOperationException("Effects should only be ended server-side");
+            throw new IllegalStateException("Effects should only be ended server-side");
         }
         if (effects.containsKey(identifier)) {
             removeEffect(identifier);
-            queuedUpdates.add("remove." + identifier);
+            sendActionExecuted(EffectAction.remove(identifier));
             Triggers.EFFECT_ENDED.get().trigger(this, identifier);
+        }
+    }
+
+    /**
+     * Queues an action to be executed on tracking clients,
+     * Does nothing client-side.
+     */
+    public void sendActionExecuted(String identifier) {
+        if (getCauldron().getLevel() != null && !getCauldron().getLevel().isClientSide()) {
+            queuedUpdates.add(identifier);
         }
     }
 

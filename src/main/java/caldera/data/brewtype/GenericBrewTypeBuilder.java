@@ -2,13 +2,13 @@ package caldera.data.brewtype;
 
 import caldera.Caldera;
 import caldera.common.brew.BrewTypeSerializer;
-import caldera.common.brew.generic.GenericBrewType;
-import caldera.common.brew.generic.component.action.Action;
+import caldera.common.brew.generic.component.action.SimpleAction;
 import caldera.common.brew.generic.component.effect.EffectProvider;
 import caldera.common.brew.generic.component.effect.effects.TimerEffectType;
 import caldera.common.brew.generic.component.trigger.Trigger;
 import caldera.common.brew.generic.component.trigger.triggers.EffectEndedTriggerType;
 import caldera.common.init.ModBrewTypes;
+import caldera.common.util.JsonHelper;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -23,9 +23,8 @@ import java.util.function.Consumer;
 @SuppressWarnings("UnusedReturnValue")
 public class GenericBrewTypeBuilder {
 
-    // TODO add some way to bundle actions
     private final ResourceLocation id;
-    private final Map<String, Action> actions = new HashMap<>();
+    private final Map<String, SimpleAction> actions = new HashMap<>();
     private final Map<String, EffectProvider> effects = new HashMap<>();
     private final List<Map.Entry<Trigger, List<String>>> triggers = new ArrayList<>();
 
@@ -33,7 +32,7 @@ public class GenericBrewTypeBuilder {
         this.id = id;
     }
 
-    public GenericBrewTypeBuilder addAction(String identifier, Action action) {
+    public GenericBrewTypeBuilder addAction(String identifier, SimpleAction action) {
         if (actions.containsKey(identifier)) {
             throw new IllegalArgumentException("Action with identifier '%s' already exists".formatted(identifier));
         }
@@ -71,7 +70,7 @@ public class GenericBrewTypeBuilder {
 
     private void validateActions() {
         actions.forEach((identifier, _action) -> {
-            if (!GenericBrewType.Serializer.isValidIdentifier(identifier)) {
+            if (!JsonHelper.isValidIdentifier(identifier)) {
                 throw new IllegalStateException("Non [a-z0-9_-] character in action identifier: " + identifier);
             }
             if (triggers.stream().noneMatch(entry -> entry.getValue().contains(identifier))) {
@@ -82,7 +81,7 @@ public class GenericBrewTypeBuilder {
 
     private void validateEffects() {
         effects.keySet().forEach(identifier -> {
-            if (!GenericBrewType.Serializer.isValidIdentifier(identifier)) {
+            if (!JsonHelper.isValidIdentifier(identifier)) {
                 throw new IllegalStateException("Non [a-z0-9_-] character in effect identifier: " + identifier);
             }
         });
@@ -114,7 +113,7 @@ public class GenericBrewTypeBuilder {
             return this;
         }
 
-        public EventBuilder executeAction(String identifier, Action action) {
+        public EventBuilder executeAction(String identifier, SimpleAction action) {
             GenericBrewTypeBuilder.this.addAction(identifier, action);
             executeAction(identifier);
             return this;
@@ -145,7 +144,7 @@ public class GenericBrewTypeBuilder {
 
     public record Result(
             ResourceLocation id,
-            Map<String, Action> actions,
+            Map<String, SimpleAction> actions,
             Map<String, EffectProvider> effects,
             List<Map.Entry<Trigger, List<String>>> triggers
     ) implements FinishedBrewType {

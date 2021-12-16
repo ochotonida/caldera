@@ -1,9 +1,9 @@
 package caldera.common.brew.generic.component.action.actions;
 
 import caldera.common.brew.generic.GenericBrew;
-import caldera.common.brew.generic.component.action.Action;
 import caldera.common.brew.generic.component.action.ActionType;
 import caldera.common.brew.generic.component.action.Actions;
+import caldera.common.brew.generic.component.action.SimpleAction;
 import caldera.common.util.ColorHelper;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
@@ -46,7 +46,15 @@ public class ChangeColorActionType extends ForgeRegistryEntry<ActionType<?>> imp
         return new ChangeColorAction(color, transitionTime);
     }
 
-    public record ChangeColorAction(int color, int transitionTime) implements Action {
+    public static final class ChangeColorAction extends SimpleAction {
+
+        private final int color;
+        private final int transitionTime;
+
+        public ChangeColorAction(int color, int transitionTime) {
+            this.color = color;
+            this.transitionTime = transitionTime;
+        }
 
         @Override
         public ActionType<?> getType() {
@@ -54,7 +62,7 @@ public class ChangeColorActionType extends ForgeRegistryEntry<ActionType<?>> imp
         }
 
         @Override
-        public void accept(GenericBrew brew) {
+        public void execute(GenericBrew brew) {
             brew.changeColor(color, transitionTime);
         }
 

@@ -2,9 +2,9 @@ package caldera.common.brew.generic.component.action.actions;
 
 import caldera.common.brew.generic.GenericBrew;
 import caldera.common.brew.generic.component.BrewParticleProvider;
-import caldera.common.brew.generic.component.action.Action;
 import caldera.common.brew.generic.component.action.ActionType;
 import caldera.common.brew.generic.component.action.Actions;
+import caldera.common.brew.generic.component.action.SimpleAction;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import net.minecraft.network.FriendlyByteBuf;
@@ -45,7 +45,15 @@ public class SpawnParticlesActionType extends ForgeRegistryEntry<ActionType<?>> 
         return new SpawnParticlesAction(particle, count);
     }
 
-    public record SpawnParticlesAction(BrewParticleProvider particle, int count) implements Action {
+    public static final class SpawnParticlesAction extends SimpleAction {
+
+        private final BrewParticleProvider particle;
+        private final int count;
+
+        public SpawnParticlesAction(BrewParticleProvider particle, int count) {
+            this.particle = particle;
+            this.count = count;
+        }
 
         @Override
         public ActionType<?> getType() {
@@ -53,12 +61,12 @@ public class SpawnParticlesActionType extends ForgeRegistryEntry<ActionType<?>> 
         }
 
         @Override
-        public void accept(GenericBrew brew) {
+        public void execute(GenericBrew brew) {
             Level level = brew.getCauldron().getLevel();
             if (level == null || !level.isClientSide()) {
                 return;
             }
-            for (int i = 0; i < count(); i++) {
+            for (int i = 0; i < count; i++) {
                 particle.spawnParticles(brew, 1);
             }
         }
@@ -66,14 +74,12 @@ public class SpawnParticlesActionType extends ForgeRegistryEntry<ActionType<?>> 
         @Override
         public void serialize(JsonObject object) {
             object.addProperty("count", count);
-
             particle.serialize(object);
         }
 
         @Override
         public void serialize(FriendlyByteBuf buffer) {
             buffer.writeInt(count);
-
             particle.serialize(buffer);
         }
     }

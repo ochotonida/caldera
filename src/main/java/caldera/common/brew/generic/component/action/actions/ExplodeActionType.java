@@ -2,9 +2,9 @@ package caldera.common.brew.generic.component.action.actions;
 
 import caldera.common.block.cauldron.Cauldron;
 import caldera.common.brew.generic.GenericBrew;
-import caldera.common.brew.generic.component.action.Action;
 import caldera.common.brew.generic.component.action.ActionType;
 import caldera.common.brew.generic.component.action.Actions;
+import caldera.common.brew.generic.component.action.SimpleAction;
 import caldera.common.util.JsonHelper;
 import com.google.gson.JsonObject;
 import net.minecraft.network.FriendlyByteBuf;
@@ -42,7 +42,17 @@ public class ExplodeActionType extends ForgeRegistryEntry<ActionType<?>> impleme
         return new ExplodeAction(radius, causesFire, mode);
     }
 
-    public record ExplodeAction(float radius, boolean causesFire, Explosion.BlockInteraction mode) implements Action {
+    public static final class ExplodeAction extends SimpleAction {
+
+        private final float radius;
+        private final boolean causesFire;
+        private final Explosion.BlockInteraction mode;
+
+        public ExplodeAction(float radius, boolean causesFire, Explosion.BlockInteraction mode) {
+            this.radius = radius;
+            this.causesFire = causesFire;
+            this.mode = mode;
+        }
 
         @Override
         public ActionType<?> getType() {
@@ -50,7 +60,7 @@ public class ExplodeActionType extends ForgeRegistryEntry<ActionType<?>> impleme
         }
 
         @Override
-        public void accept(GenericBrew brew) {
+        public void execute(GenericBrew brew) {
             Cauldron cauldron = brew.getCauldron();
             Vec3 origin = cauldron.getCenter();
             // noinspection ConstantConditions

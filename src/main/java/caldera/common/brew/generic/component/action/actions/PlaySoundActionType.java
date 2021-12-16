@@ -2,9 +2,9 @@ package caldera.common.brew.generic.component.action.actions;
 
 import caldera.common.block.cauldron.Cauldron;
 import caldera.common.brew.generic.GenericBrew;
-import caldera.common.brew.generic.component.action.Action;
 import caldera.common.brew.generic.component.action.ActionType;
 import caldera.common.brew.generic.component.action.Actions;
+import caldera.common.brew.generic.component.action.SimpleAction;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import net.minecraft.network.FriendlyByteBuf;
@@ -55,7 +55,17 @@ public class PlaySoundActionType extends ForgeRegistryEntry<ActionType<?>> imple
         return new PlaySoundAction(soundEvent, volume, pitch);
     }
 
-    public record PlaySoundAction(SoundEvent soundEvent, float volume, float pitch) implements Action {
+    public static final class PlaySoundAction extends SimpleAction {
+
+        private final SoundEvent soundEvent;
+        private final float volume;
+        private final float pitch;
+
+        public PlaySoundAction(SoundEvent soundEvent, float volume, float pitch) {
+            this.soundEvent = soundEvent;
+            this.volume = volume;
+            this.pitch = pitch;
+        }
 
         @Override
         public ActionType<?> getType() {
@@ -63,7 +73,7 @@ public class PlaySoundActionType extends ForgeRegistryEntry<ActionType<?>> imple
         }
 
         @Override
-        public void accept(GenericBrew brew) {
+        public void execute(GenericBrew brew) {
             Cauldron cauldron = brew.getCauldron();
             if (cauldron.getLevel() != null) {
                 Vec3 origin = cauldron.getCenter();
