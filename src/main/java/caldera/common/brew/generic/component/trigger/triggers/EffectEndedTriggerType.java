@@ -4,7 +4,7 @@ import caldera.common.brew.BrewTypeDeserializationContext;
 import caldera.common.brew.generic.GenericBrew;
 import caldera.common.brew.generic.component.trigger.Trigger;
 import caldera.common.brew.generic.component.trigger.TriggerType;
-import caldera.common.brew.generic.component.trigger.Triggers;
+import caldera.common.init.ModTriggers;
 import com.google.gson.JsonObject;
 import net.minecraft.util.GsonHelper;
 
@@ -28,7 +28,7 @@ public class EffectEndedTriggerType extends TriggerType<EffectEndedTriggerType.E
 
         @Override
         public TriggerType<?> getType() {
-            return Triggers.EFFECT_ENDED.get();
+            return ModTriggers.EFFECT_ENDED.get();
         }
 
         @Override

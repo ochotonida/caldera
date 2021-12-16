@@ -5,8 +5,8 @@ import caldera.common.brew.generic.GenericBrew;
 import caldera.common.brew.generic.component.effect.Effect;
 import caldera.common.brew.generic.component.effect.EffectProvider;
 import caldera.common.brew.generic.component.effect.EffectProviderType;
-import caldera.common.brew.generic.component.effect.EffectProviders;
-import caldera.common.brew.generic.component.trigger.Triggers;
+import caldera.common.init.ModEffectProviders;
+import caldera.common.init.ModTriggers;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import net.minecraft.advancements.critereon.ItemPredicate;
@@ -81,7 +81,7 @@ public class ConsumeItemsEffectType extends ForgeRegistryEntry<EffectProviderTyp
 
         @Override
         public EffectProviderType<?> getType() {
-            return EffectProviders.CONSUME_ITEMS.get();
+            return ModEffectProviders.CONSUME_ITEMS.get();
         }
 
         @Override
@@ -133,7 +133,7 @@ public class ConsumeItemsEffectType extends ForgeRegistryEntry<EffectProviderTyp
 
                 ItemStack consumedStack = itemEntity.getItem().split(amount);
 
-                Triggers.ITEM_CONSUMED.get().trigger(brew, getIdentifier(), consumedStack);
+                ModTriggers.ITEM_CONSUMED.get().trigger(brew, getIdentifier(), consumedStack);
 
                 if (itemsRemaining > 0) {
                     brew.getCauldron().setChanged();

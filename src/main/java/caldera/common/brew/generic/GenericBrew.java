@@ -8,7 +8,7 @@ import caldera.common.brew.generic.component.action.Action;
 import caldera.common.brew.generic.component.action.EffectAction;
 import caldera.common.brew.generic.component.effect.Effect;
 import caldera.common.brew.generic.component.effect.EffectProvider;
-import caldera.common.brew.generic.component.trigger.Triggers;
+import caldera.common.init.ModTriggers;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
@@ -55,7 +55,7 @@ public class GenericBrew extends Brew {
 
     @Override
     public void onBrewed() {
-        Triggers.BREW_CREATED.get().trigger(this);
+        ModTriggers.BREW_CREATED.get().trigger(this);
     }
 
     /**
@@ -148,7 +148,7 @@ public class GenericBrew extends Brew {
         if (effects.containsKey(identifier)) {
             removeEffect(identifier);
             sendActionExecuted(EffectAction.remove(identifier));
-            Triggers.EFFECT_ENDED.get().trigger(this, identifier);
+            ModTriggers.EFFECT_ENDED.get().trigger(this, identifier);
         }
     }
 

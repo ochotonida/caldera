@@ -3,11 +3,8 @@ package caldera.common.init;
 import caldera.Caldera;
 import caldera.common.brew.BrewTypeSerializer;
 import caldera.common.brew.generic.component.action.ActionType;
-import caldera.common.brew.generic.component.action.Actions;
 import caldera.common.brew.generic.component.effect.EffectProviderType;
-import caldera.common.brew.generic.component.effect.EffectProviders;
 import caldera.common.brew.generic.component.trigger.TriggerType;
-import caldera.common.brew.generic.component.trigger.Triggers;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -43,9 +40,9 @@ public class CalderaRegistries {
 
         IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
         ModBrewTypes.REGISTRY.register(modBus);
-        Actions.REGISTRY.register(modBus);
-        EffectProviders.REGISTRY.register(modBus);
-        Triggers.REGISTRY.register(modBus);
+        ModActions.REGISTRY.register(modBus);
+        ModEffectProviders.REGISTRY.register(modBus);
+        ModTriggers.REGISTRY.register(modBus);
     }
 
     @SuppressWarnings("SameParameterValue")

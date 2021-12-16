@@ -5,7 +5,7 @@ import caldera.common.brew.generic.GenericBrew;
 import caldera.common.brew.generic.component.effect.Effect;
 import caldera.common.brew.generic.component.effect.EffectProvider;
 import caldera.common.brew.generic.component.effect.EffectProviderType;
-import caldera.common.brew.generic.component.effect.EffectProviders;
+import caldera.common.init.ModEffectProviders;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import net.minecraft.nbt.CompoundTag;
@@ -43,7 +43,7 @@ public class TimerEffectType extends ForgeRegistryEntry<EffectProviderType<?>> i
 
         @Override
         public EffectProviderType<?> getType() {
-            return EffectProviders.TIMER.get();
+            return ModEffectProviders.TIMER.get();
         }
 
         @Override

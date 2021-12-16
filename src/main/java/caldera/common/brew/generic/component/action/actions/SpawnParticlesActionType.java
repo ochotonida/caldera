@@ -4,8 +4,8 @@ import caldera.common.brew.BrewTypeDeserializationContext;
 import caldera.common.brew.generic.GenericBrew;
 import caldera.common.brew.generic.component.BrewParticleProvider;
 import caldera.common.brew.generic.component.action.ActionType;
-import caldera.common.brew.generic.component.action.Actions;
 import caldera.common.brew.generic.component.action.SimpleAction;
+import caldera.common.init.ModActions;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import net.minecraft.network.FriendlyByteBuf;
@@ -58,7 +58,7 @@ public class SpawnParticlesActionType extends ForgeRegistryEntry<ActionType<?>> 
 
         @Override
         public ActionType<?> getType() {
-            return Actions.SPAWN_PARTICLES.get();
+            return ModActions.SPAWN_PARTICLES.get();
         }
 
         @Override

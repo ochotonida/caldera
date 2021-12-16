@@ -4,8 +4,8 @@ import caldera.common.block.cauldron.Cauldron;
 import caldera.common.brew.BrewTypeDeserializationContext;
 import caldera.common.brew.generic.GenericBrew;
 import caldera.common.brew.generic.component.action.ActionType;
-import caldera.common.brew.generic.component.action.Actions;
 import caldera.common.brew.generic.component.action.SimpleAction;
+import caldera.common.init.ModActions;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import net.minecraft.network.FriendlyByteBuf;
@@ -70,7 +70,7 @@ public class PlaySoundActionType extends ForgeRegistryEntry<ActionType<?>> imple
 
         @Override
         public ActionType<?> getType() {
-            return Actions.PLAY_SOUND.get();
+            return ModActions.PLAY_SOUND.get();
         }
 
         @Override

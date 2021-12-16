@@ -9,9 +9,9 @@ import caldera.common.brew.generic.component.action.actions.SpawnParticlesAction
 import caldera.common.brew.generic.component.effect.effects.ConsumeItemsEffectType;
 import caldera.common.brew.generic.component.effect.effects.EmitParticlesEffectType;
 import caldera.common.brew.generic.component.effect.effects.conversion.ConvertItemsEffectType;
-import caldera.common.brew.generic.component.trigger.Triggers;
 import caldera.common.brew.generic.component.trigger.triggers.ItemConsumedTriggerType;
 import caldera.common.brew.generic.component.trigger.triggers.ItemConvertedTriggerType;
+import caldera.common.init.ModTriggers;
 import caldera.data.brewtype.FinishedBrewType;
 import caldera.data.brewtype.GenericBrewTypeBuilder;
 import com.google.common.collect.Sets;
@@ -69,7 +69,7 @@ public record BrewTypes(DataGenerator generator) implements DataProvider {
 
     protected void buildBrewTypes(Consumer<FinishedBrewType> consumer) {
         genericBrew("test_brew")
-                .onTrigger(Triggers.BREW_CREATED.get().create())
+                .onTrigger(ModTriggers.BREW_CREATED.get().create())
                 .groupId("setup")
                 .startEffect("transmute_iron", ConvertItemsEffectType.convertItems(new ResourceLocation(Caldera.MODID, "iron_to_gold"), 5))
                 .startEffect("consume_tnt", ConsumeItemsEffectType.consumeItems(ItemPredicate.Builder.item().of(Items.TNT).build(), 1))

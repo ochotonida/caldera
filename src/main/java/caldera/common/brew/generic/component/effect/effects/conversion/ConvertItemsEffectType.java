@@ -6,9 +6,9 @@ import caldera.common.brew.generic.GenericBrew;
 import caldera.common.brew.generic.component.effect.Effect;
 import caldera.common.brew.generic.component.effect.EffectProvider;
 import caldera.common.brew.generic.component.effect.EffectProviderType;
-import caldera.common.brew.generic.component.effect.EffectProviders;
-import caldera.common.brew.generic.component.trigger.Triggers;
+import caldera.common.init.ModEffectProviders;
 import caldera.common.init.ModRecipeTypes;
+import caldera.common.init.ModTriggers;
 import caldera.common.recipe.conversion.ConversionRecipe;
 import caldera.common.util.ConversionRecipeHelper;
 import caldera.common.util.CraftingHelper;
@@ -81,7 +81,7 @@ public class ConvertItemsEffectType extends ForgeRegistryEntry<EffectProviderTyp
 
         @Override
         public EffectProviderType<?> getType() {
-            return EffectProviders.CONVERT_ITEMS.get();
+            return ModEffectProviders.CONVERT_ITEMS.get();
         }
 
         @Override
@@ -126,7 +126,7 @@ public class ConvertItemsEffectType extends ForgeRegistryEntry<EffectProviderTyp
                     itemEntity.getItem().shrink(1);
                     brew.getCauldron().discardItem(result, Cauldron.getInitialDeltaMovement(itemEntity));
 
-                    Triggers.ITEM_CONVERTED.get().trigger(brew, getIdentifier(), toConvert, result);
+                    ModTriggers.ITEM_CONVERTED.get().trigger(brew, getIdentifier(), toConvert, result);
 
                     if (itemsRemaining > 0) {
                         brew.getCauldron().setChanged();

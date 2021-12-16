@@ -4,7 +4,7 @@ import caldera.common.brew.BrewTypeDeserializationContext;
 import caldera.common.brew.generic.GenericBrew;
 import caldera.common.brew.generic.component.trigger.Trigger;
 import caldera.common.brew.generic.component.trigger.TriggerType;
-import caldera.common.brew.generic.component.trigger.Triggers;
+import caldera.common.init.ModTriggers;
 import com.google.gson.JsonObject;
 import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.util.GsonHelper;
@@ -40,7 +40,7 @@ public class ItemConsumedTriggerType extends TriggerType<ItemConsumedTriggerType
 
         @Override
         public TriggerType<?> getType() {
-            return Triggers.ITEM_CONSUMED.get();
+            return ModTriggers.ITEM_CONSUMED.get();
         }
 
         @Override

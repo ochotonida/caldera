@@ -1,15 +1,15 @@
-package caldera.common.brew.generic.component.action;
+package caldera.common.init;
 
 import caldera.Caldera;
+import caldera.common.brew.generic.component.action.ActionType;
 import caldera.common.brew.generic.component.action.actions.ChangeColorActionType;
 import caldera.common.brew.generic.component.action.actions.ExplodeActionType;
 import caldera.common.brew.generic.component.action.actions.PlaySoundActionType;
 import caldera.common.brew.generic.component.action.actions.SpawnParticlesActionType;
-import caldera.common.init.CalderaRegistries;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.RegistryObject;
 
-public class Actions {
+public class ModActions {
 
     public static final DeferredRegister<ActionType<?>> REGISTRY = DeferredRegister.create(CalderaRegistries.ACTION_TYPES, Caldera.MODID);
 

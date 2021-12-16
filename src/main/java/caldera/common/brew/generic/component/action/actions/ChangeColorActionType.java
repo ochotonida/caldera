@@ -3,8 +3,8 @@ package caldera.common.brew.generic.component.action.actions;
 import caldera.common.brew.BrewTypeDeserializationContext;
 import caldera.common.brew.generic.GenericBrew;
 import caldera.common.brew.generic.component.action.ActionType;
-import caldera.common.brew.generic.component.action.Actions;
 import caldera.common.brew.generic.component.action.SimpleAction;
+import caldera.common.init.ModActions;
 import caldera.common.util.ColorHelper;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
@@ -59,7 +59,7 @@ public class ChangeColorActionType extends ForgeRegistryEntry<ActionType<?>> imp
 
         @Override
         public ActionType<?> getType() {
-            return Actions.CHANGE_COLOR.get();
+            return ModActions.CHANGE_COLOR.get();
         }
 
         @Override

@@ -1,15 +1,15 @@
-package caldera.common.brew.generic.component.trigger;
+package caldera.common.init;
 
 import caldera.Caldera;
+import caldera.common.brew.generic.component.trigger.TriggerType;
 import caldera.common.brew.generic.component.trigger.triggers.EffectEndedTriggerType;
 import caldera.common.brew.generic.component.trigger.triggers.ItemConsumedTriggerType;
 import caldera.common.brew.generic.component.trigger.triggers.ItemConvertedTriggerType;
 import caldera.common.brew.generic.component.trigger.triggers.SimpleTriggerType;
-import caldera.common.init.CalderaRegistries;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.RegistryObject;
 
-public class Triggers {
+public class ModTriggers {
 
     public static final DeferredRegister<TriggerType<?>> REGISTRY = DeferredRegister.create(CalderaRegistries.TRIGGER_TYPES, Caldera.MODID);
 

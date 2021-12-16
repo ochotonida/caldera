@@ -1,15 +1,15 @@
-package caldera.common.brew.generic.component.effect;
+package caldera.common.init;
 
 import caldera.Caldera;
+import caldera.common.brew.generic.component.effect.EffectProviderType;
 import caldera.common.brew.generic.component.effect.effects.ConsumeItemsEffectType;
 import caldera.common.brew.generic.component.effect.effects.EmitParticlesEffectType;
 import caldera.common.brew.generic.component.effect.effects.TimerEffectType;
 import caldera.common.brew.generic.component.effect.effects.conversion.ConvertItemsEffectType;
-import caldera.common.init.CalderaRegistries;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.RegistryObject;
 
-public class EffectProviders {
+public class ModEffectProviders {
 
     public static final DeferredRegister<EffectProviderType<?>> REGISTRY = DeferredRegister.create(CalderaRegistries.EFFECT_PROVIDER_TYPES, Caldera.MODID);
 

@@ -4,8 +4,8 @@ import caldera.common.block.cauldron.Cauldron;
 import caldera.common.brew.BrewTypeDeserializationContext;
 import caldera.common.brew.generic.GenericBrew;
 import caldera.common.brew.generic.component.action.ActionType;
-import caldera.common.brew.generic.component.action.Actions;
 import caldera.common.brew.generic.component.action.SimpleAction;
+import caldera.common.init.ModActions;
 import caldera.common.util.JsonHelper;
 import com.google.gson.JsonObject;
 import net.minecraft.network.FriendlyByteBuf;
@@ -57,7 +57,7 @@ public class ExplodeActionType extends ForgeRegistryEntry<ActionType<?>> impleme
 
         @Override
         public ActionType<?> getType() {
-            return Actions.EXPLODE.get();
+            return ModActions.EXPLODE.get();
         }
 
         @Override
