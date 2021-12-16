@@ -1,6 +1,39 @@
 {
   "type": "caldera:generic_brew",
+  "effects": {
+    "transmute_iron": {
+      "effectType": "caldera:convert_items",
+      "conversionType": "caldera:iron_to_gold",
+      "maxConverted": 5
+    },
+    "consume_tnt": {
+      "effectType": "caldera:consume_items",
+      "maxConsumed": 1,
+      "item": {
+        "items": [
+          "minecraft:tnt"
+        ]
+      }
+    },
+    "emit_swirls": {
+      "effectType": "caldera:emit_particles",
+      "count": 0.5,
+      "particle": {
+        "type": "minecraft:entity_effect"
+      },
+      "useBrewColor": true
+    },
+    "explosion_timer": {
+      "effectType": "caldera:timer",
+      "duration": 80
+    }
+  },
   "actions": {
+    "set_starting_color": {
+      "actionType": "caldera:change_color",
+      "color": "#EEDD11",
+      "transitionTime": 0
+    },
     "spawn_particles": {
       "actionType": "caldera:spawn_particles",
       "count": 50,
@@ -14,17 +47,6 @@
       "color": "#EE4411",
       "transitionTime": 80
     },
-    "explode": {
-      "actionType": "caldera:explode",
-      "radius": 3.0,
-      "causesFire": false,
-      "mode": "destroy"
-    },
-    "set_starting_color": {
-      "actionType": "caldera:change_color",
-      "color": "#EEDD11",
-      "transitionTime": 0
-    },
     "play_fuse_sound": {
       "actionType": "caldera:play_sound",
       "soundEvent": "minecraft:entity.tnt.primed",
@@ -36,85 +58,64 @@
       "soundEvent": "minecraft:block.enchantment_table.use",
       "volume": 1.0,
       "pitch": 1.0
-    }
+    },
+    "explode": {
+      "actionType": "caldera:explode",
+      "radius": 3.0,
+      "causesFire": false,
+      "mode": "destroy"
+    },
+    "setup": [
+      "start.transmute_iron",
+      "start.consume_tnt",
+      "set_starting_color",
+      "spawn_particles",
+      "start.emit_swirls"
+    ],
+    "start_fuse": [
+      "start.explosion_timer",
+      "spawn_particles",
+      "fade_to_red",
+      "play_fuse_sound"
+    ],
+    "handle_transmutation_ended": [
+      "remove.consume_tnt",
+      "start_fuse"
+    ]
   },
-  "effects": {
-    "emit_swirls": {
-      "effectType": "caldera:emit_particles",
-      "count": 0.5,
-      "particle": {
-        "type": "minecraft:entity_effect"
-      },
-      "useBrewColor": true
-    },
-    "transmute_iron": {
-      "effectType": "caldera:convert_items",
-      "conversionType": "caldera:iron_to_gold",
-      "maxConverted": 5
-    },
-    "consume_tnt": {
-      "effectType": "caldera:consume_items",
-      "maxConsumed": 1
-    },
-    "explosion_timer": {
-      "effectType": "caldera:timer",
-      "duration": 80
-    }
-  },
-  "events": [
+  "triggers": [
     {
       "trigger": {
         "triggerType": "caldera:brew_created"
       },
-      "actions": [
-        "transmute_iron.start",
-        "consume_tnt.start",
-        "set_starting_color",
-        "spawn_particles",
-        "emit_swirls.start"
-      ]
+      "action": "setup"
+    },
+    {
+      "trigger": {
+        "triggerType": "caldera:item_consumed"
+      },
+      "action": "start_fuse"
     },
     {
       "trigger": {
         "triggerType": "caldera:effect_ended",
         "identifier": "transmute_iron"
       },
-      "actions": [
-        "consume_tnt.remove",
-        "spawn_particles",
-        "fade_to_red",
-        "play_fuse_sound",
-        "explosion_timer.start"
-      ]
+      "action": "handle_transmutation_ended"
     },
     {
       "trigger": {
         "triggerType": "caldera:item_converted",
         "identifier": "transmute_iron"
       },
-      "actions": [
-        "play_transmutation_sound"
-      ]
-    },
-    {
-      "trigger": {
-        "triggerType": "caldera:item_consumed"
-      },
-      "actions": [
-        "explosion_timer.start",
-        "spawn_particles",
-        "fade_to_red",
-        "play_fuse_sound"
-      ]
+      "action": "play_transmutation_sound"
     },
     {
       "trigger": {
         "triggerType": "caldera:effect_ended",
         "identifier": "explosion_timer"
       },
-      "actions": [
-        "explode"
-      ]
+      "action": "explode"
     }
   ]
 }
