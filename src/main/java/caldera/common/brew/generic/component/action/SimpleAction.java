@@ -1,5 +1,6 @@
 package caldera.common.brew.generic.component.action;
 
+import caldera.common.brew.BrewTypeDeserializationContext;
 import caldera.common.brew.generic.GenericBrew;
 import caldera.common.init.CalderaRegistries;
 import com.google.gson.JsonObject;
@@ -50,14 +51,14 @@ public abstract class SimpleAction implements Action {
         serialize(buffer);
     }
 
-    public static SimpleAction fromJson(String identifier, JsonObject object) {
+    public static SimpleAction fromJson(String identifier, JsonObject object, BrewTypeDeserializationContext context) {
         ResourceLocation actionId = new ResourceLocation(GsonHelper.getAsString(object, "actionType"));
         if (!CalderaRegistries.ACTION_TYPES.containsKey(actionId)) {
             throw new JsonParseException("Unknown action type: " + actionId);
         }
 
         // noinspection ConstantConditions
-        SimpleAction action = CalderaRegistries.ACTION_TYPES.getValue(actionId).deserialize(object);
+        SimpleAction action = CalderaRegistries.ACTION_TYPES.getValue(actionId).deserialize(object, context);
         action.setIdentifier(identifier);
         return action;
     }

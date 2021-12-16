@@ -1,5 +1,6 @@
 package caldera.common.brew.generic.component.effect.effects;
 
+import caldera.common.brew.BrewTypeDeserializationContext;
 import caldera.common.brew.generic.GenericBrew;
 import caldera.common.brew.generic.component.effect.Effect;
 import caldera.common.brew.generic.component.effect.EffectProvider;
@@ -20,7 +21,7 @@ import net.minecraftforge.registries.ForgeRegistryEntry;
 public class ConsumeItemsEffectType extends ForgeRegistryEntry<EffectProviderType<?>> implements EffectProviderType<ConsumeItemsEffectType.ConsumeItemsEffectProvider> {
 
     @Override
-    public ConsumeItemsEffectProvider deserialize(JsonObject object) {
+    public ConsumeItemsEffectProvider deserialize(JsonObject object, BrewTypeDeserializationContext context) {
         int maxConsumed = -1;
         if (object.has("maxConsumed")) {
             maxConsumed = GsonHelper.getAsInt(object, "maxConsumed");

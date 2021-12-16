@@ -83,9 +83,9 @@ public class GenericBrewType implements BrewType {
 
         @Override
         public GenericBrewType fromJson(JsonObject object, BrewTypeDeserializationContext context) {
-            Map<String, EffectProvider> effects = EffectProvider.fromJson(GsonHelper.getAsJsonObject(object, "effects"));
-            Map<String, Action> actions = Action.fromJson(GsonHelper.getAsJsonObject(object, "actions"), effects.keySet());
-            Map<TriggerType<?>, TriggerHandler<?>> triggers = TriggerHandler.fromJson(GsonHelper.getAsJsonArray(object, "triggers"), actions.keySet());
+            Map<String, EffectProvider> effects = EffectProvider.fromJson(GsonHelper.getAsJsonObject(object, "effects"), context);
+            Map<String, Action> actions = Action.fromJson(GsonHelper.getAsJsonObject(object, "actions"), context, effects.keySet());
+            Map<TriggerType<?>, TriggerHandler<?>> triggers = TriggerHandler.fromJson(GsonHelper.getAsJsonArray(object, "triggers"), context, actions.keySet());
             return new GenericBrewType(context.getBrewType(), effects, actions, triggers);
         }
 

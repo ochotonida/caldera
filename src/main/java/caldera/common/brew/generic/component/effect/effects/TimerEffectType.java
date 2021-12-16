@@ -1,5 +1,6 @@
 package caldera.common.brew.generic.component.effect.effects;
 
+import caldera.common.brew.BrewTypeDeserializationContext;
 import caldera.common.brew.generic.GenericBrew;
 import caldera.common.brew.generic.component.effect.Effect;
 import caldera.common.brew.generic.component.effect.EffectProvider;
@@ -15,7 +16,7 @@ import net.minecraftforge.registries.ForgeRegistryEntry;
 public class TimerEffectType extends ForgeRegistryEntry<EffectProviderType<?>> implements EffectProviderType<TimerEffectType.TimerEffectProvider> {
 
     @Override
-    public TimerEffectProvider deserialize(JsonObject object) {
+    public TimerEffectProvider deserialize(JsonObject object, BrewTypeDeserializationContext context) {
         int time = GsonHelper.getAsInt(object, "duration");
         if (time < 10) {
             throw new JsonParseException("Timer duration must be greater than or equal to 10 ticks");

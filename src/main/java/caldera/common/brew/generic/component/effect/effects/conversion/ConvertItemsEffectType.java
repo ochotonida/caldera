@@ -1,6 +1,7 @@
 package caldera.common.brew.generic.component.effect.effects.conversion;
 
 import caldera.common.block.cauldron.Cauldron;
+import caldera.common.brew.BrewTypeDeserializationContext;
 import caldera.common.brew.generic.GenericBrew;
 import caldera.common.brew.generic.component.effect.Effect;
 import caldera.common.brew.generic.component.effect.EffectProvider;
@@ -27,7 +28,7 @@ import java.util.Optional;
 public class ConvertItemsEffectType extends ForgeRegistryEntry<EffectProviderType<?>> implements EffectProviderType<ConvertItemsEffectType.ConvertItemsEffectProvider> {
 
     @Override
-    public ConvertItemsEffectProvider deserialize(JsonObject object) {
+    public ConvertItemsEffectProvider deserialize(JsonObject object, BrewTypeDeserializationContext context) {
         ResourceLocation conversionType = CraftingHelper.readResourceLocation(object, "conversionType");
         int maxConverted = -1;
         if (object.has("maxConverted")) {

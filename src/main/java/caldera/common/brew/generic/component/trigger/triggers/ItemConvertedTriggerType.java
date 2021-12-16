@@ -1,5 +1,6 @@
 package caldera.common.brew.generic.component.trigger.triggers;
 
+import caldera.common.brew.BrewTypeDeserializationContext;
 import caldera.common.brew.generic.GenericBrew;
 import caldera.common.brew.generic.component.trigger.Trigger;
 import caldera.common.brew.generic.component.trigger.TriggerType;
@@ -18,7 +19,7 @@ public class ItemConvertedTriggerType extends TriggerType<ItemConvertedTriggerTy
     }
 
     @Override
-    public ItemConvertedTrigger deserialize(JsonObject object) {
+    public ItemConvertedTrigger deserialize(JsonObject object, BrewTypeDeserializationContext context) {
         String identifier = null;
         if (object.has("identifier")) {
             identifier = GsonHelper.getAsString(object, "identifier");

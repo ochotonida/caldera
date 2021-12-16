@@ -1,5 +1,6 @@
 package caldera.common.brew.generic.component.trigger;
 
+import caldera.common.brew.BrewTypeDeserializationContext;
 import caldera.common.init.CalderaRegistries;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
@@ -20,13 +21,13 @@ public interface Trigger {
 
     void serialize(JsonObject object);
 
-    static Trigger fromJson(JsonObject object) {
+    static Trigger fromJson(JsonObject object, BrewTypeDeserializationContext context) {
         ResourceLocation triggerTypeId = new ResourceLocation(GsonHelper.getAsString(object, "triggerType"));
         if (!CalderaRegistries.TRIGGER_TYPES.containsKey(triggerTypeId)) {
             throw new JsonParseException("Unknown trigger type: " + triggerTypeId);
         }
         TriggerType<?> triggerType = CalderaRegistries.TRIGGER_TYPES.getValue(triggerTypeId);
         // noinspection ConstantConditions
-        return triggerType.deserialize(object);
+        return triggerType.deserialize(object, context);
     }
 }

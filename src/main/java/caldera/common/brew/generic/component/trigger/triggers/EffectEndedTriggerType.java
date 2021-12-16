@@ -1,5 +1,6 @@
 package caldera.common.brew.generic.component.trigger.triggers;
 
+import caldera.common.brew.BrewTypeDeserializationContext;
 import caldera.common.brew.generic.GenericBrew;
 import caldera.common.brew.generic.component.trigger.Trigger;
 import caldera.common.brew.generic.component.trigger.TriggerType;
@@ -14,7 +15,7 @@ public class EffectEndedTriggerType extends TriggerType<EffectEndedTriggerType.E
     }
 
     @Override
-    public EffectEndedTrigger deserialize(JsonObject object) {
+    public EffectEndedTrigger deserialize(JsonObject object, BrewTypeDeserializationContext context) {
         String identifier = GsonHelper.getAsString(object, "identifier");
         return new EffectEndedTrigger(identifier);
     }

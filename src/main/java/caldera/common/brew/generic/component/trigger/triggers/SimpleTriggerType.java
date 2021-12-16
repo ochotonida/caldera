@@ -1,5 +1,6 @@
 package caldera.common.brew.generic.component.trigger.triggers;
 
+import caldera.common.brew.BrewTypeDeserializationContext;
 import caldera.common.brew.generic.GenericBrew;
 import caldera.common.brew.generic.component.trigger.Trigger;
 import caldera.common.brew.generic.component.trigger.TriggerType;
@@ -13,7 +14,7 @@ public final class SimpleTriggerType extends TriggerType<SimpleTriggerType.Simpl
     }
 
     @Override
-    public SimpleTrigger deserialize(JsonObject object) {
+    public SimpleTrigger deserialize(JsonObject object, BrewTypeDeserializationContext context) {
         return new SimpleTrigger();
     }
 

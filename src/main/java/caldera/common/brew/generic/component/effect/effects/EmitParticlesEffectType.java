@@ -1,5 +1,6 @@
 package caldera.common.brew.generic.component.effect.effects;
 
+import caldera.common.brew.BrewTypeDeserializationContext;
 import caldera.common.brew.generic.GenericBrew;
 import caldera.common.brew.generic.component.BrewParticleProvider;
 import caldera.common.brew.generic.component.effect.Effect;
@@ -16,7 +17,7 @@ import net.minecraftforge.registries.ForgeRegistryEntry;
 public class EmitParticlesEffectType extends ForgeRegistryEntry<EffectProviderType<?>> implements EffectProviderType<EmitParticlesEffectType.EmitParticlesEffectProvider> {
 
     @Override
-    public EmitParticlesEffectProvider deserialize(JsonObject object) {
+    public EmitParticlesEffectProvider deserialize(JsonObject object, BrewTypeDeserializationContext context) {
         double count = GsonHelper.getAsDouble(object, "count");
 
         if (count <= 0) {

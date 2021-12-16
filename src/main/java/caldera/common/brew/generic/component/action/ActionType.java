@@ -1,5 +1,6 @@
 package caldera.common.brew.generic.component.action;
 
+import caldera.common.brew.BrewTypeDeserializationContext;
 import com.google.gson.JsonObject;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.registries.IForgeRegistryEntry;
@@ -10,7 +11,7 @@ public interface ActionType<ACTION extends SimpleAction> extends IForgeRegistryE
         return false;
     }
 
-    ACTION deserialize(JsonObject object);
+    ACTION deserialize(JsonObject object, BrewTypeDeserializationContext context);
 
     ACTION deserialize(FriendlyByteBuf buffer);
 }

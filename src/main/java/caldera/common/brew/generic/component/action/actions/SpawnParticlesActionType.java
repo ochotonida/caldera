@@ -1,5 +1,6 @@
 package caldera.common.brew.generic.component.action.actions;
 
+import caldera.common.brew.BrewTypeDeserializationContext;
 import caldera.common.brew.generic.GenericBrew;
 import caldera.common.brew.generic.component.BrewParticleProvider;
 import caldera.common.brew.generic.component.action.ActionType;
@@ -20,7 +21,7 @@ public class SpawnParticlesActionType extends ForgeRegistryEntry<ActionType<?>> 
     }
 
     @Override
-    public SpawnParticlesAction deserialize(JsonObject object) {
+    public SpawnParticlesAction deserialize(JsonObject object, BrewTypeDeserializationContext context) {
         int count = GsonHelper.getAsInt(object, "count");
 
         if (count <= 0) {

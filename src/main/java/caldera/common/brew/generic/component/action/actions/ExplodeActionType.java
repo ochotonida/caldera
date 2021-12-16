@@ -1,6 +1,7 @@
 package caldera.common.brew.generic.component.action.actions;
 
 import caldera.common.block.cauldron.Cauldron;
+import caldera.common.brew.BrewTypeDeserializationContext;
 import caldera.common.brew.generic.GenericBrew;
 import caldera.common.brew.generic.component.action.ActionType;
 import caldera.common.brew.generic.component.action.Actions;
@@ -16,7 +17,7 @@ import net.minecraftforge.registries.ForgeRegistryEntry;
 public class ExplodeActionType extends ForgeRegistryEntry<ActionType<?>> implements ActionType<ExplodeActionType.ExplodeAction> {
 
     @Override
-    public ExplodeAction deserialize(JsonObject object) {
+    public ExplodeAction deserialize(JsonObject object, BrewTypeDeserializationContext context) {
         float radius = GsonHelper.getAsFloat(object, "radius");
         Explosion.BlockInteraction mode = Explosion.BlockInteraction.DESTROY;
         if (object.has("mode")) {

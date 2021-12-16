@@ -1,6 +1,7 @@
 package caldera.common.brew.generic.component.trigger;
 
 import caldera.common.block.cauldron.Cauldron;
+import caldera.common.brew.BrewTypeDeserializationContext;
 import caldera.common.brew.generic.GenericBrew;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -50,14 +51,14 @@ public class TriggerHandler<TRIGGER extends Trigger> {
         }
     }
 
-    public static Map<TriggerType<?>, TriggerHandler<?>> fromJson(JsonArray array, Set<String> existingActions) {
+    public static Map<TriggerType<?>, TriggerHandler<?>> fromJson(JsonArray array, BrewTypeDeserializationContext context, Set<String> existingActions) {
         HashMap<TriggerType<?>, TriggerHandler<?>> result = new HashMap<>();
         for (JsonElement entry : array) {
             if (!entry.isJsonObject()) {
                 throw new JsonParseException("Expected array entry to be an object, was '%s'".formatted(entry));
             }
 
-            Trigger trigger = Trigger.fromJson(GsonHelper.getAsJsonObject(entry.getAsJsonObject(), "trigger"));
+            Trigger trigger = Trigger.fromJson(GsonHelper.getAsJsonObject(entry.getAsJsonObject(), "trigger"), context);
             TriggerType<?> triggerType = trigger.getType();
 
             String action = GsonHelper.getAsString(entry.getAsJsonObject(), "action");

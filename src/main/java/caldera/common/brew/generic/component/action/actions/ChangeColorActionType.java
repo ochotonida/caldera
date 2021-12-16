@@ -1,5 +1,6 @@
 package caldera.common.brew.generic.component.action.actions;
 
+import caldera.common.brew.BrewTypeDeserializationContext;
 import caldera.common.brew.generic.GenericBrew;
 import caldera.common.brew.generic.component.action.ActionType;
 import caldera.common.brew.generic.component.action.Actions;
@@ -14,7 +15,7 @@ import net.minecraftforge.registries.ForgeRegistryEntry;
 public class ChangeColorActionType extends ForgeRegistryEntry<ActionType<?>> implements ActionType<ChangeColorActionType.ChangeColorAction> {
 
     @Override
-    public ChangeColorAction deserialize(JsonObject object) {
+    public ChangeColorAction deserialize(JsonObject object, BrewTypeDeserializationContext context) {
         int color = ColorHelper.readColor(object, "color");
         int transitionTime = 0;
         if (object.has("transitionTime")) {

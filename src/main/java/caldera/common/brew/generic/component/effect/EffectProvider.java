@@ -1,5 +1,6 @@
 package caldera.common.brew.generic.component.effect;
 
+import caldera.common.brew.BrewTypeDeserializationContext;
 import caldera.common.brew.generic.GenericBrew;
 import caldera.common.init.CalderaRegistries;
 import caldera.common.util.JsonHelper;
@@ -50,7 +51,7 @@ public abstract class EffectProvider {
 
     public abstract void serialize(FriendlyByteBuf buffer);
 
-    public static Map<String, EffectProvider> fromJson(JsonObject object) {
+    public static Map<String, EffectProvider> fromJson(JsonObject object, BrewTypeDeserializationContext context) {
         HashMap<String, EffectProvider> result = new HashMap<>();
         for (Map.Entry<String, JsonElement> entry : object.entrySet()) {
             String identifier = entry.getKey();
@@ -65,7 +66,7 @@ public abstract class EffectProvider {
                 throw new JsonParseException("Unknown effect type: " + providerId);
             }
             // noinspection ConstantConditions
-            EffectProvider provider = CalderaRegistries.EFFECT_PROVIDER_TYPES.getValue(providerId).deserialize(providerObject);
+            EffectProvider provider = CalderaRegistries.EFFECT_PROVIDER_TYPES.getValue(providerId).deserialize(providerObject, context);
             provider.setIdentifier(identifier);
             result.put(identifier, provider);
         }

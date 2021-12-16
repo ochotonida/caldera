@@ -1,6 +1,7 @@
 package caldera.common.brew.generic.component.action.actions;
 
 import caldera.common.block.cauldron.Cauldron;
+import caldera.common.brew.BrewTypeDeserializationContext;
 import caldera.common.brew.generic.GenericBrew;
 import caldera.common.brew.generic.component.action.ActionType;
 import caldera.common.brew.generic.component.action.Actions;
@@ -19,7 +20,7 @@ import net.minecraftforge.registries.ForgeRegistryEntry;
 public class PlaySoundActionType extends ForgeRegistryEntry<ActionType<?>> implements ActionType<PlaySoundActionType.PlaySoundAction> {
 
     @Override
-    public PlaySoundAction deserialize(JsonObject object) {
+    public PlaySoundAction deserialize(JsonObject object, BrewTypeDeserializationContext context) {
         ResourceLocation soundEventId = new ResourceLocation(GsonHelper.getAsString(object, "soundEvent"));
         if (!ForgeRegistries.SOUND_EVENTS.containsKey(soundEventId)) {
             throw new JsonParseException("Unknown sound event: " + soundEventId);

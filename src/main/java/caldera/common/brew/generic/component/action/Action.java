@@ -1,5 +1,6 @@
 package caldera.common.brew.generic.component.action;
 
+import caldera.common.brew.BrewTypeDeserializationContext;
 import caldera.common.brew.generic.GenericBrew;
 import caldera.common.util.JsonHelper;
 import com.google.gson.JsonElement;
@@ -19,7 +20,7 @@ public interface Action extends Consumer<GenericBrew> {
         buffer.writeBoolean(false);
     }
 
-    static Map<String, Action> fromJson(JsonObject object, Set<String> existingEffects) {
+    static Map<String, Action> fromJson(JsonObject object, BrewTypeDeserializationContext context, Set<String> existingEffects) {
         Map<String, Action> result = new HashMap<>(EffectAction.createEffectActions(existingEffects));
         Set<String> existingActions = new HashSet<>(object.keySet());
         existingActions.addAll(result.keySet());
@@ -35,12 +36,12 @@ public interface Action extends Consumer<GenericBrew> {
             }
         }
 
-        result.putAll(getActions(object));
+        result.putAll(getActions(object, context));
         result.putAll(getGroups(object, existingEffects, existingActions));
         return result;
     }
 
-    static Map<String, Action> getActions(JsonObject object) throws JsonParseException {
+    static Map<String, Action> getActions(JsonObject object, BrewTypeDeserializationContext context) throws JsonParseException {
         Map<String, Action> result = new HashMap<>();
 
         for (Map.Entry<String, JsonElement> entry : object.entrySet()) {
@@ -48,7 +49,7 @@ public interface Action extends Consumer<GenericBrew> {
             JsonElement value = entry.getValue();
 
             if (value.isJsonObject()) {
-                result.put(identifier, SimpleAction.fromJson(identifier, value.getAsJsonObject()));
+                result.put(identifier, SimpleAction.fromJson(identifier, value.getAsJsonObject(), context));
             }
         }
 
