@@ -7,10 +7,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import net.minecraft.network.FriendlyByteBuf;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Consumer;
 
 public interface Action extends Consumer<GenericBrew> {
@@ -70,7 +67,11 @@ public interface Action extends Consumer<GenericBrew> {
             }
         }
 
-        GroupAction.validateGroups(result);
+        List<String> cycle = GroupAction.findCycle(result);
+        if (!cycle.isEmpty()) {
+            throw new JsonParseException("Cyclical group definition: " + GroupAction.formatCycle(cycle));
+        }
+
         return new HashMap<>(result);
     }
 

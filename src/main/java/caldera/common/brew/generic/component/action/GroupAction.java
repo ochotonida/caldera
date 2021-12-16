@@ -43,25 +43,46 @@ public record GroupAction(List<String> actions) implements Action {
         return new GroupAction(actions);
     }
 
-    public static void validateGroups(Map<String, GroupAction> groups) {
+    public static List<String> findCycle(Map<String, GroupAction> groups) {
         Stack<String> visitedGroups = new Stack<>();
         for (String identifier : groups.keySet()) {
-            validateGroup(groups, identifier, visitedGroups);
+            List<String> cycle = findCycle(groups, identifier, visitedGroups);
+            if (!cycle.isEmpty()) {
+                return cycle;
+            }
         }
+        return Collections.emptyList();
     }
 
-    private static void validateGroup(Map<String, GroupAction> groups, String identifier, Stack<String> visitedGroups) {
+    private static List<String> findCycle(Map<String, GroupAction> groups, String identifier, Stack<String> visitedGroups) {
         if (visitedGroups.contains(identifier)) {
             visitedGroups.push(identifier);
-            throw new JsonParseException("Cyclical group definition: " + visitedGroups);
+            return visitedGroups.stream().dropWhile(group -> !identifier.equals(group)).toList();
         }
 
         for (String action : groups.get(identifier).actions()) {
             if (groups.containsKey(action)) {
                 visitedGroups.push(identifier);
-                validateGroup(groups, action, visitedGroups);
+                List<String> cycle = findCycle(groups, action, visitedGroups);
+                if (!cycle.isEmpty()) {
+                    return cycle;
+                }
                 visitedGroups.pop();
             }
         }
+
+        return Collections.emptyList();
+    }
+
+    public static String formatCycle(List<String> cycle) {
+        StringBuilder result = new StringBuilder();
+        for (Iterator<String> iterator = cycle.iterator(); iterator.hasNext(); ) {
+            String s = iterator.next();
+            result.append(s);
+            if (iterator.hasNext()) {
+                result.append(" -> ");
+            }
+        }
+        return result.toString();
     }
 }

@@ -70,6 +70,7 @@ public record BrewTypes(DataGenerator generator) implements DataProvider {
     protected void buildBrewTypes(Consumer<FinishedBrewType> consumer) {
         genericBrew("test_brew")
                 .onTrigger(Triggers.BREW_CREATED.get().create())
+                .groupId("setup")
                 .startEffect("transmute_iron", ConvertItemsEffectType.convertItems(new ResourceLocation(Caldera.MODID, "iron_to_gold"), 5))
                 .startEffect("consume_tnt", ConsumeItemsEffectType.consumeItems(ItemPredicate.Builder.item().of(Items.TNT).build(), 1))
                 .executeAction("set_starting_color", ChangeColorActionType.setColor(0xeedd11))
@@ -77,23 +78,22 @@ public record BrewTypes(DataGenerator generator) implements DataProvider {
                 .startEffect("emit_swirls", EmitParticlesEffectType.emitParticles(new BrewParticleProvider(ParticleTypes.ENTITY_EFFECT, true), 0.5))
                 .end()
 
-                .onEffectEnded("transmute_iron")
-                .removeEffect("consume_tnt")
+                .onTrigger(ItemConsumedTriggerType.itemConverted(null, ItemPredicate.ANY))
+                .groupId("start_fuse")
+                .startTimer("explosion_timer", 80)
                 .executeAction("spawn_particles")
                 .executeAction("fade_to_red", ChangeColorActionType.changeColor(0xee4411, 80))
                 .executeAction("play_fuse_sound", PlaySoundActionType.playSound(SoundEvents.TNT_PRIMED))
-                .startTimer("explosion_timer", 80)
+                .end()
+
+                .onEffectEnded("transmute_iron")
+                .groupId("handle_transmutation_ended")
+                .removeEffect("consume_tnt")
+                .executeAction("start_fuse")
                 .end()
 
                 .onTrigger(ItemConvertedTriggerType.itemConverted("transmute_iron", ItemPredicate.ANY, ItemPredicate.ANY))
                 .executeAction("play_transmutation_sound", PlaySoundActionType.playSound(SoundEvents.ENCHANTMENT_TABLE_USE))
-                .end()
-
-                .onTrigger(ItemConsumedTriggerType.itemConverted(null, ItemPredicate.ANY))
-                .startEffect("explosion_timer")
-                .executeAction("spawn_particles")
-                .executeAction("fade_to_red")
-                .executeAction("play_fuse_sound")
                 .end()
 
                 .onEffectEnded("explosion_timer")
