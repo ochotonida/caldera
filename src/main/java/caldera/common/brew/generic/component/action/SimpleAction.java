@@ -46,7 +46,7 @@ public abstract class SimpleAction implements Action {
 
     public final void toNetwork(FriendlyByteBuf buffer) {
         buffer.writeUtf(getIdentifier());
-        //noinspection ConstantConditions
+        // noinspection ConstantConditions
         buffer.writeResourceLocation(getType().getRegistryName());
         serialize(buffer);
     }
