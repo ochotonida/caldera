@@ -9,6 +9,8 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 
+import javax.annotation.Nullable;
+
 public abstract class SimpleAction implements Action {
 
     private String identifier;
@@ -63,11 +65,17 @@ public abstract class SimpleAction implements Action {
         return action;
     }
 
+    @Nullable
     public static SimpleAction fromNetwork(FriendlyByteBuf buffer) {
         String identifier = buffer.readUtf();
         ResourceLocation actionId = buffer.readResourceLocation();
+        ActionType<?> type = CalderaRegistries.ACTION_TYPES.getValue(actionId);
         // noinspection ConstantConditions
-        SimpleAction result =  CalderaRegistries.ACTION_TYPES.getValue(actionId).deserialize(buffer);
+        if (!type.shouldSendToClients()) {
+            return null;
+        }
+        SimpleAction result = type.deserialize(buffer);
+        // noinspection ConstantConditions
         result.setIdentifier(identifier);
         return result;
     }

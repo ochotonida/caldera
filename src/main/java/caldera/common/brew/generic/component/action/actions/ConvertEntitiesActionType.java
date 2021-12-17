@@ -23,6 +23,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraftforge.registries.ForgeRegistryEntry;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -55,9 +56,10 @@ public class ConvertEntitiesActionType extends ForgeRegistryEntry<ActionType<?>>
         return new ConvertEntitiesAction(conversionType, predicate, maxConverted, range);
     }
 
+    @Nullable
     @Override
     public ConvertEntitiesAction deserialize(FriendlyByteBuf buffer) {
-        return new ConvertEntitiesAction(null, null, 0, 0); // TODO make this nullable
+        return null;
     }
 
     public static ConvertEntitiesAction convert(ResourceLocation conversionType, double range) {
@@ -134,8 +136,6 @@ public class ConvertEntitiesActionType extends ForgeRegistryEntry<ActionType<?>>
         }
 
         @Override
-        public void serialize(FriendlyByteBuf buffer) {
-
-        }
+        public void serialize(FriendlyByteBuf buffer) { }
     }
 }

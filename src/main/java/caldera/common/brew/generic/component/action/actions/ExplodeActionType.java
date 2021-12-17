@@ -14,6 +14,8 @@ import net.minecraft.world.level.Explosion;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.registries.ForgeRegistryEntry;
 
+import javax.annotation.Nullable;
+
 public class ExplodeActionType extends ForgeRegistryEntry<ActionType<?>> implements ActionType<ExplodeActionType.ExplodeAction> {
 
     @Override
@@ -30,9 +32,10 @@ public class ExplodeActionType extends ForgeRegistryEntry<ActionType<?>> impleme
         return new ExplodeAction(radius, causesFire, mode);
     }
 
+    @Nullable
     @Override
     public ExplodeAction deserialize(FriendlyByteBuf buffer) {
-        return new ExplodeAction(buffer.readFloat(), buffer.readBoolean(), buffer.readEnum(Explosion.BlockInteraction.class));
+        return null;
     }
 
     public static ExplodeAction explode(float radius) {
@@ -76,10 +79,6 @@ public class ExplodeActionType extends ForgeRegistryEntry<ActionType<?>> impleme
         }
 
         @Override
-        public void serialize(FriendlyByteBuf buffer) {
-            buffer.writeFloat(radius);
-            buffer.writeBoolean(causesFire);
-            buffer.writeEnum(mode);
-        }
+        public void serialize(FriendlyByteBuf buffer) { }
     }
 }

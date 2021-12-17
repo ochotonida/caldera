@@ -82,7 +82,9 @@ public interface Action extends Consumer<GenericBrew> {
         while (buffer.readBoolean()) {
             if (buffer.readBoolean()) {
                 SimpleAction action = SimpleAction.fromNetwork(buffer);
-                result.put(action.getIdentifier(), action);
+                if (action != null) {
+                    result.put(action.getIdentifier(), action);
+                }
             }
         }
         return result;

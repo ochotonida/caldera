@@ -17,6 +17,8 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.ForgeRegistryEntry;
 
+import javax.annotation.Nullable;
+
 public class PlaySoundActionType extends ForgeRegistryEntry<ActionType<?>> implements ActionType<PlaySoundActionType.PlaySoundAction> {
 
     @Override
@@ -40,12 +42,10 @@ public class PlaySoundActionType extends ForgeRegistryEntry<ActionType<?>> imple
         return new PlaySoundAction(soundEvent, volume, pitch);
     }
 
+    @Nullable
     @Override
     public PlaySoundAction deserialize(FriendlyByteBuf buffer) {
-        SoundEvent soundEvent = ForgeRegistries.SOUND_EVENTS.getValue(buffer.readResourceLocation());
-        float volume = buffer.readFloat();
-        float pitch = buffer.readFloat();
-        return new PlaySoundAction(soundEvent, volume, pitch);
+        return null;
     }
 
     public static PlaySoundAction playSound(SoundEvent soundEvent) {
@@ -91,12 +91,7 @@ public class PlaySoundActionType extends ForgeRegistryEntry<ActionType<?>> imple
         }
 
         @Override
-        public void serialize(FriendlyByteBuf buffer) {
-            //noinspection ConstantConditions
-            buffer.writeResourceLocation(soundEvent.getRegistryName());
-            buffer.writeFloat(volume);
-            buffer.writeFloat(pitch);
-        }
+        public void serialize(FriendlyByteBuf buffer) { }
     }
 }
 
