@@ -1,0 +1,12 @@
+{
+  "type": "caldera:tool_conversion",
+  "conversionType": "caldera:iron_to_gold",
+  "ingredient": {
+    "item": "minecraft:iron_sword"
+  },
+  "copyEnchantments": true,
+  "result": {
+    "item": "minecraft:golden_sword",
+    "nbt": "{Damage:0}"
+  }
+}
