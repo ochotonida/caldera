@@ -6,12 +6,17 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
+import java.util.Collections;
+import java.util.List;
+import java.util.function.Predicate;
 
 public interface Cauldron {
 
@@ -87,6 +92,21 @@ public interface Cauldron {
      * @param particle the particle to spawn
      */
     void spawnParticle(ParticleOptions particle, double xOffset, double yOffset, double zOffset, double xSpeed, double ySpeed, double zSpeed, boolean useFluidHeight);
+
+    default List<Entity> getEntitiesInRange(double range, Predicate<Entity> predicate) {
+        if (getLevel() == null) {
+            return Collections.emptyList();
+        }
+        Vec3 center = getCenter();
+        Predicate<Entity> combinedPredicate = entity -> predicate.test(entity) && entity.distanceToSqr(center) <= range * range;
+        return getLevel().getEntities(
+                (Entity) null,
+                new AABB(
+                        center.x - range, center.y - range, center.z - range,
+                        center.x + range, center.y + range, center.z + range),
+                combinedPredicate
+        );
+    }
 
     /**
      * Returns the initial motion vector this item entity had as it entered the cauldron,

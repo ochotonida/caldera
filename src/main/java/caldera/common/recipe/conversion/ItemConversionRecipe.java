@@ -17,7 +17,7 @@ import net.minecraftforge.common.crafting.CraftingHelper;
 public record ItemConversionRecipe(ResourceLocation id, ResourceLocation conversionType, Ingredient ingredient, ItemStack result) implements ItemResultRecipe, IngredientConversionRecipe<ItemStack, ItemStack, Ingredient> {
 
     @Override
-    public ItemStack assemble(ResourceLocation conversionType, ItemStack stack) {
+    public ItemStack assemble(ItemStack stack) {
         return result().copy();
     }
 

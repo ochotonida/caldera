@@ -10,7 +10,7 @@ import caldera.common.init.ModEffectProviders;
 import caldera.common.init.ModRecipeTypes;
 import caldera.common.init.ModTriggers;
 import caldera.common.recipe.conversion.ConversionRecipe;
-import caldera.common.util.ConversionRecipeHelper;
+import caldera.common.recipe.conversion.ConversionRecipeHelper;
 import caldera.common.util.CraftingHelper;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
@@ -122,7 +122,7 @@ public class ConvertItemsEffectType extends ForgeRegistryEntry<EffectProviderTyp
                         conversionHelper.findMatchingRecipe(brew.getCauldron().getLevel().getRecipeManager(), toConvert);
 
                 if (recipe.isPresent()) {
-                    ItemStack result = recipe.get().assemble(conversionHelper.getConversionType(), toConvert);
+                    ItemStack result = recipe.get().assemble(toConvert);
                     itemEntity.getItem().shrink(1);
                     brew.getCauldron().discardItem(result, Cauldron.getInitialDeltaMovement(itemEntity));
 

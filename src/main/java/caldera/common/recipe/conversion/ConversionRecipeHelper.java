@@ -1,6 +1,6 @@
-package caldera.common.util;
+package caldera.common.recipe.conversion;
 
-import caldera.common.recipe.conversion.ConversionRecipe;
+import caldera.common.util.CraftingHelper;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeManager;

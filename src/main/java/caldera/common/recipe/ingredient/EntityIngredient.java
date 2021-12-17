@@ -37,7 +37,7 @@ public record EntityIngredient(EntityType<?> entityType, Tag<EntityType<?>> enti
     @Override
     public boolean test(Entity entity) {
         if (this.entityType != null) {
-            return true;
+            return entity.getType() == entityType;
         } else if (entityTypeTag != null) {
             return entity.getType().is(entityTypeTag);
         }
@@ -51,21 +51,21 @@ public record EntityIngredient(EntityType<?> entityType, Tag<EntityType<?>> enti
             ResourceLocation tagName = CraftingHelper.readResourceLocation(ingredient, "tag");
             Tag<EntityType<?>> fluidTag = SerializationTags.getInstance().getTagOrThrow(Registry.ENTITY_TYPE_REGISTRY, tagName, (id) -> new JsonSyntaxException("Unknown entity type tag '" + id + "'"));
             return of(fluidTag);
-        } else if (ingredient.has("entity")) {
-            ResourceLocation entityId = CraftingHelper.readResourceLocation(ingredient, "entity");
+        } else if (ingredient.has("type")) {
+            ResourceLocation entityId = CraftingHelper.readResourceLocation(ingredient, "type");
             if (!ForgeRegistries.ENTITIES.containsKey(entityId)) {
                 throw new JsonParseException("Invalid entity type: " + entityId);
             }
             return EntityIngredient.of(ForgeRegistries.ENTITIES.getValue(entityId));
         }
-        throw new JsonParseException("Missing 'entity' or 'tag', expected to find a resource location");
+        throw new JsonParseException("Missing 'type' or 'tag', expected to find a resource location");
     }
 
     public JsonObject toJson() {
         JsonObject result = new JsonObject();
         if (entityType != null) {
             // noinspection ConstantConditions
-            result.addProperty("entity", entityType.getRegistryName().toString());
+            result.addProperty("type", entityType.getRegistryName().toString());
         } else {
             ResourceLocation tagName = SerializationTags.getInstance().getIdOrThrow(Registry.ENTITY_TYPE_REGISTRY, entityTypeTag, () -> new IllegalStateException("Unknown fluid tag"));
             result.addProperty("tag", tagName.toString());

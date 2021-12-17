@@ -5,9 +5,7 @@ import caldera.common.recipe.cauldron.CauldronBrewingRecipe;
 import caldera.common.recipe.cauldron.CauldronFluidRecipe;
 import caldera.common.recipe.cauldron.CauldronItemRecipe;
 import caldera.common.recipe.cauldron.CauldronRecipe;
-import caldera.common.recipe.conversion.ConversionRecipe;
-import caldera.common.recipe.conversion.ItemConversionRecipe;
-import caldera.common.recipe.conversion.ToolConversionRecipe;
+import caldera.common.recipe.conversion.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeSerializer;
@@ -26,6 +24,7 @@ public class ModRecipeTypes {
     public static final RecipeType<CauldronRecipe<ResourceLocation>> CAULDRON_BREWING = RecipeType.register(new ResourceLocation(Caldera.MODID, "cauldron_brewing").toString());
 
     public static final RecipeType<ConversionRecipe<ItemStack, ItemStack>> ITEM_CONVERSION = RecipeType.register(new ResourceLocation(Caldera.MODID, "item_conversion").toString());
+    public static final RecipeType<AbstractEntityConversionRecipe> ENTITY_CONVERSION = RecipeType.register(new ResourceLocation(Caldera.MODID, "entity_conversion").toString());
 
     public static final RegistryObject<CauldronItemRecipe.Serializer> CAULDRON_ITEM_CRAFTING_SERIALIZER = REGISTRY.register("cauldron_item", CauldronItemRecipe.Serializer::new);
     public static final RegistryObject<CauldronFluidRecipe.Serializer> CAULDRON_FLUID_CRAFTING_SERIALIZER = REGISTRY.register("cauldron_fluid", CauldronFluidRecipe.Serializer::new);
@@ -33,4 +32,5 @@ public class ModRecipeTypes {
 
     public static final RegistryObject<ItemConversionRecipe.Serializer> ITEM_CONVERSION_SERIALIZER = REGISTRY.register("item_conversion", ItemConversionRecipe.Serializer::new);
     public static final RegistryObject<ToolConversionRecipe.Serializer> TOOL_CONVERSION_SERIALIZER = REGISTRY.register("tool_conversion", ToolConversionRecipe.Serializer::new);
+    public static final RegistryObject<EntityConversionRecipe.Serializer> ENTITY_CONVERSION_SERIALIZER = REGISTRY.register("entity_conversion", EntityConversionRecipe.Serializer::new);
 }

@@ -28,8 +28,8 @@ public class ItemConversionRecipeBuilder {
     private final ItemStack result;
     private final Ingredient ingredient;
 
-    public ItemConversionRecipeBuilder(Item result, Ingredient ingredient) {
-        this.result = new ItemStack(result);
+    public ItemConversionRecipeBuilder(ItemStack result, Ingredient ingredient) {
+        this.result = result;
         this.ingredient = ingredient;
     }
 
@@ -80,6 +80,13 @@ public class ItemConversionRecipeBuilder {
     }
 
     public static ItemConversionRecipeBuilder convert(Item result, Ingredient ingredient) {
+        return convert(new ItemStack(result), ingredient);
+    }
+
+    public static ItemConversionRecipeBuilder convert(ItemStack result, Ingredient ingredient) {
+        if (result.getCount() != 1) {
+            throw new IllegalArgumentException("Stack size must be 1");
+        }
         return new ItemConversionRecipeBuilder(result, ingredient);
     }
 

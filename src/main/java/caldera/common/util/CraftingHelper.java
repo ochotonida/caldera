@@ -1,8 +1,10 @@
 package caldera.common.util;
 
+import caldera.Caldera;
 import caldera.mixin.accessor.RecipeManagerAccessor;
 import com.google.gson.*;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.serialization.JsonOps;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.TagParser;
 import net.minecraft.network.FriendlyByteBuf;
@@ -84,8 +86,7 @@ public class CraftingHelper {
             object.addProperty("count", stack.getCount());
         }
         if (stack.hasTag()) {
-            // noinspection ConstantConditions
-            object.addProperty("nbt", stack.getTag().toString());
+            object.add("nbt", writeNbt(stack.getTag()));
         }
 
         return object;
@@ -105,7 +106,7 @@ public class CraftingHelper {
             // noinspection ConstantConditions
             object.addProperty("fluid", fluidStack.getFluid().getRegistryName().toString());
             if (fluidStack.hasTag() && writeNbt) {
-                object.addProperty("nbt", fluidStack.getTag().toString());
+                object.add("nbt", writeNbt(fluidStack.getTag()));
             }
             if (writeAmount) {
                 object.addProperty("amount", fluidStack.getAmount());
@@ -139,19 +140,33 @@ public class CraftingHelper {
 
         CompoundTag nbt = null;
         if (readNbt && object.has("nbt")) {
-            try {
-                JsonElement element = object.get("nbt");
-                if (element.isJsonObject()) {
-                    nbt = TagParser.parseTag(GSON.toJson(element));
-                } else {
-                    nbt = TagParser.parseTag(GsonHelper.convertToString(element, "nbt"));
-                }
-            } catch (CommandSyntaxException exception) {
-                throw new JsonSyntaxException("Invalid NBT Entry: " + exception);
-            }
+            nbt = readNbt(object, "nbt");
         }
 
         return new FluidStack(fluid, amount, nbt);
+    }
+
+    public static CompoundTag readNbt(JsonObject object, String memberName) {
+        if (!object.has(memberName)) {
+            throw new JsonParseException("Missing " + memberName);
+        }
+        try {
+            JsonElement element = object.get(memberName);
+            if (element.isJsonObject()) {
+                return TagParser.parseTag(GSON.toJson(element));
+            } else {
+                return TagParser.parseTag(GsonHelper.convertToString(element, memberName));
+            }
+        } catch (CommandSyntaxException exception) {
+            throw new JsonSyntaxException("Invalid NBT Entry: " + exception);
+        }
+    }
+
+    public static JsonElement writeNbt(CompoundTag tag) {
+        return CompoundTag.CODEC
+                .encodeStart(JsonOps.INSTANCE, tag)
+                .resultOrPartial(Caldera.LOGGER::error)
+                .orElseThrow();
     }
 
     public static <RECIPE extends Recipe<Container>> Collection<RECIPE> getRecipesByType(RecipeManager manager, RecipeType<RECIPE> type) {

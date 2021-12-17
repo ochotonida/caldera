@@ -14,11 +14,11 @@ public interface ConversionRecipe<RESULT, INPUT> extends Recipe<Container> {
 
     boolean matches(INPUT input);
 
-    default boolean matches(ResourceLocation transmutationType, INPUT input) {
-        return conversionType().equals(transmutationType) && matches(input);
+    default boolean matches(ResourceLocation conversionType, INPUT input) {
+        return conversionType().equals(conversionType) && matches(input);
     }
 
-    RESULT assemble(ResourceLocation transmutationType, INPUT input);
+    RESULT assemble(INPUT input);
 
     @Override
     default boolean isSpecial() {

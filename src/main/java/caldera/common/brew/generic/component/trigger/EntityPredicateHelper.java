@@ -1,17 +1,30 @@
 package caldera.common.brew.generic.component.trigger;
 
+import caldera.common.block.cauldron.Cauldron;
 import caldera.common.brew.BrewTypeDeserializationContext;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.minecraft.advancements.critereon.EntityPredicate;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.GsonHelper;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 
 import javax.annotation.Nullable;
 
 public class EntityPredicateHelper {
+
+    public static LootContext createContext(ServerLevel level, Cauldron cauldron, Entity entity) {
+        return (new LootContext.Builder(level))
+                .withParameter(LootContextParams.THIS_ENTITY, entity)
+                .withParameter(LootContextParams.ORIGIN, cauldron.getCenter())
+                .withRandom(level.getRandom())
+                .create(LootContextParamSets.ADVANCEMENT_ENTITY);
+    }
 
     public static EntityPredicate.Composite fromJson(JsonObject object, String memberName, BrewTypeDeserializationContext context) {
         JsonElement jsonelement = object.get(memberName);

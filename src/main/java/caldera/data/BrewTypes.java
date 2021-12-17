@@ -2,10 +2,7 @@ package caldera.data;
 
 import caldera.Caldera;
 import caldera.common.brew.generic.component.BrewParticleProvider;
-import caldera.common.brew.generic.component.action.actions.ChangeColorActionType;
-import caldera.common.brew.generic.component.action.actions.ExplodeActionType;
-import caldera.common.brew.generic.component.action.actions.PlaySoundActionType;
-import caldera.common.brew.generic.component.action.actions.SpawnParticlesActionType;
+import caldera.common.brew.generic.component.action.actions.*;
 import caldera.common.brew.generic.component.effect.effects.ConsumeItemsEffectType;
 import caldera.common.brew.generic.component.effect.effects.EmitParticlesEffectType;
 import caldera.common.brew.generic.component.effect.effects.conversion.ConvertItemsEffectType;
@@ -97,7 +94,9 @@ public record BrewTypes(DataGenerator generator) implements DataProvider {
                 .end()
 
                 .onEffectEnded("explosion_timer")
-                .executeAction("explode", ExplodeActionType.explode(3))
+                .groupId("explode")
+                .executeAction("convert_entities", ConvertEntitiesActionType.convert(new ResourceLocation(Caldera.MODID, "test_conversion"), 6))
+                .executeAction("spawn_explosion", ExplodeActionType.explode(3))
                 .end()
 
                 .save(consumer);

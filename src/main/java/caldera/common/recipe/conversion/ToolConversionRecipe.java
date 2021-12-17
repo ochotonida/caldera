@@ -21,7 +21,7 @@ import java.util.Map;
 public record ToolConversionRecipe(ResourceLocation id, ResourceLocation conversionType, Ingredient ingredient, ItemStack result, boolean copyEnchantments) implements IngredientConversionRecipe<ItemStack, ItemStack, Ingredient> {
 
     @Override
-    public ItemStack assemble(ResourceLocation transmutationType, ItemStack stack) {
+    public ItemStack assemble(ItemStack stack) {
         ItemStack result = this.result.copy();
         double inputDamage = stack.getDamageValue() / (double) stack.getMaxDamage();
         result.setDamageValue(Math.min(result.getMaxDamage() - 1, (int) (result.getMaxDamage() * inputDamage)));
