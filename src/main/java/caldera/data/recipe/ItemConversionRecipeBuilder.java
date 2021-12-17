@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 public class ItemConversionRecipeBuilder {
 
     private ResourceLocation conversionType;
+    private boolean isToolRecipe;
     private final ItemStack result;
     private final Ingredient ingredient;
 
@@ -34,7 +35,6 @@ public class ItemConversionRecipeBuilder {
 
     @SuppressWarnings("unchecked")
     public static void addRecipes(Consumer<FinishedRecipe> consumer) {
-        // TODO add tool conversion recipes
         save(consumer, new ResourceLocation(Caldera.MODID, "iron_to_gold"),
                 convert(Blocks.GOLD_ORE, Blocks.IRON_ORE),
                 convert(Blocks.DEEPSLATE_GOLD_ORE, Blocks.DEEPSLATE_IRON_ORE),
@@ -51,7 +51,16 @@ public class ItemConversionRecipeBuilder {
                 convert(Items.GOLDEN_HORSE_ARMOR, Items.IRON_HORSE_ARMOR),
                 convert(Items.CLOCK, Items.COMPASS),
                 convert(Items.GLISTERING_MELON_SLICE, Items.MELON_SLICE),
-                convert(Items.MUSIC_DISC_PIGSTEP, Items.MUSIC_DISC_11)
+                convert(Items.MUSIC_DISC_PIGSTEP, Items.MUSIC_DISC_11),
+                convert(Items.GOLDEN_AXE, Items.IRON_AXE).setToolRecipe(),
+                convert(Items.GOLDEN_HOE, Items.IRON_HOE).setToolRecipe(),
+                convert(Items.GOLDEN_PICKAXE, Items.IRON_PICKAXE).setToolRecipe(),
+                convert(Items.GOLDEN_SHOVEL, Items.IRON_SHOVEL).setToolRecipe(),
+                convert(Items.GOLDEN_SWORD, Items.IRON_SWORD).setToolRecipe(),
+                convert(Items.GOLDEN_BOOTS, Items.IRON_BOOTS).setToolRecipe(),
+                convert(Items.GOLDEN_LEGGINGS, Items.IRON_LEGGINGS).setToolRecipe(),
+                convert(Items.GOLDEN_CHESTPLATE, Items.IRON_CHESTPLATE).setToolRecipe(),
+                convert(Items.GOLDEN_HELMET, Items.IRON_HELMET).setToolRecipe()
         );
     }
 
@@ -79,6 +88,11 @@ public class ItemConversionRecipeBuilder {
         return this;
     }
 
+    public ItemConversionRecipeBuilder setToolRecipe() {
+        this.isToolRecipe = true;
+        return this;
+    }
+
     public ItemStack getResult() {
         return result;
     }
@@ -87,7 +101,7 @@ public class ItemConversionRecipeBuilder {
         if (conversionType == null) {
             throw new IllegalStateException();
         }
-        consumer.accept(new Result(id, conversionType, ingredient, result));
+        consumer.accept(new Result(id, conversionType, ingredient, result, isToolRecipe));
     }
 
     public void save(Consumer<FinishedRecipe> consumer, String name) {
@@ -100,11 +114,14 @@ public class ItemConversionRecipeBuilder {
         save(consumer, path);
     }
 
-    public record Result(ResourceLocation id, ResourceLocation conversionType, Ingredient ingredient, ItemStack result) implements FinishedRecipe {
+    public record Result(ResourceLocation id, ResourceLocation conversionType, Ingredient ingredient, ItemStack result, boolean isToolConversion) implements FinishedRecipe {
 
         public void serializeRecipeData(JsonObject object) {
             object.addProperty("conversionType", conversionType.toString());
             object.add("ingredient", this.ingredient.toJson());
+            if (isToolConversion) {
+                object.addProperty("copyEnchantments", true);
+            }
             object.add("result", CraftingHelper.writeItemStack(result));
         }
 
@@ -113,7 +130,9 @@ public class ItemConversionRecipeBuilder {
         }
 
         public RecipeSerializer<?> getType() {
-            return ModRecipeTypes.ITEM_CONVERSION_SERIALIZER.get();
+            return isToolConversion
+                    ? ModRecipeTypes.TOOL_CONVERSION_SERIALIZER.get()
+                    : ModRecipeTypes.ITEM_CONVERSION_SERIALIZER.get();
         }
 
         @Nullable
