@@ -59,7 +59,12 @@
       "volume": 1.0,
       "pitch": 1.0
     },
-    "explode": {
+    "convert_entities": {
+      "actionType": "caldera:convert_entities",
+      "conversionType": "caldera:test_conversion",
+      "range": 6.0
+    },
+    "spawn_explosion": {
       "actionType": "caldera:explode",
       "radius": 3.0,
       "causesFire": false,
@@ -81,6 +86,10 @@
     "handle_transmutation_ended": [
       "remove.consume_tnt",
       "start_fuse"
+    ],
+    "explode": [
+      "convert_entities",
+      "spawn_explosion"
     ]
   },
   "triggers": [

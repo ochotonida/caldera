@@ -2,11 +2,13 @@
   "type": "caldera:tool_conversion",
   "conversionType": "caldera:iron_to_gold",
   "ingredient": {
-    "item": "minecraft:iron_sword"
+    "item": "minecraft:iron_pickaxe"
   },
   "copyEnchantments": true,
   "result": {
     "item": "minecraft:golden_pickaxe",
-    "nbt": "{Damage:0}"
+    "nbt": {
+      "Damage": 0
+    }
   }
 }

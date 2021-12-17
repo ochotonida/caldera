@@ -7,6 +7,8 @@
   "copyEnchantments": true,
   "result": {
     "item": "minecraft:golden_boots",
-    "nbt": "{Damage:0}"
+    "nbt": {
+      "Damage": 0
+    }
   }
 }

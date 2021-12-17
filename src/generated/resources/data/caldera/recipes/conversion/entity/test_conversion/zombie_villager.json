@@ -1,0 +1,10 @@
+{
+  "type": "caldera:entity_conversion",
+  "conversionType": "caldera:test_conversion",
+  "ingredient": {
+    "type": "minecraft:witch"
+  },
+  "result": {
+    "entity": "minecraft:zombie_villager"
+  }
+}
