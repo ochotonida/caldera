@@ -23,8 +23,11 @@ import java.util.List;
 public interface OrderedCauldronRecipe<RESULT> extends CauldronRecipe<RESULT> {
 
     ResourceLocation id();
+
     boolean isOrdered();
+
     FluidIngredient fluidIngredient();
+
     NonNullList<Ingredient> ingredients();
 
 

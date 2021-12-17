@@ -21,6 +21,11 @@ public interface ConversionRecipe<RESULT, INPUT> extends Recipe<Container> {
     RESULT assemble(ResourceLocation transmutationType, INPUT input);
 
     @Override
+    default boolean isSpecial() {
+        return true;
+    }
+
+    @Override
     default ResourceLocation getId() {
         return id();
     }

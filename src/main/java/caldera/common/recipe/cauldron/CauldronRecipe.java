@@ -32,6 +32,11 @@ public interface CauldronRecipe<RESULT> extends Recipe<Container> {
      */
     RESULT assemble(FluidStack fluid, IItemHandler inventory, Cauldron cauldron);
 
+    @Override
+    default boolean isSpecial() {
+        return true;
+    }
+
     // unused
     @Override
     @Deprecated
