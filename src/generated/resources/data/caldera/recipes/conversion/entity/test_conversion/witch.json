@@ -4,7 +4,5 @@
   "ingredient": {
     "type": "minecraft:zombie_villager"
   },
-  "result": {
-    "entity": "minecraft:villager"
-  }
+  "result": "minecraft:witch"
 }

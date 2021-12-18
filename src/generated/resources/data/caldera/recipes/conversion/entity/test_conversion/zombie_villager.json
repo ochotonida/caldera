@@ -2,9 +2,7 @@
   "type": "caldera:entity_conversion",
   "conversionType": "caldera:test_conversion",
   "ingredient": {
-    "type": "minecraft:witch"
+    "type": "minecraft:villager"
   },
-  "result": {
-    "entity": "minecraft:zombie_villager"
-  }
+  "result": "minecraft:zombie_villager"
 }
