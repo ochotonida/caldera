@@ -8,8 +8,8 @@ import caldera.common.brew.generic.component.action.SimpleAction;
 import caldera.common.brew.generic.component.trigger.EntityPredicateHelper;
 import caldera.common.init.ModActions;
 import caldera.common.init.ModRecipeTypes;
-import caldera.common.recipe.conversion.AbstractEntityConversionRecipe;
 import caldera.common.recipe.conversion.ConversionRecipeHelper;
+import caldera.common.recipe.conversion.EntityConversionRecipe;
 import caldera.common.util.CraftingHelper;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
@@ -76,7 +76,7 @@ public class ConvertEntitiesActionType extends ForgeRegistryEntry<ActionType<?>>
 
     public static class ConvertEntitiesAction extends SimpleAction {
 
-        private final ConversionRecipeHelper<LivingEntity, AbstractEntityConversionRecipe> conversionHelper;
+        private final ConversionRecipeHelper<LivingEntity, EntityConversionRecipe> conversionHelper;
         private final int maxConverted;
         private final double range;
         private final EntityPredicate.Composite predicate;
@@ -104,7 +104,7 @@ public class ConvertEntitiesActionType extends ForgeRegistryEntry<ActionType<?>>
             for (Entity entity : entities) {
                 LivingEntity livingEntity = (LivingEntity) entity;
 
-                Optional<AbstractEntityConversionRecipe> recipe = conversionHelper.findMatchingRecipe(level.getRecipeManager(), livingEntity);
+                Optional<EntityConversionRecipe> recipe = conversionHelper.findMatchingRecipe(level.getRecipeManager(), livingEntity);
 
                 if (recipe.isEmpty()) {
                     continue;

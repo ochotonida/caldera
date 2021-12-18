@@ -80,10 +80,8 @@ public class EntityConversionRecipeBuilder {
         public void serializeRecipeData(JsonObject object) {
             object.addProperty("conversionType", conversionType.toString());
             object.add("ingredient", this.ingredient.toJson());
-            JsonObject resultObject = new JsonObject();
             // noinspection ConstantConditions
-            resultObject.addProperty("entity", result.getRegistryName().toString());
-            object.add("result", resultObject);
+            object.addProperty("result", result.getRegistryName().toString());
         }
 
         public ResourceLocation getId() {

@@ -11,7 +11,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
-public class ConversionRecipeHelper<INPUT, RECIPE extends ConversionRecipe<?, INPUT>> {
+public class ConversionRecipeHelper<INPUT, RECIPE extends ConversionRecipe<INPUT>> {
 
     private final List<ResourceLocation> cachedRecipes;
     private final RecipeType<RECIPE> recipeType;

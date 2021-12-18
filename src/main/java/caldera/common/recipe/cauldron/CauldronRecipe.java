@@ -1,14 +1,11 @@
 package caldera.common.recipe.cauldron;
 
 import caldera.common.block.cauldron.Cauldron;
-import net.minecraft.world.Container;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.world.level.Level;
+import caldera.common.recipe.CustomRecipe;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.items.IItemHandler;
 
-public interface CauldronRecipe<RESULT> extends Recipe<Container> {
+public interface CauldronRecipe<RESULT> extends CustomRecipe {
 
     /**
      * Check whether the cauldron's current contents match this recipe
@@ -32,36 +29,4 @@ public interface CauldronRecipe<RESULT> extends Recipe<Container> {
      */
     RESULT assemble(FluidStack fluid, IItemHandler inventory, Cauldron cauldron);
 
-    @Override
-    default boolean isSpecial() {
-        return true;
-    }
-
-    // unused
-    @Override
-    @Deprecated
-    default boolean matches(Container inventory, Level level) {
-        return false;
-    }
-
-    // unused
-    @Override
-    @Deprecated
-    default ItemStack assemble(Container inventory) {
-        return ItemStack.EMPTY;
-    }
-
-    // unused
-    @Override
-    @Deprecated
-    default boolean canCraftInDimensions(int width, int height) {
-        return false;
-    }
-
-    // unused
-    @Override
-    @Deprecated
-    default ItemStack getResultItem() {
-        return ItemStack.EMPTY;
-    }
 }

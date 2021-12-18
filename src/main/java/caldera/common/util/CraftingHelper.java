@@ -33,6 +33,13 @@ public class CraftingHelper {
         return new ResourceLocation(GsonHelper.getAsString(object, memberName));
     }
 
+    public static Ingredient readIngredient(JsonObject object, String memberName) {
+        if (!object.has(memberName)) {
+            throw new JsonParseException("Missing %s, expected to find ingredient".formatted(memberName));
+        }
+        return Ingredient.fromJson(object.get(memberName));
+    }
+
     public static JsonArray writeIngredients(List<Ingredient> ingredients) {
         JsonArray array = new JsonArray();
 

@@ -18,7 +18,12 @@ import net.minecraftforge.registries.ForgeRegistryEntry;
 import javax.annotation.Nullable;
 import java.util.Map;
 
-public record ToolConversionRecipe(ResourceLocation id, ResourceLocation conversionType, Ingredient ingredient, ItemStack result, boolean copyEnchantments) implements IngredientConversionRecipe<ItemStack, ItemStack, Ingredient> {
+public record ToolConversionRecipe(ResourceLocation id, ResourceLocation conversionType, Ingredient ingredient, ItemStack result, boolean copyEnchantments) implements ItemConversionRecipe {
+
+    @Override
+    public boolean matches(ItemStack input) {
+        return ingredient.test(input);
+    }
 
     @Override
     public ItemStack assemble(ItemStack stack) {

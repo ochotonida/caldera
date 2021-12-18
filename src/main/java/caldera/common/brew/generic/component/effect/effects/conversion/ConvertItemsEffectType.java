@@ -9,8 +9,8 @@ import caldera.common.brew.generic.component.effect.EffectProviderType;
 import caldera.common.init.ModEffectProviders;
 import caldera.common.init.ModRecipeTypes;
 import caldera.common.init.ModTriggers;
-import caldera.common.recipe.conversion.ConversionRecipe;
 import caldera.common.recipe.conversion.ConversionRecipeHelper;
+import caldera.common.recipe.conversion.ItemConversionRecipe;
 import caldera.common.util.CraftingHelper;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
@@ -47,6 +47,7 @@ public class ConvertItemsEffectType extends ForgeRegistryEntry<EffectProviderTyp
         return new ConvertItemsEffectProvider(conversionType, maxConverted);
     }
 
+    @SuppressWarnings("unused")
     public static ConvertItemsEffectProvider convertItems(ResourceLocation conversionType) {
         return convertItems(conversionType, -1);
     }
@@ -57,7 +58,7 @@ public class ConvertItemsEffectType extends ForgeRegistryEntry<EffectProviderTyp
 
     public static class ConvertItemsEffectProvider extends EffectProvider {
 
-        private final ConversionRecipeHelper<ItemStack, ConversionRecipe<ItemStack, ItemStack>> conversionHelper;
+        private final ConversionRecipeHelper<ItemStack, ItemConversionRecipe> conversionHelper;
         private final int maxConverted;
 
         public ConvertItemsEffectProvider(ResourceLocation conversionType, int maxConverted) {
@@ -118,8 +119,7 @@ public class ConvertItemsEffectType extends ForgeRegistryEntry<EffectProviderTyp
                 ItemStack toConvert = itemEntity.getItem().copy();
                 toConvert.setCount(1);
 
-                Optional<ConversionRecipe<ItemStack, ItemStack>> recipe =
-                        conversionHelper.findMatchingRecipe(brew.getCauldron().getLevel().getRecipeManager(), toConvert);
+                Optional<ItemConversionRecipe> recipe = conversionHelper.findMatchingRecipe(brew.getCauldron().getLevel().getRecipeManager(), toConvert);
 
                 if (recipe.isPresent()) {
                     ItemStack result = recipe.get().assemble(toConvert);
