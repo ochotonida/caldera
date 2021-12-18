@@ -1,4 +1,4 @@
-package caldera.common.brew.generic.component.action.actions;
+package caldera.common.brew.generic.component.action.actions.conversion;
 
 import caldera.common.block.cauldron.Cauldron;
 import caldera.common.brew.BrewTypeDeserializationContext;

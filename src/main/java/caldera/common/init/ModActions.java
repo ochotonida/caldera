@@ -2,7 +2,11 @@ package caldera.common.init;
 
 import caldera.Caldera;
 import caldera.common.brew.generic.component.action.ActionType;
-import caldera.common.brew.generic.component.action.actions.*;
+import caldera.common.brew.generic.component.action.actions.ChangeColorActionType;
+import caldera.common.brew.generic.component.action.actions.ExplodeActionType;
+import caldera.common.brew.generic.component.action.actions.PlaySoundActionType;
+import caldera.common.brew.generic.component.action.actions.SpawnParticlesActionType;
+import caldera.common.brew.generic.component.action.actions.conversion.ConvertEntitiesActionType;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.RegistryObject;
 
