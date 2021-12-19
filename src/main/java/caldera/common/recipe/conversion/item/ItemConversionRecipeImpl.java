@@ -1,4 +1,4 @@
-package caldera.common.recipe.conversion;
+package caldera.common.recipe.conversion.item;
 
 import caldera.common.init.ModRecipeTypes;
 import caldera.common.util.CraftingHelper;

@@ -9,7 +9,7 @@ import caldera.common.brew.generic.component.trigger.EntityPredicateHelper;
 import caldera.common.init.ModActions;
 import caldera.common.init.ModRecipeTypes;
 import caldera.common.recipe.conversion.ConversionRecipeHelper;
-import caldera.common.recipe.conversion.EntityConversionRecipe;
+import caldera.common.recipe.conversion.entity.EntityConversionRecipe;
 import caldera.common.util.CraftingHelper;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
@@ -47,8 +47,8 @@ public class ConvertEntitiesActionType extends ForgeRegistryEntry<ActionType<?>>
         double range = GsonHelper.getAsDouble(object, "range");
         if (range <= 0) {
             throw new JsonParseException("Conversion range must be greater than 0 blocks");
-        } else if (range > 16) {
-            throw new JsonParseException("Conversion range must be smaller than 16 blocks");
+        } else if (range > 32) {
+            throw new JsonParseException("Conversion range must be smaller than 32 blocks");
         }
 
         EntityPredicate.Composite predicate = EntityPredicateHelper.fromJson(object, "entity", context);

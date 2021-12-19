@@ -10,7 +10,7 @@ import caldera.common.init.ModEffectProviders;
 import caldera.common.init.ModRecipeTypes;
 import caldera.common.init.ModTriggers;
 import caldera.common.recipe.conversion.ConversionRecipeHelper;
-import caldera.common.recipe.conversion.ItemConversionRecipe;
+import caldera.common.recipe.conversion.item.ItemConversionRecipe;
 import caldera.common.util.CraftingHelper;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;

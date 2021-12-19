@@ -1,4 +1,4 @@
-package caldera.common.recipe.conversion;
+package caldera.common.recipe.conversion.entity;
 
 import caldera.Caldera;
 import caldera.common.init.ModRecipeTypes;

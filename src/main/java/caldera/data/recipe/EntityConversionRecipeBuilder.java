@@ -25,16 +25,12 @@ public class EntityConversionRecipeBuilder {
     }
 
     public static void addRecipes(Consumer<FinishedRecipe> consumer) {
+        SheepDyeingRecipeBuilder.addRecipes(consumer);
+
         save(consumer, new ResourceLocation(Caldera.MODID, "test_conversion"),
                 convert(EntityType.ZOMBIE_VILLAGER, EntityType.VILLAGER),
                 convert(EntityType.WITCH, EntityType.ZOMBIE_VILLAGER)
         );
-    }
-
-    public static void save(Consumer<FinishedRecipe> consumer, ResourceLocation transmutationType, EntityConversionRecipeBuilder... builders) {
-        for (EntityConversionRecipeBuilder builder : builders) {
-            builder.setConversionType(transmutationType).save(consumer);
-        }
     }
 
     public static EntityConversionRecipeBuilder convert(EntityType<?> result, Tag<EntityType<?>> ingredient) {
@@ -54,8 +50,10 @@ public class EntityConversionRecipeBuilder {
         return this;
     }
 
-    public EntityType<?> getResult() {
-        return result;
+    public static void save(Consumer<FinishedRecipe> consumer, ResourceLocation transmutationType, EntityConversionRecipeBuilder... builders) {
+        for (EntityConversionRecipeBuilder builder : builders) {
+            builder.setConversionType(transmutationType).save(consumer);
+        }
     }
 
     public void save(Consumer<FinishedRecipe> consumer, ResourceLocation id) {
@@ -71,7 +69,7 @@ public class EntityConversionRecipeBuilder {
 
     public void save(Consumer<FinishedRecipe> consumer) {
         // noinspection ConstantConditions
-        String path = "conversion/entity/%s/%s".formatted(conversionType.getPath(), getResult().getRegistryName().getPath());
+        String path = "conversion/entity/%s/%s".formatted(conversionType.getPath(), result.getRegistryName().getPath());
         save(consumer, path);
     }
 

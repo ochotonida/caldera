@@ -64,12 +64,6 @@ public class ItemConversionRecipeBuilder {
         );
     }
 
-    public static void save(Consumer<FinishedRecipe> consumer, ResourceLocation transmutationType, ItemConversionRecipeBuilder... builders) {
-        for (ItemConversionRecipeBuilder builder : builders) {
-            builder.setConversionType(transmutationType).save(consumer);
-        }
-    }
-
     public static ItemConversionRecipeBuilder convert(ItemLike result, ItemLike... ingredients) {
         return convert(result.asItem(), Ingredient.of(ingredients));
     }
@@ -100,8 +94,10 @@ public class ItemConversionRecipeBuilder {
         return this;
     }
 
-    public ItemStack getResult() {
-        return result;
+    public static void save(Consumer<FinishedRecipe> consumer, ResourceLocation transmutationType, ItemConversionRecipeBuilder... builders) {
+        for (ItemConversionRecipeBuilder builder : builders) {
+            builder.setConversionType(transmutationType).save(consumer);
+        }
     }
 
     public void save(Consumer<FinishedRecipe> consumer, ResourceLocation id) {
@@ -117,7 +113,7 @@ public class ItemConversionRecipeBuilder {
 
     public void save(Consumer<FinishedRecipe> consumer) {
         // noinspection ConstantConditions
-        String path = "conversion/item/%s/%s".formatted(conversionType.getPath(), getResult().getItem().getRegistryName().getPath());
+        String path = "conversion/item/%s/%s".formatted(conversionType.getPath(), result.getItem().getRegistryName().getPath());
         save(consumer, path);
     }
 

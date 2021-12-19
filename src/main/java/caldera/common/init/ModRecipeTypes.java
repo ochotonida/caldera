@@ -5,7 +5,12 @@ import caldera.common.recipe.cauldron.CauldronBrewingRecipe;
 import caldera.common.recipe.cauldron.CauldronFluidRecipe;
 import caldera.common.recipe.cauldron.CauldronItemRecipe;
 import caldera.common.recipe.cauldron.CauldronRecipe;
-import caldera.common.recipe.conversion.*;
+import caldera.common.recipe.conversion.entity.EntityConversionRecipe;
+import caldera.common.recipe.conversion.entity.EntityConversionRecipeImpl;
+import caldera.common.recipe.conversion.entity.SheepDyeingRecipe;
+import caldera.common.recipe.conversion.item.ItemConversionRecipe;
+import caldera.common.recipe.conversion.item.ItemConversionRecipeImpl;
+import caldera.common.recipe.conversion.item.ToolConversionRecipe;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeSerializer;
@@ -33,4 +38,5 @@ public class ModRecipeTypes {
     public static final RegistryObject<ItemConversionRecipeImpl.Serializer> ITEM_CONVERSION_SERIALIZER = REGISTRY.register("item_conversion", ItemConversionRecipeImpl.Serializer::new);
     public static final RegistryObject<ToolConversionRecipe.Serializer> TOOL_CONVERSION_SERIALIZER = REGISTRY.register("tool_conversion", ToolConversionRecipe.Serializer::new);
     public static final RegistryObject<EntityConversionRecipeImpl.Serializer> ENTITY_CONVERSION_SERIALIZER = REGISTRY.register("entity_conversion", EntityConversionRecipeImpl.Serializer::new);
+    public static final RegistryObject<SheepDyeingRecipe.Serializer> SHEEP_DYEING_SERIALIZER = REGISTRY.register("sheep_dyeing", SheepDyeingRecipe.Serializer::new);
 }
