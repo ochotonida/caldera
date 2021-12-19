@@ -1,6 +1,10 @@
 {
   "type": "caldera:generic_brew",
   "effects": {
+    "loot_timer": {
+      "effectType": "caldera:timer",
+      "duration": 300
+    },
     "transmute_iron": {
       "effectType": "caldera:convert_items",
       "conversionType": "caldera:iron_to_gold",
@@ -75,7 +79,12 @@
       "causesFire": false,
       "mode": "destroy"
     },
+    "spawn_loot": {
+      "actionType": "caldera:spawn_items",
+      "lootTable": "minecraft:chests/simple_dungeon"
+    },
     "setup": [
+      "start.loot_timer",
       "start.transmute_iron",
       "start.consume_tnt",
       "set_starting_color",
@@ -96,6 +105,10 @@
       "convert_entities",
       "dye_sheep",
       "spawn_explosion"
+    ],
+    "on_loot_timer": [
+      "spawn_loot",
+      "start.loot_timer"
     ]
   },
   "triggers": [
@@ -137,6 +150,13 @@
         "triggerType": "caldera:cauldron_broken"
       },
       "action": "explode"
+    },
+    {
+      "trigger": {
+        "triggerType": "caldera:effect_ended",
+        "identifier": "loot_timer"
+      },
+      "action": "on_loot_timer"
     }
   ]
 }
