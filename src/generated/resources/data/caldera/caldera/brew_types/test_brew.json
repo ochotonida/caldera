@@ -62,7 +62,12 @@
     "convert_entities": {
       "actionType": "caldera:convert_entities",
       "conversionType": "caldera:test_conversion",
-      "range": 6.0
+      "range": 8.0
+    },
+    "dye_sheep": {
+      "actionType": "caldera:convert_entities",
+      "conversionType": "caldera:dye_red",
+      "range": 8.0
     },
     "spawn_explosion": {
       "actionType": "caldera:explode",
@@ -89,6 +94,7 @@
     ],
     "explode": [
       "convert_entities",
+      "dye_sheep",
       "spawn_explosion"
     ]
   },
