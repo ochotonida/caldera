@@ -61,7 +61,7 @@ public class CauldronBlockEntity extends BlockEntity implements Cauldron {
     private LazyOptional<IFluidHandler> fluidHandler = LazyOptional.of(() -> EmptyFluidHandler.INSTANCE);
     protected final CauldronFluidTank fluidTank;
     protected final CauldronItemHandler inventory;
-    private Brew brew;
+    private Brew brew; // TODO refresh brew on data pack reload
     private int brewingTimeRemaining;
     // private final CauldronUpdatePacket queuedMessages
 

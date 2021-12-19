@@ -1,5 +1,6 @@
 package caldera.common.recipe.conversion;
 
+import caldera.Caldera;
 import caldera.common.util.CraftingHelper;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.Recipe;
@@ -28,6 +29,10 @@ public class ConversionRecipeHelper<INPUT, RECIPE extends ConversionRecipe<INPUT
     }
 
     public Optional<RECIPE> findMatchingRecipe(RecipeManager manager, INPUT input) {
+        if (cachedRecipes.isEmpty()) {
+            refresh(manager);
+        }
+
         for (Iterator<ResourceLocation> iterator = cachedRecipes.iterator(); iterator.hasNext(); ) {
             ResourceLocation recipeId = iterator.next();
 
@@ -41,17 +46,26 @@ public class ConversionRecipeHelper<INPUT, RECIPE extends ConversionRecipe<INPUT
                     return Optional.of(recipe);
                 }
             } else {
+                Caldera.LOGGER.error("Cached recipe mismatch: %s does no longer exist".formatted(recipeId));
                 iterator.remove();
             }
         }
 
+        return Optional.empty();
+    }
+
+    /**
+     * Refresh the recipes cached by this conversion helper.
+     * Refreshing the cache on data pack reload from action types or effect types isn't necessary,
+     * as the action types and effect types get reloaded themselves.
+     */
+    public void refresh(RecipeManager manager) {
+        cachedRecipes.clear();
+
         for (RECIPE recipe : CraftingHelper.getRecipesByType(manager, recipeType)) {
-            if (recipe.matches(conversionType, input)) {
-                cachedRecipes.add(0, recipe.getId());
-                return Optional.of(recipe);
+            if (conversionType.equals(recipe.conversionType())) {
+                cachedRecipes.add(recipe.getId());
             }
         }
-
-        return Optional.empty();
     }
 }
