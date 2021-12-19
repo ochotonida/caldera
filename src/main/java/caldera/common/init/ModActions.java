@@ -17,4 +17,5 @@ public class ModActions {
     public static final RegistryObject<ChangeColorActionType> CHANGE_COLOR = REGISTRY.register("change_color", ChangeColorActionType::new);
     public static final RegistryObject<SpawnParticlesActionType> SPAWN_PARTICLES = REGISTRY.register("spawn_particles", SpawnParticlesActionType::new);
     public static final RegistryObject<ConvertEntitiesActionType> CONVERT_ENTITIES = REGISTRY.register("convert_entities", ConvertEntitiesActionType::new);
+    public static final RegistryObject<SpawnItemsAction> SPAWN_ITEMS = REGISTRY.register("spawn_items", SpawnItemsAction::new);
 }

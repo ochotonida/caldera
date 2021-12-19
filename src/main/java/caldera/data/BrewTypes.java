@@ -2,10 +2,7 @@ package caldera.data;
 
 import caldera.Caldera;
 import caldera.common.brew.generic.component.BrewParticleProvider;
-import caldera.common.brew.generic.component.action.actions.ChangeColorActionType;
-import caldera.common.brew.generic.component.action.actions.ExplodeActionType;
-import caldera.common.brew.generic.component.action.actions.PlaySoundActionType;
-import caldera.common.brew.generic.component.action.actions.SpawnParticlesActionType;
+import caldera.common.brew.generic.component.action.actions.*;
 import caldera.common.brew.generic.component.action.actions.conversion.ConvertEntitiesActionType;
 import caldera.common.brew.generic.component.effect.effects.ConsumeItemsEffectType;
 import caldera.common.brew.generic.component.effect.effects.EmitParticlesEffectType;
@@ -74,6 +71,7 @@ public record BrewTypes(DataGenerator generator) implements DataProvider {
         genericBrew("test_brew")
                 .onTrigger(ModTriggers.BREW_CREATED.get().create())
                 .groupId("setup")
+                .startTimer("loot_timer", 300)
                 .startEffect("transmute_iron", ConvertItemsEffectType.convertItems(new ResourceLocation(Caldera.MODID, "iron_to_gold"), 5))
                 .startEffect("consume_tnt", ConsumeItemsEffectType.consumeItems(ItemPredicate.Builder.item().of(Items.TNT).build(), 1))
                 .executeAction("set_starting_color", ChangeColorActionType.setColor(0xeedd11))
@@ -108,6 +106,12 @@ public record BrewTypes(DataGenerator generator) implements DataProvider {
 
                 .onTrigger(CauldronBrokenTriggerType.cauldronBroken(EntityPredicate.Composite.ANY))
                 .executeAction("explode")
+                .end()
+
+                .onEffectEnded("loot_timer")
+                .groupId("on_loot_timer")
+                .executeAction("spawn_loot", SpawnItemsAction.spawnItems(new ResourceLocation("chests/simple_dungeon")))
+                .startEffect("loot_timer")
                 .end()
 
                 .save(consumer);
