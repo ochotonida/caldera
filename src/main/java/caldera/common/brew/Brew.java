@@ -7,6 +7,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
 
 public abstract class Brew {
 
@@ -60,6 +61,13 @@ public abstract class Brew {
      * TODO is this getting called client side? (should it?)
      */
     public void onBrewed() {
+
+    }
+
+    /**
+     * Called when a player is about to destroy the cauldron this brew is contained in
+     */
+    public void onPlayerAboutToDestroy(Player player) {
 
     }
 

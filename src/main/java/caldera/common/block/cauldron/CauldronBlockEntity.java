@@ -184,6 +184,12 @@ public class CauldronBlockEntity extends BlockEntity implements Cauldron {
         }
     }
 
+    public void onPlayerAboutToDestroy(Player player) {
+        if (hasBrew()) {
+            getBrew().onPlayerAboutToDestroy(player);
+        }
+    }
+
     public void tick() {
         if (!fluidHandler.isPresent()) {
             setupCapabilities();

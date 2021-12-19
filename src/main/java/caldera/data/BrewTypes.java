@@ -10,6 +10,7 @@ import caldera.common.brew.generic.component.action.actions.conversion.ConvertEn
 import caldera.common.brew.generic.component.effect.effects.ConsumeItemsEffectType;
 import caldera.common.brew.generic.component.effect.effects.EmitParticlesEffectType;
 import caldera.common.brew.generic.component.effect.effects.conversion.ConvertItemsEffectType;
+import caldera.common.brew.generic.component.trigger.triggers.CauldronBrokenTriggerType;
 import caldera.common.brew.generic.component.trigger.triggers.ItemConsumedTriggerType;
 import caldera.common.brew.generic.component.trigger.triggers.ItemConvertedTriggerType;
 import caldera.common.init.ModTriggers;
@@ -19,6 +20,7 @@ import com.google.common.collect.Sets;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
+import net.minecraft.advancements.critereon.EntityPredicate;
 import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.data.DataGenerator;
@@ -102,6 +104,10 @@ public record BrewTypes(DataGenerator generator) implements DataProvider {
                 .executeAction("convert_entities", ConvertEntitiesActionType.convert(new ResourceLocation(Caldera.MODID, "test_conversion"), 8))
                 .executeAction("dye_sheep", ConvertEntitiesActionType.convert(new ResourceLocation(Caldera.MODID, "dye_red"), 8))
                 .executeAction("spawn_explosion", ExplodeActionType.explode(3))
+                .end()
+
+                .onTrigger(CauldronBrokenTriggerType.cauldronBroken(EntityPredicate.Composite.ANY))
+                .executeAction("explode")
                 .end()
 
                 .save(consumer);

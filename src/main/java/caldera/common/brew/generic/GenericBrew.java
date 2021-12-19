@@ -15,6 +15,7 @@ import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 
 import java.util.ArrayList;
@@ -56,6 +57,13 @@ public class GenericBrew extends Brew {
     @Override
     public void onBrewed() {
         ModTriggers.BREW_CREATED.get().trigger(this);
+    }
+
+    @Override
+    public void onPlayerAboutToDestroy(Player player) {
+        if (getCauldron().getLevel() != null && !getCauldron().getLevel().isClientSide()) {
+            ModTriggers.CAULDRON_BROKEN.get().trigger(this, player);
+        }
     }
 
     /**
