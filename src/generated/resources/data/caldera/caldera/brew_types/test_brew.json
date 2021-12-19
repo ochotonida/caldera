@@ -131,6 +131,12 @@
         "identifier": "explosion_timer"
       },
       "action": "explode"
+    },
+    {
+      "trigger": {
+        "triggerType": "caldera:cauldron_broken"
+      },
+      "action": "explode"
     }
   ]
 }

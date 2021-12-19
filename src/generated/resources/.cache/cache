@@ -1,6 +1,6 @@
 fb1d0a9d8aef85c7a21a54c974ab12576a8f2265 assets/caldera/blockstates/large_cauldron.json
 6f5fd474a6c1290a9b6c06cb2171f643722dedef assets/caldera/models/item/large_cauldron.json
-9a86e133ff82164df2337b91b3039f8ec95d09e1 data/caldera/caldera/brew_types/test_brew.json
+4e44a92dd1785136e5cc36dc6e057fad64c5ce10 data/caldera/caldera/brew_types/test_brew.json
 b262d270aca6561a448e95de0e30c28d39f22bd5 data/caldera/loot_tables/blocks/large_cauldron.json
 28b2a7fc3497ad8aeb620e35a9345dd113a18da4 data/caldera/recipes/brew_types/test_brew.json
 03ede2a0ddf77aaf3e7509fa57d448d4feb1d645 data/caldera/recipes/conversion/entity/dye_black/dye_sheep_black.json
