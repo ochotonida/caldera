@@ -30,6 +30,9 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.LevelEvent;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.state.BlockState;
@@ -91,6 +94,7 @@ public class CauldronBlockEntity extends BlockEntity implements Cauldron {
         return getLevel() != null && LargeCauldronBlock.isOrigin(getBlockState());
     }
 
+    @Override
     public Vec3 getCenter() {
         CauldronBlockEntity controller = getController();
 
@@ -103,6 +107,7 @@ public class CauldronBlockEntity extends BlockEntity implements Cauldron {
         return new Vec3(pos.getX() + 1, pos.getY() + floorHeight, pos.getZ() + 1);
     }
 
+    @Override
     public Brew getBrew() {
         return brew;
     }
@@ -166,6 +171,19 @@ public class CauldronBlockEntity extends BlockEntity implements Cauldron {
         sendBrewUpdate();
     }
 
+    @Override
+    public void destroy(boolean shouldDropCauldron) {
+        if (getLevel() instanceof ServerLevel level) {
+            BlockState state = level.getBlockState(getBlockPos());
+            level.setBlock(getBlockPos(), Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
+            level.levelEvent(LevelEvent.PARTICLES_DESTROY_BLOCK, getBlockPos(), Block.getId(state));
+
+            if (shouldDropCauldron) {
+                Block.dropResources(state, level, getBlockPos(), this);
+            }
+        }
+    }
+
     public void tick() {
         if (!fluidHandler.isPresent()) {
             setupCapabilities();
@@ -209,6 +227,7 @@ public class CauldronBlockEntity extends BlockEntity implements Cauldron {
         sendBrewUpdate();
     }
 
+    @Override
     public void spawnParticle(ParticleOptions particleData, double xOffset, double yOffset, double zOffset, double xSpeed, double ySpeed, double zSpeed, boolean useFluidHeight) {
         if (level == null) {
             return;
@@ -302,6 +321,7 @@ public class CauldronBlockEntity extends BlockEntity implements Cauldron {
         return !ModTags.INERT.contains(stack.getItem());
     }
 
+    @Override
     public void discardItem(ItemStack stack, Vec3 previousMotion) {
         if (getLevel() == null) {
             return;

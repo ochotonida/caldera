@@ -43,6 +43,8 @@ public interface Cauldron {
 
     void setChanged();
 
+    void destroy(boolean shouldDropCauldron);
+
     /**
      * Spawns an item stack inside the cauldron
      *

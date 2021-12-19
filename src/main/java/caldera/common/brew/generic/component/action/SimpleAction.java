@@ -59,8 +59,14 @@ public abstract class SimpleAction implements Action {
             throw new JsonParseException("Unknown action type: " + actionId);
         }
 
+        ActionType<?> actionType = CalderaRegistries.ACTION_TYPES.getValue(actionId);
         // noinspection ConstantConditions
-        SimpleAction action = CalderaRegistries.ACTION_TYPES.getValue(actionId).deserialize(object, context);
+        SimpleAction action = actionType.deserialize(object, context);
+
+        if (action.getType() != actionType) {
+            throw new JsonParseException("Action type mismatch, action deserialized using type %s has type %s".formatted(actionType.getRegistryName(), action.getType().getRegistryName()));
+        }
+
         action.setIdentifier(identifier);
         return action;
     }
