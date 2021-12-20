@@ -1,0 +1,18 @@
+{
+  "type": "caldera:item_conversion",
+  "conversionType": "caldera:dyeing/pink",
+  "ingredient": [
+    {
+      "item": "minecraft:red_tulip"
+    },
+    {
+      "item": "minecraft:orange_tulip"
+    },
+    {
+      "item": "minecraft:white_tulip"
+    }
+  ],
+  "result": {
+    "item": "minecraft:pink_tulip"
+  }
+}

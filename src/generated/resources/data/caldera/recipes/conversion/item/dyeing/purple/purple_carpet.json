@@ -1,0 +1,10 @@
+{
+  "type": "caldera:item_conversion",
+  "conversionType": "caldera:dyeing/purple",
+  "ingredient": {
+    "tag": "minecraft:carpets"
+  },
+  "result": {
+    "item": "minecraft:purple_carpet"
+  }
+}

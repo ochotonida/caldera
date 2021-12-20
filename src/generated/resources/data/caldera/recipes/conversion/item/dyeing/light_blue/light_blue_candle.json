@@ -1,0 +1,10 @@
+{
+  "type": "caldera:item_conversion",
+  "conversionType": "caldera:dyeing/light_blue",
+  "ingredient": {
+    "tag": "minecraft:candles"
+  },
+  "result": {
+    "item": "minecraft:light_blue_candle"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "type": "caldera:item_conversion",
+  "conversionType": "caldera:dyeing/light_blue",
+  "ingredient": {
+    "tag": "forge:concrete"
+  },
+  "result": {
+    "item": "minecraft:light_blue_concrete"
+  }
+}

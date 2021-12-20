@@ -1,0 +1,11 @@
+{
+  "type": "caldera:item_conversion",
+  "conversionType": "caldera:dyeing/magenta",
+  "ingredient": {
+    "tag": "forge:shulker_boxes"
+  },
+  "keepNbt": true,
+  "result": {
+    "item": "minecraft:magenta_shulker_box"
+  }
+}

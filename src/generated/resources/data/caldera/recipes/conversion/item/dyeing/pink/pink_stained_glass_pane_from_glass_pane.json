@@ -1,0 +1,10 @@
+{
+  "type": "caldera:item_conversion",
+  "conversionType": "caldera:dyeing/pink",
+  "ingredient": {
+    "item": "minecraft:glass_pane"
+  },
+  "result": {
+    "item": "minecraft:pink_stained_glass_pane"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "type": "caldera:item_conversion",
+  "conversionType": "caldera:dyeing/orange",
+  "ingredient": {
+    "tag": "forge:dyes"
+  },
+  "result": {
+    "item": "minecraft:orange_dye"
+  }
+}

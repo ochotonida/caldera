@@ -1,0 +1,10 @@
+{
+  "type": "caldera:item_conversion",
+  "conversionType": "caldera:dyeing/light_blue",
+  "ingredient": {
+    "tag": "forge:glazed_terracotta"
+  },
+  "result": {
+    "item": "minecraft:light_blue_glazed_terracotta"
+  }
+}

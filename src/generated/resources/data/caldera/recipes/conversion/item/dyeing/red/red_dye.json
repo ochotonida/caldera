@@ -1,0 +1,10 @@
+{
+  "type": "caldera:item_conversion",
+  "conversionType": "caldera:dyeing/red",
+  "ingredient": {
+    "tag": "forge:dyes"
+  },
+  "result": {
+    "item": "minecraft:red_dye"
+  }
+}

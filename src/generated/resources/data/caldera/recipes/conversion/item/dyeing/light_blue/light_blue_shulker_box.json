@@ -1,0 +1,11 @@
+{
+  "type": "caldera:item_conversion",
+  "conversionType": "caldera:dyeing/light_blue",
+  "ingredient": {
+    "tag": "forge:shulker_boxes"
+  },
+  "keepNbt": true,
+  "result": {
+    "item": "minecraft:light_blue_shulker_box"
+  }
+}

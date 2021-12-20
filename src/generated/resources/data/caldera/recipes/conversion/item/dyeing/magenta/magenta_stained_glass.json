@@ -1,0 +1,10 @@
+{
+  "type": "caldera:item_conversion",
+  "conversionType": "caldera:dyeing/magenta",
+  "ingredient": {
+    "tag": "forge:stained_glass"
+  },
+  "result": {
+    "item": "minecraft:magenta_stained_glass"
+  }
+}

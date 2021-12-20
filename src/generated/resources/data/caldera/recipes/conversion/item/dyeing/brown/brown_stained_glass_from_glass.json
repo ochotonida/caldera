@@ -1,0 +1,10 @@
+{
+  "type": "caldera:item_conversion",
+  "conversionType": "caldera:dyeing/brown",
+  "ingredient": {
+    "item": "minecraft:glass"
+  },
+  "result": {
+    "item": "minecraft:brown_stained_glass"
+  }
+}

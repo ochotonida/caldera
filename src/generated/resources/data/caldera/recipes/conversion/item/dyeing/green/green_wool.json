@@ -1,0 +1,10 @@
+{
+  "type": "caldera:item_conversion",
+  "conversionType": "caldera:dyeing/green",
+  "ingredient": {
+    "tag": "minecraft:wool"
+  },
+  "result": {
+    "item": "minecraft:green_wool"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "type": "caldera:item_conversion",
+  "conversionType": "caldera:dyeing/green",
+  "ingredient": {
+    "tag": "forge:stained_glass_panes"
+  },
+  "result": {
+    "item": "minecraft:green_stained_glass_pane"
+  }
+}

@@ -4,7 +4,7 @@
   "ingredient": {
     "item": "minecraft:iron_leggings"
   },
-  "copyEnchantments": true,
+  "keepNbt": true,
   "result": {
     "item": "minecraft:golden_leggings",
     "nbt": {

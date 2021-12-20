@@ -1,0 +1,10 @@
+{
+  "type": "caldera:item_conversion",
+  "conversionType": "caldera:dyeing/gray",
+  "ingredient": {
+    "item": "minecraft:glass"
+  },
+  "result": {
+    "item": "minecraft:gray_stained_glass"
+  }
+}

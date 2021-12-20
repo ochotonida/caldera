@@ -1,0 +1,10 @@
+{
+  "type": "caldera:item_conversion",
+  "conversionType": "caldera:dyeing/cyan",
+  "ingredient": {
+    "item": "minecraft:glass"
+  },
+  "result": {
+    "item": "minecraft:cyan_stained_glass"
+  }
+}

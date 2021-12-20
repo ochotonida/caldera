@@ -4,7 +4,7 @@
   "ingredient": {
     "item": "minecraft:iron_sword"
   },
-  "copyEnchantments": true,
+  "keepNbt": true,
   "result": {
     "item": "minecraft:golden_sword",
     "nbt": {

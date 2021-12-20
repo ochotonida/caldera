@@ -1,0 +1,10 @@
+{
+  "type": "caldera:item_conversion",
+  "conversionType": "caldera:dyeing/magenta",
+  "ingredient": {
+    "tag": "minecraft:candles"
+  },
+  "result": {
+    "item": "minecraft:magenta_candle"
+  }
+}

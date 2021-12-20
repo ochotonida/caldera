@@ -1,0 +1,10 @@
+{
+  "type": "caldera:item_conversion",
+  "conversionType": "caldera:dyeing/purple",
+  "ingredient": {
+    "tag": "forge:stained_glass"
+  },
+  "result": {
+    "item": "minecraft:purple_stained_glass"
+  }
+}

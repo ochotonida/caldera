@@ -1,0 +1,10 @@
+{
+  "type": "caldera:item_conversion",
+  "conversionType": "caldera:dyeing/white",
+  "ingredient": {
+    "tag": "forge:glazed_terracotta"
+  },
+  "result": {
+    "item": "minecraft:white_glazed_terracotta"
+  }
+}

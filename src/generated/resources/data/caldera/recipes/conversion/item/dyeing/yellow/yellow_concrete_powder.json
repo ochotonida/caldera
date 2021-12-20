@@ -1,0 +1,10 @@
+{
+  "type": "caldera:item_conversion",
+  "conversionType": "caldera:dyeing/yellow",
+  "ingredient": {
+    "tag": "forge:concrete_powder"
+  },
+  "result": {
+    "item": "minecraft:yellow_concrete_powder"
+  }
+}

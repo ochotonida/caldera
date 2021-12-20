@@ -1,0 +1,11 @@
+{
+  "type": "caldera:item_conversion",
+  "conversionType": "caldera:dyeing/black",
+  "ingredient": {
+    "tag": "forge:shulker_boxes"
+  },
+  "keepNbt": true,
+  "result": {
+    "item": "minecraft:black_shulker_box"
+  }
+}
