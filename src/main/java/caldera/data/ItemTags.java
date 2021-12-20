@@ -21,6 +21,10 @@ public class ItemTags extends ItemTagsProvider {
     public static final Tag.Named<Item> SHOVELS = ModTags.itemTag(ForgeVersion.MOD_ID, "tools/shovels");
     public static final Tag.Named<Item> SWORDS = ModTags.itemTag(ForgeVersion.MOD_ID, "tools/swords");
 
+    public static final Tag.Named<Item> GLAZED_TERRACOTTA = ModTags.itemTag(ForgeVersion.MOD_ID, "glazed_terracotta");
+    public static final Tag.Named<Item> CONCRETE = ModTags.itemTag(ForgeVersion.MOD_ID, "concrete");
+    public static final Tag.Named<Item> CONCRETE_POWDER = ModTags.itemTag(ForgeVersion.MOD_ID, "concrete_powder");
+    public static final Tag.Named<Item> SHULKER_BOXES = ModTags.itemTag(ForgeVersion.MOD_ID, "shulker_boxes");
 
     public ItemTags(DataGenerator dataGenerator, BlockTagsProvider blockTagProvider, ExistingFileHelper existingFileHelper) {
         super(dataGenerator, blockTagProvider, Caldera.MODID, existingFileHelper);
@@ -29,6 +33,11 @@ public class ItemTags extends ItemTagsProvider {
     @Override
     protected void addTags() {
         addToolTags();
+
+        copy(BlockTags.GLAZED_TERRACOTTA, GLAZED_TERRACOTTA);
+        copy(BlockTags.CONCRETE, CONCRETE);
+        copy(BlockTags.CONCRETE_POWDER, CONCRETE_POWDER);
+        copy(BlockTags.SHULKER_BOXES, SHULKER_BOXES);
 
         tag(ModTags.INERT).addTags(TOOLS);
     }

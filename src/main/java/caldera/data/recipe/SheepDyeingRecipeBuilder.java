@@ -26,7 +26,7 @@ public class SheepDyeingRecipeBuilder {
 
     public static void addRecipes(Consumer<FinishedRecipe> consumer) {
         for (DyeColor color : DyeColor.values()) {
-            save(consumer, new ResourceLocation(Caldera.MODID, "dye_%s".formatted(color.getName())), convert(color));
+            save(consumer, new ResourceLocation(Caldera.MODID, "dyeing/%s".formatted(color.getName())), convert(color));
         }
     }
 
