@@ -8,6 +8,7 @@ import caldera.common.brew.generic.component.effect.effects.ConsumeItemsEffectTy
 import caldera.common.brew.generic.component.effect.effects.EmitParticlesEffectType;
 import caldera.common.brew.generic.component.effect.effects.conversion.ConvertItemsEffectType;
 import caldera.common.brew.generic.component.trigger.triggers.CauldronBrokenTriggerType;
+import caldera.common.brew.generic.component.trigger.triggers.EntityDiedTriggerType;
 import caldera.common.brew.generic.component.trigger.triggers.ItemConsumedTriggerType;
 import caldera.common.brew.generic.component.trigger.triggers.ItemConvertedTriggerType;
 import caldera.common.init.ModTriggers;
@@ -18,13 +19,17 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import net.minecraft.advancements.critereon.EntityPredicate;
+import net.minecraft.advancements.critereon.EntityTypePredicate;
 import net.minecraft.advancements.critereon.ItemPredicate;
+import net.minecraft.advancements.critereon.MobEffectsPredicate;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.HashCache;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Items;
 
 import java.io.BufferedWriter;
@@ -71,12 +76,23 @@ public record BrewTypes(DataGenerator generator) implements DataProvider {
         genericBrew("test_brew")
                 .onTrigger(ModTriggers.BREW_CREATED.get().create())
                 .groupId("setup")
-                .startTimer("loot_timer", 300)
                 .startEffect("transmute_iron", ConvertItemsEffectType.convertItems(new ResourceLocation(Caldera.MODID, "iron_to_gold"), 5))
                 .startEffect("consume_tnt", ConsumeItemsEffectType.consumeItems(ItemPredicate.Builder.item().of(Items.TNT).build(), 1))
                 .executeAction("set_starting_color", ChangeColorActionType.setColor(0xeedd11))
                 .executeAction("spawn_particles", SpawnParticlesActionType.spawnParticles(new BrewParticleProvider(ParticleTypes.ENTITY_EFFECT, true), 50))
                 .startEffect("emit_swirls", EmitParticlesEffectType.emitParticles(new BrewParticleProvider(ParticleTypes.ENTITY_EFFECT, true), 0.5))
+                .end()
+
+                .onTrigger(EntityDiedTriggerType.entityDied(
+                        EntityPredicate.Builder.entity()
+                                .of(EntityType.CREEPER)
+                                .effects(MobEffectsPredicate.effects().and(MobEffects.MOVEMENT_SPEED))
+                                .build(),
+                        EntityPredicate.Builder.entity().entityType(EntityTypePredicate.of(EntityType.PLAYER)).build()
+                ))
+                .groupId("on_creeper_died")
+                .executeAction("play_transmutation_sound")
+                .executeAction("spawn_loot", SpawnItemsAction.spawnItems(new ResourceLocation("chests/simple_dungeon")))
                 .end()
 
                 .onTrigger(ItemConsumedTriggerType.itemConverted(null, ItemPredicate.ANY))
@@ -106,12 +122,6 @@ public record BrewTypes(DataGenerator generator) implements DataProvider {
 
                 .onTrigger(CauldronBrokenTriggerType.cauldronBroken(EntityPredicate.Composite.ANY))
                 .executeAction("explode")
-                .end()
-
-                .onEffectEnded("loot_timer")
-                .groupId("on_loot_timer")
-                .executeAction("spawn_loot", SpawnItemsAction.spawnItems(new ResourceLocation("chests/simple_dungeon")))
-                .startEffect("loot_timer")
                 .end()
 
                 .save(consumer);

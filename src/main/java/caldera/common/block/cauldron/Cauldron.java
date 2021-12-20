@@ -1,6 +1,7 @@
 package caldera.common.block.cauldron;
 
 import caldera.common.brew.Brew;
+import caldera.common.brew.generic.GenericBrew;
 import caldera.common.util.ColorHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleOptions;
@@ -16,6 +17,7 @@ import net.minecraft.world.phys.Vec3;
 import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Predicate;
 
 public interface Cauldron {
@@ -39,7 +41,16 @@ public interface Cauldron {
      */
     Vec3 getCenter();
 
+    boolean hasBrew();
+
     Brew getBrew();
+
+    default Optional<GenericBrew> getGenericBrew() {
+        if (getBrew() instanceof GenericBrew brew) {
+            return Optional.of(brew);
+        }
+        return Optional.empty();
+    }
 
     void setChanged();
 
@@ -108,6 +119,13 @@ public interface Cauldron {
                         center.x + range, center.y + range, center.z + range),
                 combinedPredicate
         );
+    }
+
+    static Optional<Cauldron> getCauldron(Level level, BlockPos pos) {
+        if (level.getBlockEntity(pos) instanceof Cauldron cauldron) {
+            return Optional.of(cauldron);
+        }
+        return Optional.empty();
     }
 
     /**

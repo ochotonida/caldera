@@ -153,6 +153,9 @@ public class GenericBrewTypeBuilder {
             if (actions.size() == 1) {
                 GenericBrewTypeBuilder.this.triggers.put(trigger, actions.get(0));
             } else {
+                if (identifier == null) {
+                    throw new IllegalStateException("Group missing identifier");
+                }
                 GroupAction group = new GroupAction(actions);
                 GenericBrewTypeBuilder.this.groups.put(identifier, group);
                 GenericBrewTypeBuilder.this.triggers.put(trigger, identifier);

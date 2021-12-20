@@ -15,4 +15,5 @@ public class ModTriggers {
     public static final RegistryObject<EffectEndedTriggerType> EFFECT_ENDED = REGISTRY.register("effect_ended", EffectEndedTriggerType::new);
     public static final RegistryObject<ItemConvertedTriggerType> ITEM_CONVERTED = REGISTRY.register("item_converted", ItemConvertedTriggerType::new);
     public static final RegistryObject<ItemConsumedTriggerType> ITEM_CONSUMED = REGISTRY.register("item_consumed", ItemConsumedTriggerType::new);
+    public static final RegistryObject<EntityDiedTriggerType> ENTITY_DIED = REGISTRY.register("entity_died", EntityDiedTriggerType::new);
 }

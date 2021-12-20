@@ -1,6 +1,7 @@
 package caldera;
 
 import caldera.common.brew.BrewTypeManager;
+import caldera.common.brew.generic.component.trigger.TriggerEvents;
 import caldera.common.init.*;
 import caldera.common.network.NetworkHandler;
 import net.minecraftforge.api.distmarker.Dist;
@@ -27,6 +28,8 @@ public class Caldera {
 
         modEventBus.addListener(this::onCommonSetup);
         modEventBus.addListener(CalderaRegistries::onNewRegistry);
+
+        new TriggerEvents();
 
         MinecraftForge.EVENT_BUS.addListener(BrewTypeManager::onAddReloadListener);
         MinecraftForge.EVENT_BUS.addListener(BrewTypeManager::onDataPackReload);

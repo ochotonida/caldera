@@ -88,7 +88,7 @@ public class LargeCauldronBlock extends CubeMultiBlock implements EntityBlock {
                 && state.getValue(LargeCauldronBlock.HALF) == DoubleBlockHalf.LOWER;
     }
 
-    private static boolean isInsideCauldron(BlockState state, Vec3 vector) {
+    public static boolean isInsideCauldron(BlockState state, Vec3 vector) {
         return isInsideCauldron(state, vector.x(), vector.y(), vector.z());
     }
 
