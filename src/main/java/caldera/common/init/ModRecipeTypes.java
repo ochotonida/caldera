@@ -8,6 +8,7 @@ import caldera.common.recipe.cauldron.CauldronRecipe;
 import caldera.common.recipe.conversion.entity.EntityConversionRecipe;
 import caldera.common.recipe.conversion.entity.EntityConversionRecipeImpl;
 import caldera.common.recipe.conversion.entity.SheepDyeingRecipe;
+import caldera.common.recipe.conversion.item.AbstractItemConversionRecipe;
 import caldera.common.recipe.conversion.item.ItemConversionRecipe;
 import caldera.common.recipe.conversion.item.ItemConversionRecipeImpl;
 import caldera.common.recipe.conversion.item.ToolConversionRecipe;
@@ -35,8 +36,8 @@ public class ModRecipeTypes {
     public static final RegistryObject<CauldronFluidRecipe.Serializer> CAULDRON_FLUID_CRAFTING_SERIALIZER = REGISTRY.register("cauldron_fluid", CauldronFluidRecipe.Serializer::new);
     public static final RegistryObject<CauldronBrewingRecipe.Serializer> CAULDRON_BREWING_SERIALIZER = REGISTRY.register("cauldron_brewing", CauldronBrewingRecipe.Serializer::new);
 
-    public static final RegistryObject<ItemConversionRecipeImpl.Serializer> ITEM_CONVERSION_SERIALIZER = REGISTRY.register("item_conversion", ItemConversionRecipeImpl.Serializer::new);
-    public static final RegistryObject<ToolConversionRecipe.Serializer> TOOL_CONVERSION_SERIALIZER = REGISTRY.register("tool_conversion", ToolConversionRecipe.Serializer::new);
+    public static final RegistryObject<AbstractItemConversionRecipe.Serializer<ItemConversionRecipeImpl>> ITEM_CONVERSION_SERIALIZER = REGISTRY.register("item_conversion", () -> new AbstractItemConversionRecipe.Serializer<>(ItemConversionRecipeImpl::new));
+    public static final RegistryObject<AbstractItemConversionRecipe.Serializer<ToolConversionRecipe>> TOOL_CONVERSION_SERIALIZER = REGISTRY.register("tool_conversion", () -> new AbstractItemConversionRecipe.Serializer<>(ToolConversionRecipe::new));
     public static final RegistryObject<EntityConversionRecipeImpl.Serializer> ENTITY_CONVERSION_SERIALIZER = REGISTRY.register("entity_conversion", EntityConversionRecipeImpl.Serializer::new);
     public static final RegistryObject<SheepDyeingRecipe.Serializer> SHEEP_DYEING_SERIALIZER = REGISTRY.register("sheep_dyeing", SheepDyeingRecipe.Serializer::new);
 }
