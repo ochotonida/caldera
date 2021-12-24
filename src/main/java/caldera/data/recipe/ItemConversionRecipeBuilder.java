@@ -16,6 +16,7 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.properties.WoodType;
 import net.minecraftforge.common.Tags;
 import net.minecraftforge.registries.ForgeRegistries;
 
@@ -97,10 +98,49 @@ public class ItemConversionRecipeBuilder {
         convert(itemById("orange_tulip"), Ingredient.of(Items.RED_TULIP, Items.WHITE_TULIP, Items.PINK_TULIP)).setConversionType("dyeing/orange").save(consumer, "dyeing/orange/orange_tulip");
         convert(itemById("white_tulip"), Ingredient.of(Items.RED_TULIP, Items.ORANGE_TULIP, Items.PINK_TULIP)).setConversionType("dyeing/white").save(consumer, "dyeing/white/white_tulip");
         convert(itemById("pink_tulip"), Ingredient.of(Items.RED_TULIP, Items.ORANGE_TULIP, Items.WHITE_TULIP)).setConversionType("dyeing/pink").save(consumer, "dyeing/pink/pink_tulip");
+
+        WoodType.values().forEach(woodType -> {
+            boolean isNether = woodType == WoodType.CRIMSON || woodType == WoodType.WARPED;
+            String log = isNether ? "stem" : "log";
+            String wood = isNether ? "hyphae" : "wood";
+            ResourceLocation conversionType = new ResourceLocation(Caldera.MODID, "convert_wood/%s".formatted(woodType.name()));
+            save(consumer, conversionType,
+                    convert(itemById("%s_door".formatted(woodType.name())), ItemTags.WOODEN_DOORS),
+                    convert(itemById("%s_trapdoor".formatted(woodType.name())), ItemTags.WOODEN_TRAPDOORS),
+                    convert(itemById("%s_button".formatted(woodType.name())), ItemTags.WOODEN_BUTTONS),
+                    convert(itemById("%s_fence".formatted(woodType.name())), ItemTags.WOODEN_FENCES),
+                    convert(itemById("%s_slab".formatted(woodType.name())), ItemTags.WOODEN_SLABS),
+                    convert(itemById("%s_stairs".formatted(woodType.name())), ItemTags.WOODEN_STAIRS),
+                    convert(itemById("%s_pressure_plate".formatted(woodType.name())), ItemTags.WOODEN_PRESSURE_PLATES),
+                    convert(itemById("%s_fence_gate".formatted(woodType.name())), Tags.Items.FENCE_GATES_WOODEN),
+                    convert(itemById("%s_sign".formatted(woodType.name())), ItemTags.SIGNS),
+                    convert(itemById("%s_planks".formatted(woodType.name())), ItemTags.PLANKS),
+                    convert(itemById("%s_%s".formatted(woodType.name(), log)), caldera.data.ItemTags.LOGS),
+                    convert(itemById("stripped_%s_%s".formatted(woodType.name(), log)), caldera.data.ItemTags.STRIPPED_LOGS),
+                    convert(itemById("%s_%s".formatted(woodType.name(), wood)), caldera.data.ItemTags.WOOD),
+                    convert(itemById("stripped_%s_%s".formatted(woodType.name(), wood)), caldera.data.ItemTags.STRIPPED_WOOD)
+            );
+
+            if (!isNether) {
+                save(consumer, conversionType,
+                        convert(itemById("%s_leaves".formatted(woodType.name())), ItemTags.LEAVES),
+                        convert(itemById("%s_sapling".formatted(woodType.name())), ItemTags.SAPLINGS)
+                );
+            }
+        });
+        String azaleaConversionType = "convert_wood/azalea";
+        convert(Items.AZALEA_LEAVES, ItemTags.LEAVES).setConversionType(azaleaConversionType).save(consumer);
+        convert(Items.AZALEA, ItemTags.SAPLINGS).setConversionType(azaleaConversionType).save(consumer);
+        convert(Items.NETHER_WART_BLOCK, Items.WARPED_WART_BLOCK).setConversionType("convert_wood/crimson").save(consumer);
+        convert(Items.WARPED_WART_BLOCK, Items.NETHER_WART_BLOCK).setConversionType("convert_wood/warped").save(consumer);
     }
 
     private static Item itemById(String id) {
-        return ForgeRegistries.ITEMS.getValue(new ResourceLocation(id));
+        ResourceLocation itemId = new ResourceLocation(id);
+        if (!ForgeRegistries.ITEMS.containsKey(itemId)) {
+            throw new IllegalArgumentException("No such item: " + itemId);
+        }
+        return ForgeRegistries.ITEMS.getValue(itemId);
     }
 
     public static ItemConversionRecipeBuilder convert(ItemLike result, ItemLike... ingredients) {
@@ -142,15 +182,15 @@ public class ItemConversionRecipeBuilder {
         return this;
     }
 
-    public static void save(Consumer<FinishedRecipe> consumer, ResourceLocation transmutationType, ItemConversionRecipeBuilder... builders) {
+    public static void save(Consumer<FinishedRecipe> consumer, ResourceLocation conversionType, ItemConversionRecipeBuilder... builders) {
         for (ItemConversionRecipeBuilder builder : builders) {
-            builder.setConversionType(transmutationType).save(consumer);
+            builder.setConversionType(conversionType).save(consumer);
         }
     }
 
     public void save(Consumer<FinishedRecipe> consumer, ResourceLocation id) {
         if (conversionType == null) {
-            throw new IllegalStateException();
+            throw new IllegalStateException("Recipe %s is missing conversion type".formatted(id));
         }
         id = new ResourceLocation(id.getNamespace(), "conversion/item/" + id.getPath());
         consumer.accept(new Result(id, conversionType, ingredient, result, isToolRecipe, shouldKeepNbt));

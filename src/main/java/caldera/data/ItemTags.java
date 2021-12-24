@@ -26,6 +26,11 @@ public class ItemTags extends ItemTagsProvider {
     public static final Tag.Named<Item> CONCRETE_POWDER = ModTags.itemTag(ForgeVersion.MOD_ID, "concrete_powder");
     public static final Tag.Named<Item> SHULKER_BOXES = ModTags.itemTag(ForgeVersion.MOD_ID, "shulker_boxes");
 
+    public static final Tag.Named<Item> LOGS = ModTags.itemTag(ForgeVersion.MOD_ID, "logs");
+    public static final Tag.Named<Item> STRIPPED_LOGS = ModTags.itemTag(ForgeVersion.MOD_ID, "stripped_logs");
+    public static final Tag.Named<Item> WOOD = ModTags.itemTag(ForgeVersion.MOD_ID, "wood");
+    public static final Tag.Named<Item> STRIPPED_WOOD = ModTags.itemTag(ForgeVersion.MOD_ID, "stripped_wood");
+
     public ItemTags(DataGenerator dataGenerator, BlockTagsProvider blockTagProvider, ExistingFileHelper existingFileHelper) {
         super(dataGenerator, blockTagProvider, Caldera.MODID, existingFileHelper);
     }
@@ -38,6 +43,10 @@ public class ItemTags extends ItemTagsProvider {
         copy(BlockTags.CONCRETE, CONCRETE);
         copy(BlockTags.CONCRETE_POWDER, CONCRETE_POWDER);
         copy(BlockTags.SHULKER_BOXES, SHULKER_BOXES);
+        copy(BlockTags.LOGS, LOGS);
+        copy(BlockTags.STRIPPED_LOGS, STRIPPED_LOGS);
+        copy(BlockTags.WOOD, WOOD);
+        copy(BlockTags.STRIPPED_WOOD, STRIPPED_WOOD);
 
         tag(ModTags.INERT).addTags(TOOLS);
     }
