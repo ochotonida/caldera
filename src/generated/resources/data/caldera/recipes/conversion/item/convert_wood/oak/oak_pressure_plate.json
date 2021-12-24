@@ -1,0 +1,10 @@
+{
+  "type": "caldera:item_conversion",
+  "conversionType": "caldera:convert_wood/oak",
+  "ingredient": {
+    "tag": "minecraft:wooden_pressure_plates"
+  },
+  "result": {
+    "item": "minecraft:oak_pressure_plate"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "type": "caldera:item_conversion",
+  "conversionType": "caldera:convert_wood/crimson",
+  "ingredient": {
+    "item": "minecraft:warped_wart_block"
+  },
+  "result": {
+    "item": "minecraft:nether_wart_block"
+  }
+}

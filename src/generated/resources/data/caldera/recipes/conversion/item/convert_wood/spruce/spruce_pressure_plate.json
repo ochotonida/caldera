@@ -1,0 +1,10 @@
+{
+  "type": "caldera:item_conversion",
+  "conversionType": "caldera:convert_wood/spruce",
+  "ingredient": {
+    "tag": "minecraft:wooden_pressure_plates"
+  },
+  "result": {
+    "item": "minecraft:spruce_pressure_plate"
+  }
+}

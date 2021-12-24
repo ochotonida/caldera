@@ -1,0 +1,10 @@
+{
+  "type": "caldera:item_conversion",
+  "conversionType": "caldera:convert_wood/azalea",
+  "ingredient": {
+    "tag": "minecraft:saplings"
+  },
+  "result": {
+    "item": "minecraft:azalea"
+  }
+}

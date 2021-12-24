@@ -1,0 +1,10 @@
+{
+  "type": "caldera:item_conversion",
+  "conversionType": "caldera:convert_wood/jungle",
+  "ingredient": {
+    "tag": "forge:wood"
+  },
+  "result": {
+    "item": "minecraft:jungle_wood"
+  }
+}

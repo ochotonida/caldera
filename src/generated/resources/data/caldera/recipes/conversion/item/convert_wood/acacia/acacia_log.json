@@ -1,0 +1,10 @@
+{
+  "type": "caldera:item_conversion",
+  "conversionType": "caldera:convert_wood/acacia",
+  "ingredient": {
+    "tag": "forge:logs"
+  },
+  "result": {
+    "item": "minecraft:acacia_log"
+  }
+}

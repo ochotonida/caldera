@@ -1,0 +1,10 @@
+{
+  "type": "caldera:item_conversion",
+  "conversionType": "caldera:convert_wood/crimson",
+  "ingredient": {
+    "tag": "forge:stripped_logs"
+  },
+  "result": {
+    "item": "minecraft:stripped_crimson_stem"
+  }
+}

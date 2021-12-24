@@ -1,0 +1,10 @@
+{
+  "type": "caldera:item_conversion",
+  "conversionType": "caldera:convert_wood/oak",
+  "ingredient": {
+    "tag": "forge:stripped_wood"
+  },
+  "result": {
+    "item": "minecraft:stripped_oak_wood"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "type": "caldera:item_conversion",
+  "conversionType": "caldera:convert_wood/warped",
+  "ingredient": {
+    "item": "minecraft:nether_wart_block"
+  },
+  "result": {
+    "item": "minecraft:warped_wart_block"
+  }
+}
