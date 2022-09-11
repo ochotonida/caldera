@@ -70,7 +70,7 @@
     },
     "dye_sheep": {
       "actionType": "caldera:convert_entities",
-      "conversionType": "caldera:dye_red",
+      "conversionType": "caldera:dyeing/red",
       "range": 8.0
     },
     "spawn_explosion": {
@@ -124,6 +124,15 @@
               "effects": {
                 "minecraft:speed": {}
               }
+            },
+            "entity": "this"
+          }
+        ],
+        "killer": [
+          {
+            "condition": "minecraft:entity_properties",
+            "predicate": {
+              "type": "minecraft:player"
             },
             "entity": "this"
           }
