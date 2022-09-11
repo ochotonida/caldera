@@ -121,13 +121,6 @@ public interface Cauldron {
         );
     }
 
-    static Optional<Cauldron> getCauldron(Level level, BlockPos pos) {
-        if (level.getBlockEntity(pos) instanceof Cauldron cauldron) {
-            return Optional.of(cauldron);
-        }
-        return Optional.empty();
-    }
-
     /**
      * Returns the initial motion vector this item entity had as it entered the cauldron,
      * or it's current motion if it never entered a cauldron

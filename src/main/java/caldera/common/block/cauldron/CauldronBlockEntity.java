@@ -30,6 +30,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LevelEvent;
@@ -52,6 +53,7 @@ import net.minecraftforge.network.PacketDistributor;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
+import java.util.Optional;
 
 public class CauldronBlockEntity extends BlockEntity implements Cauldron {
 
@@ -92,6 +94,16 @@ public class CauldronBlockEntity extends BlockEntity implements Cauldron {
 
     public boolean isController() {
         return getLevel() != null && LargeCauldronBlock.isOrigin(getBlockState());
+    }
+
+    public static Optional<CauldronBlockEntity> getCauldron(Level level, BlockPos pos) {
+        if (level.getBlockEntity(pos) instanceof CauldronBlockEntity cauldron) {
+            CauldronBlockEntity controller = cauldron.getController();
+            if (controller != null) {
+                return Optional.of(controller);
+            }
+        }
+        return Optional.empty();
     }
 
     @Override
@@ -250,6 +262,17 @@ public class CauldronBlockEntity extends BlockEntity implements Cauldron {
         }
 
         level.addParticle(particleData, x, y, z, xSpeed, ySpeed, zSpeed);
+    }
+
+    public boolean isInsideBrew(Entity entity) {
+        BlockState state = getBlockState();
+        BlockPos blockPos = getBlockPos();
+        Vec3 pos = entity.position();
+        double yOffset = pos.y - blockPos.getY();
+        if (hasBrew() && LargeCauldronBlock.isInsideCauldron(state, pos.x - blockPos.getX(), yOffset, pos.z - blockPos.getZ())) {
+            return yOffset <= LargeCauldronBlock.FLOOR_HEIGHT - 0.0001 + getFluidLevel();
+        }
+        return false;
     }
 
     protected void onEntityInside(Entity entity, double yOffset) {

@@ -1,6 +1,7 @@
 package caldera.common.brew.generic.component.trigger;
 
 import caldera.common.block.cauldron.Cauldron;
+import caldera.common.block.cauldron.CauldronBlockEntity;
 import caldera.common.init.ModTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.LivingEntity;
@@ -16,7 +17,9 @@ public class TriggerEvents {
     public void onLivingDeath(LivingDeathEvent event) {
         LivingEntity entity = event.getEntityLiving();
         BlockPos pos = new BlockPos(entity.position());
-        Cauldron.getCauldron(entity.level, pos)
+        CauldronBlockEntity.getCauldron(entity.level, pos)
+                .map(CauldronBlockEntity::getController)
+                .filter(cauldron -> cauldron.isInsideBrew(entity))
                 .flatMap(Cauldron::getGenericBrew)
                 .ifPresent(brew -> {
                     LivingEntity killer = null;

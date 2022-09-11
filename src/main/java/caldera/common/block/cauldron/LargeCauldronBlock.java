@@ -31,6 +31,9 @@ import java.util.Map;
 
 public class LargeCauldronBlock extends CubeMultiBlock implements EntityBlock {
 
+    public static final double FLOOR_HEIGHT = 4 / 16D;
+    private static final double WALL_WIDTH = 2 / 16D;
+
     private static final Map<Direction, VoxelShape> LOWER_SHAPES = new HashMap<>();
     private static final Map<Direction, VoxelShape> UPPER_SHAPES = new HashMap<>();
 
@@ -92,9 +95,9 @@ public class LargeCauldronBlock extends CubeMultiBlock implements EntityBlock {
         return isInsideCauldron(state, vector.x(), vector.y(), vector.z());
     }
 
-    private static boolean isInsideCauldron(BlockState state, double x, double y, double z) {
-        double wallWidth = 1.99 / 16D;
-        double floorHeight = 3.99 / 16D;
+    public static boolean isInsideCauldron(BlockState state, double x, double y, double z) {
+        double wallWidth = WALL_WIDTH - 0.0001;
+        double floorHeight = FLOOR_HEIGHT - 0.0001;
 
         Direction.AxisDirection facingX = CubeMultiBlock.getFacing(state, Direction.Axis.X).getAxisDirection();
         Direction.AxisDirection facingZ = CubeMultiBlock.getFacing(state, Direction.Axis.Z).getAxisDirection();
