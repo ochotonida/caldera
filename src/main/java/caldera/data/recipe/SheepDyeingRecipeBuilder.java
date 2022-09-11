@@ -43,9 +43,9 @@ public class SheepDyeingRecipeBuilder {
         return this;
     }
 
-    public static void save(Consumer<FinishedRecipe> consumer, ResourceLocation transmutationType, SheepDyeingRecipeBuilder... builders) {
+    public static void save(Consumer<FinishedRecipe> consumer, ResourceLocation conversionType, SheepDyeingRecipeBuilder... builders) {
         for (SheepDyeingRecipeBuilder builder : builders) {
-            builder.setConversionType(transmutationType).save(consumer);
+            builder.setConversionType(conversionType).save(consumer);
         }
     }
 

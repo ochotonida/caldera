@@ -116,7 +116,7 @@ public record BrewTypes(DataGenerator generator) implements DataProvider {
                 .onEffectEnded("explosion_timer")
                 .groupId("explode")
                 .executeAction("convert_entities", ConvertEntitiesActionType.convert(new ResourceLocation(Caldera.MODID, "test_conversion"), 8))
-                .executeAction("dye_sheep", ConvertEntitiesActionType.convert(new ResourceLocation(Caldera.MODID, "dye_red"), 8))
+                .executeAction("dye_sheep", ConvertEntitiesActionType.convert(new ResourceLocation(Caldera.MODID, "dyeing/red"), 8))
                 .executeAction("spawn_explosion", ExplodeActionType.explode(3))
                 .end()
 
