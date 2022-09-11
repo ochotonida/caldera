@@ -87,10 +87,13 @@ public record EntityIngredient(EntityType<?> entityType, Tag<EntityType<?>> enti
     }
 
     public void toBuffer(FriendlyByteBuf buffer) {
-        if (entityType == null && entityTypeTag == null) {
-            buffer.writeBoolean(true);
-        } else if (entityType != null) {
-            buffer.writeBoolean(true);
+        boolean isEmpty = entityType == null && entityTypeTag == null;
+        buffer.writeBoolean(isEmpty);
+        if (isEmpty) {
+            return;
+        }
+        buffer.writeBoolean(entityType != null);
+        if (entityType != null) {
             // noinspection ConstantConditions
             buffer.writeResourceLocation(entityType.getRegistryName());
         } else {
