@@ -36,6 +36,7 @@ public class CalderaClient {
     public void onTextureStitch(TextureStitchEvent.Pre event) {
         if (event.getAtlas().location().equals(InventoryMenu.BLOCK_ATLAS)) {
             event.addSprite(new ResourceLocation(Caldera.MODID, "block/brew"));
+            event.addSprite(new ResourceLocation(Caldera.MODID, "block/brew_overlay"));
         }
     }
 

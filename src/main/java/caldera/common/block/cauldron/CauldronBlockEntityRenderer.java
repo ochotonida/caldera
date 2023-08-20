@@ -113,6 +113,21 @@ public class CauldronBlockEntityRenderer implements BlockEntityRenderer<Cauldron
         float v2 = fluidTexture.getV(z == 0 ? 8 : 15);
 
         buildVertices(builder, matrixStack, fluidHeight, x, z, u1, v1, u2, v2, light, color);
+
+        fluidTexture = Minecraft.getInstance()
+                .getTextureAtlas(InventoryMenu.BLOCK_ATLAS)
+                .apply(new ResourceLocation(Caldera.MODID, "block/brew_overlay"));
+
+        builder = buffer.getBuffer(RenderType.translucentMovingBlock());
+
+        u1 = fluidTexture.getU(x == 0 ? 1 : 8);
+        v1 = fluidTexture.getV(z == 0 ? 1 : 8);
+        u2 = fluidTexture.getU(x == 0 ? 8 : 15);
+        v2 = fluidTexture.getV(z == 0 ? 8 : 15);
+
+        color = ColorHelper.applyAlpha(0xb19100, alpha);
+
+        buildVertices(builder, matrixStack, fluidHeight, x, z, u1, v1, u2, v2, light, color);
     }
 
     private static void buildVertices(VertexConsumer builder, PoseStack matrixStack, float height, int x, int z, float u1, float v1, float u2, float v2, int light, int color) {
