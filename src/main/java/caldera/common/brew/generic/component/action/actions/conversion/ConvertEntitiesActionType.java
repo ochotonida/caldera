@@ -15,7 +15,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import net.minecraft.advancements.critereon.EntityPredicate;
 import net.minecraft.advancements.critereon.SerializationContext;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.GsonHelper;
@@ -23,7 +22,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraftforge.registries.ForgeRegistryEntry;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -56,12 +54,6 @@ public class ConvertEntitiesActionType extends ForgeRegistryEntry<ActionType<?>>
         return new ConvertEntitiesAction(conversionType, predicate, maxConverted, range);
     }
 
-    @Nullable
-    @Override
-    public ConvertEntitiesAction deserialize(FriendlyByteBuf buffer) {
-        return null;
-    }
-
     public static ConvertEntitiesAction convert(ResourceLocation conversionType, double range) {
         return convert(conversionType, EntityPredicate.Composite.ANY, range);
     }
@@ -89,7 +81,7 @@ public class ConvertEntitiesActionType extends ForgeRegistryEntry<ActionType<?>>
         }
 
         @Override
-        public void execute(GenericBrew brew) {
+        public void accept(GenericBrew brew) {
             if (!(brew.getCauldron().getLevel() instanceof ServerLevel level)) {
                 return;
             }
@@ -134,8 +126,5 @@ public class ConvertEntitiesActionType extends ForgeRegistryEntry<ActionType<?>>
             object.addProperty("range", range);
             object.add("entity", predicate.toJson(SerializationContext.INSTANCE));
         }
-
-        @Override
-        public void serialize(FriendlyByteBuf buffer) { }
     }
 }

@@ -8,7 +8,6 @@ import caldera.common.init.ModActions;
 import caldera.common.util.ColorHelper;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.util.GsonHelper;
 import net.minecraftforge.registries.ForgeRegistryEntry;
 
@@ -24,18 +23,6 @@ public class ChangeColorActionType extends ForgeRegistryEntry<ActionType<?>> imp
                 throw new JsonParseException("Transition time must be 0 or positive");
             }
         }
-        return new ChangeColorAction(color, transitionTime);
-    }
-
-    @Override
-    public boolean shouldSendToClients() {
-        return true;
-    }
-
-    @Override
-    public ChangeColorAction deserialize(FriendlyByteBuf buffer) {
-        int color = buffer.readInt();
-        int transitionTime = buffer.readInt();
         return new ChangeColorAction(color, transitionTime);
     }
 
@@ -63,20 +50,15 @@ public class ChangeColorActionType extends ForgeRegistryEntry<ActionType<?>> imp
         }
 
         @Override
-        public void execute(GenericBrew brew) {
+        public void accept(GenericBrew brew) {
             brew.changeColor(color, transitionTime);
+            brew.sendColorUpdate();
         }
 
         @Override
         public void serialize(JsonObject object) {
             object.add("color", ColorHelper.writeColor(color));
             object.addProperty("transitionTime", transitionTime);
-        }
-
-        @Override
-        public void serialize(FriendlyByteBuf buffer) {
-            buffer.writeInt(color);
-            buffer.writeInt(transitionTime);
         }
     }
 }

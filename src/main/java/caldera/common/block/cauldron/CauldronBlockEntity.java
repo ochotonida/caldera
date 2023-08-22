@@ -5,8 +5,6 @@ import caldera.common.brew.Brew;
 import caldera.common.brew.BrewType;
 import caldera.common.brew.BrewTypeManager;
 import caldera.common.init.*;
-import caldera.common.network.BrewUpdatePacket;
-import caldera.common.network.NetworkHandler;
 import caldera.common.recipe.cauldron.CauldronRecipe;
 import caldera.common.util.CraftingHelper;
 import net.minecraft.core.BlockPos;
@@ -49,7 +47,6 @@ import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.templates.EmptyFluidHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.wrapper.EmptyHandler;
-import net.minecraftforge.network.PacketDistributor;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
@@ -68,7 +65,6 @@ public class CauldronBlockEntity extends BlockEntity implements Cauldron {
     protected final CauldronItemHandler inventory;
     private Brew brew; // TODO refresh brew on data pack reload
     private int brewingTimeRemaining;
-    // private final CauldronUpdatePacket queuedMessages
 
     protected static final int BREWING_COLOR = 0xA3C740;
 
@@ -179,10 +175,6 @@ public class CauldronBlockEntity extends BlockEntity implements Cauldron {
         oldFluidHandler.invalidate();
     }
 
-    public void onRemove() {
-        sendBrewUpdate();
-    }
-
     @Override
     public void destroy(boolean shouldDropCauldron) {
         if (getLevel() instanceof ServerLevel level) {
@@ -241,8 +233,6 @@ public class CauldronBlockEntity extends BlockEntity implements Cauldron {
         if (hasBrew()) {
             brew.tick();
         }
-
-        sendBrewUpdate();
     }
 
     @Override
@@ -466,7 +456,6 @@ public class CauldronBlockEntity extends BlockEntity implements Cauldron {
         setChanged();
 
         brew.onBrewed();
-        sendBrewUpdate();
     }
 
     protected void setBrewToSludge() {
@@ -501,22 +490,6 @@ public class CauldronBlockEntity extends BlockEntity implements Cauldron {
             return new AABB(getBlockPos(), getBlockPos().offset(2, 2, 2));
         }
         return super.getRenderBoundingBox();
-    }
-
-    protected void sendBrewUpdate() {
-        if (getLevel() == null || getLevel().isClientSide()) {
-            return;
-        }
-        if (brew == null || !brew.hasUpdate()) {
-            return;
-        }
-
-        NetworkHandler.INSTANCE.send(
-                PacketDistributor.TRACKING_CHUNK.with(() -> getLevel().getChunkAt(getBlockPos())),
-                new BrewUpdatePacket(getBlockPos(), brew.getUpdateTag())
-        );
-
-        brew.clearUpdate();
     }
 
     protected void sendBlockUpdated() {

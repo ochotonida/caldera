@@ -72,7 +72,7 @@ public record BrewTypes(DataGenerator generator) implements DataProvider {
         }
     }
 
-    protected void buildBrewTypes(Consumer<FinishedBrewType> consumer) {
+    private void buildBrewTypes(Consumer<FinishedBrewType> consumer) {
         genericBrew("test_brew")
                 .onTrigger(ModTriggers.BREW_CREATED.get().create())
                 .groupId("setup")
@@ -127,7 +127,7 @@ public record BrewTypes(DataGenerator generator) implements DataProvider {
                 .save(consumer);
     }
 
-    protected GenericBrewTypeBuilder genericBrew(String id) {
+    private GenericBrewTypeBuilder genericBrew(String id) {
         return GenericBrewTypeBuilder.builder(id);
     }
 

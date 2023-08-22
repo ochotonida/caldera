@@ -6,11 +6,8 @@ import caldera.common.brew.generic.component.action.ActionType;
 import caldera.common.brew.generic.component.action.SimpleAction;
 import caldera.common.init.ModActions;
 import com.google.gson.JsonObject;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.util.GsonHelper;
 import net.minecraftforge.registries.ForgeRegistryEntry;
-
-import javax.annotation.Nullable;
 
 public class DestroyCauldronActionType extends ForgeRegistryEntry<ActionType<?>> implements ActionType<DestroyCauldronActionType.DestroyCauldronAction> {
 
@@ -21,12 +18,6 @@ public class DestroyCauldronActionType extends ForgeRegistryEntry<ActionType<?>>
             shouldDropCauldron = GsonHelper.getAsBoolean(object, "dropCauldron");
         }
         return new DestroyCauldronAction(shouldDropCauldron);
-    }
-
-    @Nullable
-    @Override
-    public DestroyCauldronAction deserialize(FriendlyByteBuf buffer) {
-        return null;
     }
 
     public static DestroyCauldronAction destroy(boolean shouldDropCauldron) {
@@ -47,7 +38,7 @@ public class DestroyCauldronActionType extends ForgeRegistryEntry<ActionType<?>>
         }
 
         @Override
-        public void execute(GenericBrew brew) {
+        public void accept(GenericBrew brew) {
             brew.getCauldron().destroy(shouldDropCauldron);
         }
 
@@ -55,8 +46,5 @@ public class DestroyCauldronActionType extends ForgeRegistryEntry<ActionType<?>>
         public void serialize(JsonObject object) {
             object.addProperty("dropCauldron", shouldDropCauldron);
         }
-
-        @Override
-        public void serialize(FriendlyByteBuf buffer) { }
     }
 }

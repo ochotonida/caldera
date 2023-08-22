@@ -8,13 +8,10 @@ import caldera.common.brew.generic.component.action.SimpleAction;
 import caldera.common.init.ModActions;
 import caldera.common.util.JsonHelper;
 import com.google.gson.JsonObject;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.registries.ForgeRegistryEntry;
-
-import javax.annotation.Nullable;
 
 public class ExplodeActionType extends ForgeRegistryEntry<ActionType<?>> implements ActionType<ExplodeActionType.ExplodeAction> {
 
@@ -30,12 +27,6 @@ public class ExplodeActionType extends ForgeRegistryEntry<ActionType<?>> impleme
             causesFire = GsonHelper.getAsBoolean(object, "causesFire");
         }
         return new ExplodeAction(radius, causesFire, mode);
-    }
-
-    @Nullable
-    @Override
-    public ExplodeAction deserialize(FriendlyByteBuf buffer) {
-        return null;
     }
 
     public static ExplodeAction explode(float radius) {
@@ -64,7 +55,7 @@ public class ExplodeActionType extends ForgeRegistryEntry<ActionType<?>> impleme
         }
 
         @Override
-        public void execute(GenericBrew brew) {
+        public void accept(GenericBrew brew) {
             Cauldron cauldron = brew.getCauldron();
             Vec3 origin = cauldron.getCenter();
             // noinspection ConstantConditions
@@ -77,8 +68,5 @@ public class ExplodeActionType extends ForgeRegistryEntry<ActionType<?>> impleme
             object.addProperty("causesFire", causesFire);
             object.add("mode", JsonHelper.writeEnumValue(mode));
         }
-
-        @Override
-        public void serialize(FriendlyByteBuf buffer) { }
     }
 }

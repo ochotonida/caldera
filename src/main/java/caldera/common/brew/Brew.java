@@ -3,11 +3,14 @@ package caldera.common.brew;
 import caldera.Caldera;
 import caldera.common.block.cauldron.Cauldron;
 import caldera.common.block.cauldron.CauldronBlockEntity;
+import caldera.common.network.BrewUpdatePacket;
+import caldera.common.network.NetworkHandler;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraftforge.network.PacketDistributor;
 
 public abstract class Brew {
 
@@ -58,7 +61,6 @@ public abstract class Brew {
 
     /**
      * Called immediately after this brew has been added to the cauldron
-     * TODO is this getting called client side? (should it?)
      */
     public void onBrewed() {
 
@@ -88,30 +90,17 @@ public abstract class Brew {
 
     }
 
-    /**
-     * Called on the server to check whether an update tag should be sent to tracking clients
-     */
-    public boolean hasUpdate() {
-        return false;
+    protected void sendUpdate(CompoundTag tag) {
+        if (getCauldron().getLevel() == null || getCauldron().getLevel().isClientSide()) {
+            return;
+        }
+
+        NetworkHandler.INSTANCE.send(
+                PacketDistributor.TRACKING_CHUNK.with(() -> getCauldron().getLevel().getChunkAt(getCauldron().getBlockPos())),
+                new BrewUpdatePacket(getCauldron().getBlockPos(), tag)
+        );
     }
 
-    /**
-     * Called server-side when a brew update tag has been sent to tracking clients
-     */
-    public void clearUpdate() {
-
-    }
-
-    /**
-     * Called server-side every tick or when the brew is being removed, when {@link #hasUpdate} returns true
-     */
-    public CompoundTag getUpdateTag() {
-        return new CompoundTag();
-    }
-
-    /**
-     * Called client-side with the result of {@link #getUpdateTag} sent from the server
-     */
     public void onUpdate(CompoundTag tag) {
 
     }

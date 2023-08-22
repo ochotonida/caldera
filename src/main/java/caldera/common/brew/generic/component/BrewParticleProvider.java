@@ -4,18 +4,22 @@ import caldera.Caldera;
 import caldera.common.brew.generic.GenericBrew;
 import caldera.common.util.ColorHelper;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParseException;
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.util.GsonHelper;
 import net.minecraft.world.level.Level;
 
 public record BrewParticleProvider(ParticleOptions particle, boolean useBrewColor) {
+
+    public static final Codec<BrewParticleProvider> CODEC = RecordCodecBuilder.create(builder -> builder.group(
+            ParticleTypes.CODEC.fieldOf("particle").forGetter(provider -> provider.particle),
+            Codec.BOOL.optionalFieldOf("useBrewColor", false).forGetter(provider -> provider.useBrewColor)
+    ).apply(builder, BrewParticleProvider::new));
 
     // TODO add more control over position & motion
     public void spawnParticles(GenericBrew brew, int amount) {
@@ -47,35 +51,17 @@ public record BrewParticleProvider(ParticleOptions particle, boolean useBrewColo
     }
 
     public static BrewParticleProvider deserialize(JsonObject object) {
-        if (!object.has("particle")) {
-            throw new JsonParseException("Missing 'particle'");
-        }
-        ParticleOptions particle = ParticleTypes.CODEC
-                .decode(JsonOps.INSTANCE, object.get("particle"))
-                .resultOrPartial(Caldera.LOGGER::error)
-                .orElseThrow(() -> {
-                    throw new JsonParseException("Failed to parse particle: " + object.get("particle"));
-                })
-                .getFirst();
-
-        boolean useBrewColor = false;
-        if (object.has("useBrewColor")) {
-            useBrewColor = GsonHelper.getAsBoolean(object, "useBrewColor");
-        }
-
-        return new BrewParticleProvider(particle, useBrewColor);
-    }
-
-    public static BrewParticleProvider deserialize(FriendlyByteBuf buffer) {
-        ParticleOptions particle = ParticleTypes.CODEC
-                .decode(NbtOps.INSTANCE, buffer.readNbt())
+        return CODEC.decode(JsonOps.INSTANCE, object)
                 .resultOrPartial(Caldera.LOGGER::error)
                 .orElseThrow()
                 .getFirst();
+    }
 
-        boolean useBrewColor = buffer.readBoolean();
-
-        return new BrewParticleProvider(particle, useBrewColor);
+    public static BrewParticleProvider deserialize(FriendlyByteBuf buffer) {
+        return CODEC.decode(NbtOps.INSTANCE, buffer.readNbt())
+                .resultOrPartial(Caldera.LOGGER::error)
+                .orElseThrow()
+                .getFirst();
     }
 
     public void serialize(JsonObject object) {
@@ -89,12 +75,6 @@ public record BrewParticleProvider(ParticleOptions particle, boolean useBrewColo
     }
 
     public void serialize(FriendlyByteBuf buffer) {
-        Tag tag = ParticleTypes.CODEC
-                .encodeStart(NbtOps.INSTANCE, particle())
-                .resultOrPartial(Caldera.LOGGER::error)
-                .orElseThrow();
-
-        buffer.writeNbt(((CompoundTag) tag));
-        buffer.writeBoolean(useBrewColor);
+        buffer.writeNbt((CompoundTag) CODEC.encodeStart(NbtOps.INSTANCE, this).getOrThrow(false, Caldera.LOGGER::error));
     }
 }

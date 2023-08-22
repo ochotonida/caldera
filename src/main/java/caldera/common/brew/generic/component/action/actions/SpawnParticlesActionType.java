@@ -6,19 +6,17 @@ import caldera.common.brew.generic.component.BrewParticleProvider;
 import caldera.common.brew.generic.component.action.ActionType;
 import caldera.common.brew.generic.component.action.SimpleAction;
 import caldera.common.init.ModActions;
+import caldera.common.network.NetworkHandler;
+import caldera.common.network.SpawnBrewParticlesPacket;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.core.BlockPos;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.level.Level;
+import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.registries.ForgeRegistryEntry;
 
 public class SpawnParticlesActionType extends ForgeRegistryEntry<ActionType<?>> implements ActionType<SpawnParticlesActionType.SpawnParticlesAction> {
-
-    @Override
-    public boolean shouldSendToClients() {
-        return true;
-    }
 
     @Override
     public SpawnParticlesAction deserialize(JsonObject object, BrewTypeDeserializationContext context) {
@@ -29,15 +27,6 @@ public class SpawnParticlesActionType extends ForgeRegistryEntry<ActionType<?>> 
         }
 
         BrewParticleProvider particle = BrewParticleProvider.deserialize(object);
-
-        return new SpawnParticlesAction(particle, count);
-    }
-
-    @Override
-    public SpawnParticlesAction deserialize(FriendlyByteBuf buffer) {
-        int count = buffer.readInt();
-
-        BrewParticleProvider particle = BrewParticleProvider.deserialize(buffer);
 
         return new SpawnParticlesAction(particle, count);
     }
@@ -62,13 +51,14 @@ public class SpawnParticlesActionType extends ForgeRegistryEntry<ActionType<?>> 
         }
 
         @Override
-        public void execute(GenericBrew brew) {
+        public void accept(GenericBrew brew) {
             Level level = brew.getCauldron().getLevel();
-            if (level == null || !level.isClientSide()) {
-                return;
-            }
-            for (int i = 0; i < count; i++) {
-                particle.spawnParticles(brew, 1);
+            BlockPos pos = brew.getCauldron().getBlockPos();
+            if (level != null) {
+                NetworkHandler.INSTANCE.send(
+                        PacketDistributor.TRACKING_CHUNK.with(() -> level.getChunkAt(pos)),
+                        new SpawnBrewParticlesPacket(pos, count, particle)
+                );
             }
         }
 
@@ -76,12 +66,6 @@ public class SpawnParticlesActionType extends ForgeRegistryEntry<ActionType<?>> 
         public void serialize(JsonObject object) {
             object.addProperty("count", count);
             particle.serialize(object);
-        }
-
-        @Override
-        public void serialize(FriendlyByteBuf buffer) {
-            buffer.writeInt(count);
-            particle.serialize(buffer);
         }
     }
 }

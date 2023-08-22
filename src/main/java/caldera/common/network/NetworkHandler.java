@@ -18,5 +18,6 @@ public class NetworkHandler {
     public static void register() {
         INSTANCE.registerMessage(0, BrewTypeSyncPacket.class, BrewTypeSyncPacket::encode, BrewTypeSyncPacket::new, BrewTypeSyncPacket::handle);
         INSTANCE.registerMessage(1, BrewUpdatePacket.class, BrewUpdatePacket::encode, BrewUpdatePacket::new, BrewUpdatePacket::handle);
+        INSTANCE.registerMessage(2, SpawnBrewParticlesPacket.class, SpawnBrewParticlesPacket::encode, SpawnBrewParticlesPacket::new, SpawnBrewParticlesPacket::handle);
     }
 }

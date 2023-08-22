@@ -6,19 +6,13 @@ import caldera.common.util.JsonHelper;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import net.minecraft.network.FriendlyByteBuf;
 
 import java.util.*;
 import java.util.function.Consumer;
 
 public interface Action extends Consumer<GenericBrew> {
 
-
     JsonElement toJson();
-
-    default void toNetwork(FriendlyByteBuf buffer) {
-        buffer.writeBoolean(false);
-    }
 
     static Map<String, Action> fromJson(JsonObject object, BrewTypeDeserializationContext context, Set<String> existingEffects) {
         Map<String, Action> result = new HashMap<>(EffectAction.createEffectActions(existingEffects));
@@ -74,28 +68,5 @@ public interface Action extends Consumer<GenericBrew> {
         }
 
         return new HashMap<>(result);
-    }
-
-    static Map<String, Action> fromNetwork(FriendlyByteBuf buffer, Set<String> existingActions) {
-        Map<String, Action> result = new HashMap<>(EffectAction.createEffectActions(existingActions));
-
-        while (buffer.readBoolean()) {
-            if (buffer.readBoolean()) {
-                SimpleAction action = SimpleAction.fromNetwork(buffer);
-                if (action != null) {
-                    result.put(action.getIdentifier(), action);
-                }
-            }
-        }
-        return result;
-    }
-
-    static void toNetwork(FriendlyByteBuf buffer, Map<String, Action> actions) {
-        actions.forEach((identifier, action) -> {
-            buffer.writeBoolean(true);
-            action.toNetwork(buffer);
-        });
-
-        buffer.writeBoolean(false);
     }
 }

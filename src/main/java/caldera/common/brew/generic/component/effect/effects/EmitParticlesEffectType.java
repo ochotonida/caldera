@@ -96,7 +96,7 @@ public class EmitParticlesEffectType extends ForgeRegistryEntry<EffectProviderTy
                         particle.spawnParticles(brew, 1);
                     }
                 } else {
-                    particle.spawnParticles(brew, (int) (count + 0.0005));
+                    particle.spawnParticles(brew, (int) (count));
                 }
             }
 

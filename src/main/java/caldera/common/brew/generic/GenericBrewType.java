@@ -22,15 +22,14 @@ import net.minecraftforge.registries.ForgeRegistryEntry;
 import java.util.Collections;
 import java.util.Map;
 
-@SuppressWarnings("ClassCanBeRecord")
 public class GenericBrewType implements BrewType {
 
     private final ResourceLocation id;
     // All effects are sent to the client. Effects are always added/removed by the server
     private final Map<String, EffectProvider> effects;
-    // GroupActions are not sent to the clients, as these are only triggered on the server
+    // Actions only exist on the server
     private final Map<String, Action> actions;
-    // Triggers only exist on the server. On the client this is an empty map
+    // Triggers only exist on the server
     private final Map<TriggerType<?>, TriggerHandler<?>> triggers;
 
     protected GenericBrewType(ResourceLocation id, Map<String, EffectProvider> effects, Map<String, Action> actions, Map<TriggerType<?>, TriggerHandler<?>> triggers) {
@@ -92,14 +91,12 @@ public class GenericBrewType implements BrewType {
         @Override
         public GenericBrewType fromNetwork(ResourceLocation id, FriendlyByteBuf buffer) {
             Map<String, EffectProvider> effects = EffectProvider.fromNetwork(buffer);
-            Map<String, Action> actions = Action.fromNetwork(buffer, effects.keySet());
-            return new GenericBrewType(id, effects, actions, Collections.emptyMap());
+            return new GenericBrewType(id, effects, Collections.emptyMap(), Collections.emptyMap());
         }
 
         @Override
         public void toNetwork(FriendlyByteBuf buffer, GenericBrewType brewType) {
             EffectProvider.toNetwork(buffer, brewType.effects);
-            Action.toNetwork(buffer, brewType.actions);
         }
     }
 }

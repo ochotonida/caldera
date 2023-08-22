@@ -8,7 +8,6 @@ import caldera.common.brew.generic.component.action.SimpleAction;
 import caldera.common.init.ModActions;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
@@ -16,8 +15,6 @@ import net.minecraft.util.GsonHelper;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.ForgeRegistryEntry;
-
-import javax.annotation.Nullable;
 
 public class PlaySoundActionType extends ForgeRegistryEntry<ActionType<?>> implements ActionType<PlaySoundActionType.PlaySoundAction> {
 
@@ -40,12 +37,6 @@ public class PlaySoundActionType extends ForgeRegistryEntry<ActionType<?>> imple
         }
 
         return new PlaySoundAction(soundEvent, volume, pitch);
-    }
-
-    @Nullable
-    @Override
-    public PlaySoundAction deserialize(FriendlyByteBuf buffer) {
-        return null;
     }
 
     public static PlaySoundAction playSound(SoundEvent soundEvent) {
@@ -74,7 +65,7 @@ public class PlaySoundActionType extends ForgeRegistryEntry<ActionType<?>> imple
         }
 
         @Override
-        public void execute(GenericBrew brew) {
+        public void accept(GenericBrew brew) {
             Cauldron cauldron = brew.getCauldron();
             if (cauldron.getLevel() != null) {
                 Vec3 origin = cauldron.getCenter();
@@ -89,9 +80,6 @@ public class PlaySoundActionType extends ForgeRegistryEntry<ActionType<?>> imple
             object.addProperty("volume", volume);
             object.addProperty("pitch", pitch);
         }
-
-        @Override
-        public void serialize(FriendlyByteBuf buffer) { }
     }
 }
 

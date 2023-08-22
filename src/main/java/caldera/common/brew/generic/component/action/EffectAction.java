@@ -20,7 +20,6 @@ public record EffectAction(String effect, Type type) implements Action {
             case START -> genericBrew.startEffect(effect);
             case REMOVE -> genericBrew.removeEffect(effect);
         }
-        genericBrew.sendActionExecuted(createIdentifier());
     }
 
     @Override
@@ -48,10 +47,6 @@ public record EffectAction(String effect, Type type) implements Action {
             }
         }
         return result;
-    }
-
-    public static String remove(String effect) {
-        return Type.REMOVE.prefix + effect;
     }
 
     private enum Type {

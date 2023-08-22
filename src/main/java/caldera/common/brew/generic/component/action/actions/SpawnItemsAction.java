@@ -7,7 +7,6 @@ import caldera.common.brew.generic.component.action.ActionType;
 import caldera.common.brew.generic.component.action.SimpleAction;
 import caldera.common.init.ModActions;
 import com.google.gson.JsonObject;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.GsonHelper;
@@ -17,7 +16,6 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.registries.ForgeRegistryEntry;
 
-import javax.annotation.Nullable;
 import java.util.List;
 
 public class SpawnItemsAction extends ForgeRegistryEntry<ActionType<?>> implements ActionType<SpawnItemsAction.RollLootTableAction> {
@@ -27,12 +25,6 @@ public class SpawnItemsAction extends ForgeRegistryEntry<ActionType<?>> implemen
         ResourceLocation lootTable = new ResourceLocation(GsonHelper.getAsString(object, "lootTable"));
 
         return new RollLootTableAction(lootTable);
-    }
-
-    @Nullable
-    @Override
-    public RollLootTableAction deserialize(FriendlyByteBuf buffer) {
-        return null;
     }
 
     public static RollLootTableAction spawnItems(ResourceLocation lootTable) {
@@ -53,7 +45,7 @@ public class SpawnItemsAction extends ForgeRegistryEntry<ActionType<?>> implemen
         }
 
         @Override
-        public void execute(GenericBrew brew) {
+        public void accept(GenericBrew brew) {
             Cauldron cauldron = brew.getCauldron();
             if (cauldron.getLevel() instanceof ServerLevel level) {
                 LootContext context = new LootContext.Builder(level)
@@ -71,8 +63,5 @@ public class SpawnItemsAction extends ForgeRegistryEntry<ActionType<?>> implemen
         public void serialize(JsonObject object) {
             object.addProperty("lootTable", lootTable.toString());
         }
-
-        @Override
-        public void serialize(FriendlyByteBuf buffer) { }
     }
 }
