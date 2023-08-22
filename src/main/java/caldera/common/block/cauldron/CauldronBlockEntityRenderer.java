@@ -41,12 +41,12 @@ public class CauldronBlockEntityRenderer implements BlockEntityRenderer<Cauldron
             for (int z = 0; z <= 1; z++) {
                 float previousFluidAlpha = cauldron.getTransitionHelper().getPreviousFluidAlpha(partialTicks);
                 renderFluid(cauldron, cauldron.getTransitionHelper().getPreviousFluid(), fluidLevel, x, z, buffer, matrixStack, light, previousFluidAlpha, 1);
-                renderBrew(cauldron, cauldron.getTransitionHelper().getPreviousBrew(), fluidLevel, x, z, partialTicks, buffer, matrixStack, light, previousFluidAlpha);
+                renderBrew(cauldron.getTransitionHelper().getPreviousBrew(), fluidLevel, x, z, partialTicks, buffer, matrixStack, light, previousFluidAlpha);
 
                 float currentFluidAlpha = cauldron.getTransitionHelper().getFluidAlpha(partialTicks);
                 float brewingColorAlpha = cauldron.getTransitionHelper().getFluidColor(partialTicks);
                 renderFluid(cauldron, cauldron.getFluid(), fluidLevel, x, z, buffer, matrixStack, light, currentFluidAlpha, brewingColorAlpha);
-                renderBrew(cauldron, cauldron.getBrew(), fluidLevel, x, z, partialTicks, buffer, matrixStack, light, currentFluidAlpha);
+                renderBrew(cauldron.getBrew(), fluidLevel, x, z, partialTicks, buffer, matrixStack, light, currentFluidAlpha);
             }
         }
     }
@@ -94,40 +94,34 @@ public class CauldronBlockEntityRenderer implements BlockEntityRenderer<Cauldron
         buildVertices(builder, matrixStack, fluidHeight, x, z, u1, v1, u2, v2, light, color);
     }
 
-    public static void renderBrew(CauldronBlockEntity cauldron, Brew brew, float fluidHeight, int x, int z, float partialTicks, MultiBufferSource buffer, PoseStack matrixStack, int light, float alpha) {
+    public static void renderBrew(Brew brew, float fluidHeight, int x, int z, float partialTicks, MultiBufferSource buffer, PoseStack matrixStack, int light, float alpha) {
         if (brew == null) {
             return;
         }
 
-        TextureAtlasSprite fluidTexture = Minecraft.getInstance()
+        int baseColor = ColorHelper.applyAlpha(brew.getColorInfo().getBaseColor(partialTicks), alpha);
+        int overlayColor = ColorHelper.applyAlpha(brew.getColorInfo().getOverlayColor(partialTicks), alpha);
+
+        TextureAtlasSprite brewTexture = Minecraft.getInstance()
                 .getTextureAtlas(InventoryMenu.BLOCK_ATLAS)
                 .apply(new ResourceLocation(Caldera.MODID, "block/brew"));
-
-        VertexConsumer builder = buffer.getBuffer(RenderType.translucentMovingBlock());
-
-        int color = ColorHelper.applyAlpha(brew.getColorAndAlpha(partialTicks), alpha);
-
-        float u1 = fluidTexture.getU(x == 0 ? 1 : 8);
-        float v1 = fluidTexture.getV(z == 0 ? 1 : 8);
-        float u2 = fluidTexture.getU(x == 0 ? 8 : 15);
-        float v2 = fluidTexture.getV(z == 0 ? 8 : 15);
-
-        buildVertices(builder, matrixStack, fluidHeight, x, z, u1, v1, u2, v2, light, color);
-
-        fluidTexture = Minecraft.getInstance()
+        TextureAtlasSprite overlayTexture = Minecraft.getInstance()
                 .getTextureAtlas(InventoryMenu.BLOCK_ATLAS)
                 .apply(new ResourceLocation(Caldera.MODID, "block/brew_overlay"));
 
-        builder = buffer.getBuffer(RenderType.translucentMovingBlock());
+        renderBrewTexture(fluidHeight, x, z, baseColor, light, matrixStack, brewTexture, buffer);
+        renderBrewTexture(fluidHeight, x, z, overlayColor, light, matrixStack, overlayTexture, buffer);
+    }
 
-        u1 = fluidTexture.getU(x == 0 ? 1 : 8);
-        v1 = fluidTexture.getV(z == 0 ? 1 : 8);
-        u2 = fluidTexture.getU(x == 0 ? 8 : 15);
-        v2 = fluidTexture.getV(z == 0 ? 8 : 15);
+    private static void renderBrewTexture(float fluidHeight, int x, int z, int color, int light, PoseStack poseStack, TextureAtlasSprite texture, MultiBufferSource multiBufferSource) {
+        VertexConsumer vertexConsumer = multiBufferSource.getBuffer(RenderType.translucentMovingBlock());
 
-        color = ColorHelper.applyAlpha(0xb19100, alpha);
+        float u1 = texture.getU(x == 0 ? 1 : 8);
+        float v1 = texture.getV(z == 0 ? 1 : 8);
+        float u2 = texture.getU(x == 0 ? 8 : 15);
+        float v2 = texture.getV(z == 0 ? 8 : 15);
 
-        buildVertices(builder, matrixStack, fluidHeight, x, z, u1, v1, u2, v2, light, color);
+        buildVertices(vertexConsumer, poseStack, fluidHeight, x, z, u1, v1, u2, v2, light, color);
     }
 
     private static void buildVertices(VertexConsumer builder, PoseStack matrixStack, float height, int x, int z, float u1, float v1, float u2, float v2, int light, int color) {

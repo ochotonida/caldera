@@ -15,32 +15,35 @@ public class ChangeColorActionType extends ForgeRegistryEntry<ActionType<?>> imp
 
     @Override
     public ChangeColorAction deserialize(JsonObject object, BrewTypeDeserializationContext context) {
-        int color = ColorHelper.readColor(object, "color");
+        int baseColor = ColorHelper.readColor(object, "base_color");
+        int overlayColor = ColorHelper.readColor(object, "overlay_color");
         int transitionTime = 0;
-        if (object.has("transitionTime")) {
-            transitionTime = GsonHelper.getAsInt(object, "transitionTime");
+        if (object.has("transition_time")) {
+            transitionTime = GsonHelper.getAsInt(object, "transition_time");
             if (transitionTime < 0) {
                 throw new JsonParseException("Transition time must be 0 or positive");
             }
         }
-        return new ChangeColorAction(color, transitionTime);
+        return new ChangeColorAction(baseColor, overlayColor, transitionTime);
     }
 
-    public static ChangeColorAction setColor(int color) {
-        return changeColor(color, 0);
+    public static ChangeColorAction setColor(int baseColor, int overlayColor) {
+        return changeColor(baseColor, overlayColor, 0);
     }
 
-    public static ChangeColorAction changeColor(int color, int transitionTime) {
-        return new ChangeColorAction(color, transitionTime);
+    public static ChangeColorAction changeColor(int baseColor, int overlayColor, int transitionTime) {
+        return new ChangeColorAction(baseColor, overlayColor, transitionTime);
     }
 
     public static final class ChangeColorAction extends SimpleAction {
 
-        private final int color;
+        private final int baseColor;
+        private final int overlayColor;
         private final int transitionTime;
 
-        public ChangeColorAction(int color, int transitionTime) {
-            this.color = color;
+        public ChangeColorAction(int baseColor, int overlayColor, int transitionTime) {
+            this.baseColor = baseColor;
+            this.overlayColor = overlayColor;
             this.transitionTime = transitionTime;
         }
 
@@ -51,14 +54,15 @@ public class ChangeColorActionType extends ForgeRegistryEntry<ActionType<?>> imp
 
         @Override
         public void accept(GenericBrew brew) {
-            brew.changeColor(color, transitionTime);
+            brew.changeColor(baseColor, overlayColor, transitionTime);
             brew.sendColorUpdate();
         }
 
         @Override
         public void serialize(JsonObject object) {
-            object.add("color", ColorHelper.writeColor(color));
-            object.addProperty("transitionTime", transitionTime);
+            object.add("base_color", ColorHelper.writeColor(baseColor));
+            object.add("overlay_color", ColorHelper.writeColor(overlayColor));
+            object.addProperty("transition_time", transitionTime);
         }
     }
 }

@@ -47,7 +47,7 @@ public class ItemConversionRecipeBuilder {
                 convert(Blocks.GILDED_BLACKSTONE, Blocks.BLACKSTONE),
                 convert(Blocks.RAW_GOLD_BLOCK, Blocks.RAW_IRON_BLOCK),
                 convert(Blocks.GOLD_BLOCK, Tags.Items.STORAGE_BLOCKS_IRON),
-                convert(Blocks.HEAVY_WEIGHTED_PRESSURE_PLATE, Blocks.HEAVY_WEIGHTED_PRESSURE_PLATE),
+                convert(Blocks.HEAVY_WEIGHTED_PRESSURE_PLATE, Blocks.LIGHT_WEIGHTED_PRESSURE_PLATE),
                 convert(Blocks.POWERED_RAIL, Blocks.ACTIVATOR_RAIL),
                 convert(Items.GOLD_INGOT, Tags.Items.INGOTS_IRON),
                 convert(Items.GOLD_NUGGET, Tags.Items.NUGGETS_IRON),

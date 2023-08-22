@@ -31,8 +31,9 @@
   "actions": {
     "set_starting_color": {
       "actionType": "caldera:change_color",
-      "color": "#EEDD11",
-      "transitionTime": 0
+      "base_color": "#EEDD11",
+      "overlay_color": "#B19100",
+      "transition_time": 0
     },
     "spawn_particles": {
       "actionType": "caldera:spawn_particles",
@@ -48,8 +49,9 @@
     },
     "fade_to_red": {
       "actionType": "caldera:change_color",
-      "color": "#EE4411",
-      "transitionTime": 80
+      "base_color": "#EE4411",
+      "overlay_color": "#C11801",
+      "transition_time": 80
     },
     "play_fuse_sound": {
       "actionType": "caldera:play_sound",

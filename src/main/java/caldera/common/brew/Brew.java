@@ -3,6 +3,7 @@ package caldera.common.brew;
 import caldera.Caldera;
 import caldera.common.block.cauldron.Cauldron;
 import caldera.common.block.cauldron.CauldronBlockEntity;
+import caldera.common.brew.generic.ColorInfo;
 import caldera.common.network.BrewUpdatePacket;
 import caldera.common.network.NetworkHandler;
 import net.minecraft.nbt.CompoundTag;
@@ -41,23 +42,8 @@ public abstract class Brew {
         return (float) getFluidLevel();
     }
 
-    /**
-     * @return The current color of the brew. Only called on the client
-     */
-    public int getColor(float partialTicks) {
-        return 0xFFFFFF;
-    }
-
-    /**
-     * @return The current transparency of the brew. Only called on the client
-     */
-    public int getAlpha(float partialTicks) {
-        return 0xFF;
-    }
-
-    public final int getColorAndAlpha(float partialTicks) {
-        return (getAlpha(partialTicks) & 0xFF) << 24 | (getColor(partialTicks) & 0xFFFFFF);
-    }
+    // TODO add brew renderer registry
+    public abstract ColorInfo getColorInfo();
 
     /**
      * Called immediately after this brew has been added to the cauldron

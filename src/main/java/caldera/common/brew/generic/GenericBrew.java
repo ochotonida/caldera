@@ -40,13 +40,17 @@ public class GenericBrew extends Brew {
         return new ArrayList<>(effects.values());
     }
 
-    @Override
     public int getColor(float partialTicks) {
-        return colorInfo.getColor(partialTicks);
+        return colorInfo.getBaseColor(partialTicks);
     }
 
-    public void changeColor(int newColor, int transitionTime) {
-        colorInfo.changeColor(newColor, transitionTime);
+    @Override
+    public ColorInfo getColorInfo() {
+        return colorInfo;
+    }
+
+    public void changeColor(int baseColor, int overlayColor, int transitionTime) {
+        colorInfo.changeColor(baseColor, overlayColor, transitionTime);
         getCauldron().setChanged();
     }
 
@@ -78,9 +82,9 @@ public class GenericBrew extends Brew {
     @Override
     public void tick() {
         if (!colorInfo.hasSettled()) {
+            colorInfo.tick();
             getCauldron().setChanged();
         }
-        colorInfo.tick();
 
         forEachEffect(Effect::tick);
     }

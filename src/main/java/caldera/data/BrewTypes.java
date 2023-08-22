@@ -78,7 +78,7 @@ public record BrewTypes(DataGenerator generator) implements DataProvider {
                 .groupId("setup")
                 .startEffect("transmute_iron", ConvertItemsEffectType.convertItems(new ResourceLocation(Caldera.MODID, "iron_to_gold"), 5))
                 .startEffect("consume_tnt", ConsumeItemsEffectType.consumeItems(ItemPredicate.Builder.item().of(Items.TNT).build(), 1))
-                .executeAction("set_starting_color", ChangeColorActionType.setColor(0xeedd11))
+                .executeAction("set_starting_color", ChangeColorActionType.setColor(0xeedd11, 0xb19100))
                 .executeAction("spawn_particles", SpawnParticlesActionType.spawnParticles(new BrewParticleProvider(ParticleTypes.ENTITY_EFFECT, true), 50))
                 .startEffect("emit_swirls", EmitParticlesEffectType.emitParticles(new BrewParticleProvider(ParticleTypes.ENTITY_EFFECT, true), 0.5))
                 .end()
@@ -99,7 +99,7 @@ public record BrewTypes(DataGenerator generator) implements DataProvider {
                 .groupId("start_fuse")
                 .startTimer("explosion_timer", 80)
                 .executeAction("spawn_particles")
-                .executeAction("fade_to_red", ChangeColorActionType.changeColor(0xee4411, 80))
+                .executeAction("fade_to_red", ChangeColorActionType.changeColor(0xee4411, 0xc11801, 80))
                 .executeAction("play_fuse_sound", PlaySoundActionType.playSound(SoundEvents.TNT_PRIMED))
                 .end()
 
