@@ -131,7 +131,7 @@ public abstract class CubeMultiBlock extends Block {
     public void onRemove(BlockState currentState, Level level, BlockPos replacedPos, BlockState newState, boolean isMoving) {
         super.onRemove(currentState, level, replacedPos, newState, isMoving);
 
-        if (level.isClientSide() || newState.is(this) || !currentState.is(this)) {
+        if (newState.is(this) || !currentState.is(this)) {
             return;
         }
 
