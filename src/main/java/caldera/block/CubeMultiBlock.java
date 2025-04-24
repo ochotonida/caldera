@@ -158,7 +158,9 @@ public abstract class CubeMultiBlock extends Block {
     public BlockState getStateForPlacement(BlockPlaceContext blockPlaceContext) {
         BlockPos origin = getPosForPlacement(blockPlaceContext);
 
-        if (origin.getY() < 0 || origin.getY() > 254 || streamShape(origin)
+        if (origin.getY() < blockPlaceContext.getLevel().getMinBuildHeight()
+                || origin.getY() >= blockPlaceContext.getLevel().getMaxBuildHeight() - 1
+                || streamShape(origin)
                 .map(blockPlaceContext.getLevel()::getBlockState)
                 .anyMatch(state -> !state.canBeReplaced(blockPlaceContext))
         ) {
