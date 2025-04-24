@@ -1,15 +1,8 @@
 {
   "variants": {
-    "facing=north,half=upper": {
-      "model": "caldera:block/cauldron_top",
-      "y": 180
-    },
-    "facing=south,half=upper": {
-      "model": "caldera:block/cauldron_top"
-    },
-    "facing=west,half=upper": {
-      "model": "caldera:block/cauldron_top",
-      "y": 90
+    "facing=east,half=lower": {
+      "model": "caldera:block/cauldron_bottom",
+      "y": 270
     },
     "facing=east,half=upper": {
       "model": "caldera:block/cauldron_top",
@@ -19,16 +12,23 @@
       "model": "caldera:block/cauldron_bottom",
       "y": 180
     },
+    "facing=north,half=upper": {
+      "model": "caldera:block/cauldron_top",
+      "y": 180
+    },
     "facing=south,half=lower": {
       "model": "caldera:block/cauldron_bottom"
+    },
+    "facing=south,half=upper": {
+      "model": "caldera:block/cauldron_top"
     },
     "facing=west,half=lower": {
       "model": "caldera:block/cauldron_bottom",
       "y": 90
     },
-    "facing=east,half=lower": {
-      "model": "caldera:block/cauldron_bottom",
-      "y": 270
+    "facing=west,half=upper": {
+      "model": "caldera:block/cauldron_top",
+      "y": 90
     }
   }
 }

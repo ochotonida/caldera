@@ -1,8 +1,0 @@
-{
-  "type": "caldera:entity_conversion",
-  "conversionType": "caldera:test_conversion",
-  "ingredient": {
-    "type": "minecraft:villager"
-  },
-  "result": "minecraft:zombie_villager"
-}

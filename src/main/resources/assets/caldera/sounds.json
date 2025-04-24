@@ -147,15 +147,5 @@
       }
     ],
     "subtitle": "subtitles.block.generic.footsteps"
-  },
-  "block.cauldron.return_inert_ingredient": {
-    "sounds": [
-      {
-        "name": "mob/ghast/fireball4",
-        "volume": 1,
-        "pitch": 0.9
-      }
-    ],
-    "subtitle": "subtitles.caldera.block.cauldron.return_inert_ingredient"
   }
 }
