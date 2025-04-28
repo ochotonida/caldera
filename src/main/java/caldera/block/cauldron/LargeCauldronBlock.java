@@ -1,9 +1,13 @@
 package caldera.block.cauldron;
 
-import caldera.block.CubeMultiBlock;
+import caldera.block.multiblock.CubeMultiblock;
+import caldera.block.multiblock.state.Octant;
+import caldera.block.multiblock.state.OrientationSet;
 import caldera.util.VoxelShapeHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Vec3i;
+import net.minecraft.util.Unit;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -12,7 +16,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -23,13 +26,12 @@ import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 
-public class LargeCauldronBlock extends CubeMultiBlock implements EntityBlock {
+public class LargeCauldronBlock extends CubeMultiblock<Unit> implements EntityBlock {
 
     public static final double FLOOR_HEIGHT = 4 / 16D;
     private static final double WALL_WIDTH = 2 / 16D;
 
-    private static final Map<Direction, VoxelShape> LOWER_SHAPES = new HashMap<>();
-    private static final Map<Direction, VoxelShape> UPPER_SHAPES = new HashMap<>();
+    private static final Map<Octant, VoxelShape> SHAPES = new HashMap<>();
 
     static {
         VoxelShape lowerShape = Shapes.join(
@@ -55,18 +57,22 @@ public class LargeCauldronBlock extends CubeMultiBlock implements EntityBlock {
                 BooleanOp.ONLY_FIRST
         );
 
-        Direction.Plane.HORIZONTAL.forEach(facing -> {
-            LOWER_SHAPES.put(facing, VoxelShapeHelper.rotateShape(lowerShape, facing));
-            UPPER_SHAPES.put(facing, VoxelShapeHelper.rotateShape(upperShape, facing));
-        });
+        for (Octant octant : Octant.values()) {
+            SHAPES.put(octant, VoxelShapeHelper.rotateShape(octant.isLower() ? lowerShape : upperShape, octant.getPrimaryFacing().get2DDataValue()));
+        }
     }
 
     public LargeCauldronBlock(Properties properties) {
         super(properties);
     }
 
+    @Override
+    protected OrientationSet<Unit> getOrientations() {
+        return OrientationSet.UNIT;
+    }
+
     @Nullable
-    public static CauldronBlockEntity getController(BlockState state, BlockPos pos, Level level) {
+    public CauldronBlockEntity getController(BlockState state, BlockPos pos, Level level) {
         BlockPos origin = getOrigin(state, pos);
         BlockState originState = level.getBlockState(origin);
 
@@ -81,20 +87,20 @@ public class LargeCauldronBlock extends CubeMultiBlock implements EntityBlock {
     }
 
     public static boolean isOrigin(BlockState state) {
-        return state.getBlock() instanceof LargeCauldronBlock && state.getValue(LargeCauldronBlock.FACING) == Direction.SOUTH
-                && state.getValue(LargeCauldronBlock.HALF) == DoubleBlockHalf.LOWER;
+        return state.getBlock() instanceof LargeCauldronBlock && state.getValue(LargeCauldronBlock.OCTANT).getRelativePosition().equals(Vec3i.ZERO);
     }
 
     public static boolean isInsideCauldron(BlockState state, Vec3 vector) {
         return isInsideCauldron(state, vector.x(), vector.y(), vector.z());
     }
 
+    // TODO test this
     public static boolean isInsideCauldron(BlockState state, double x, double y, double z) {
         double wallWidth = WALL_WIDTH - 0.0001;
         double floorHeight = FLOOR_HEIGHT - 0.0001;
 
-        Direction.AxisDirection facingX = CubeMultiBlock.getFacing(state, Direction.Axis.X).getAxisDirection();
-        Direction.AxisDirection facingZ = CubeMultiBlock.getFacing(state, Direction.Axis.Z).getAxisDirection();
+        Direction.AxisDirection facingX = state.getValue(CubeMultiblock.OCTANT).getLocalX().getAxisDirection();
+        Direction.AxisDirection facingZ = state.getValue(CubeMultiblock.OCTANT).getLocalZ().getAxisDirection();
 
         if (facingX == Direction.AxisDirection.NEGATIVE && x > 1 - wallWidth) {
             return false;
@@ -108,7 +114,7 @@ public class LargeCauldronBlock extends CubeMultiBlock implements EntityBlock {
             return false;
         }
 
-        if (state.getValue(HALF) == DoubleBlockHalf.LOWER) {
+        if (state.getValue(OCTANT).isLower()) {
             return y > floorHeight;
         }
         return true;
@@ -128,10 +134,6 @@ public class LargeCauldronBlock extends CubeMultiBlock implements EntityBlock {
 
     @Override
     public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext selectionContext) {
-        if (state.getValue(HALF) == DoubleBlockHalf.LOWER) {
-            return LOWER_SHAPES.get(state.getValue(FACING));
-        } else {
-            return UPPER_SHAPES.get(state.getValue(FACING));
-        }
+        return SHAPES.get(state.getValue(OCTANT));
     }
 }

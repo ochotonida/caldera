@@ -1,6 +1,7 @@
 package caldera.block.cauldron;
 
 import caldera.registry.ModBlockEntityTypes;
+import caldera.registry.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
@@ -25,7 +26,7 @@ public class CauldronBlockEntity extends BlockEntity {
             return this;
         }
         if (getLevel() != null) {
-            return LargeCauldronBlock.getController(getBlockState(), getBlockPos(), getLevel());
+            return ModBlocks.LARGE_CAULDRON.get().getController(getBlockState(), getBlockPos(), getLevel());
         }
         return null;
     }

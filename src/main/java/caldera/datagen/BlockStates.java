@@ -2,10 +2,9 @@ package caldera.datagen;
 
 import caldera.Caldera;
 import caldera.block.cauldron.LargeCauldronBlock;
+import caldera.block.multiblock.CubeMultiblock;
 import caldera.registry.ModBlocks;
 import net.minecraft.data.PackOutput;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.neoforged.neoforge.client.model.generators.BlockStateProvider;
 import net.neoforged.neoforge.client.model.generators.ConfiguredModel;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
@@ -24,8 +23,8 @@ public class BlockStates extends BlockStateProvider {
         ModelFile cauldronTop = models().getExistingFile(Caldera.id(ModelProvider.BLOCK_FOLDER + "/" + "cauldron_top"));
 
         getVariantBuilder(ModBlocks.LARGE_CAULDRON.get()).forAllStates(state ->
-                ConfiguredModel.builder().modelFile(state.getValue(BlockStateProperties.DOUBLE_BLOCK_HALF) == DoubleBlockHalf.LOWER ? cauldronBottom : cauldronTop)
-                        .rotationY((int) state.getValue(LargeCauldronBlock.FACING).toYRot())
+                ConfiguredModel.builder().modelFile(state.getValue(CubeMultiblock.OCTANT).isLower() ? cauldronBottom : cauldronTop)
+                        .rotationY((int) state.getValue(LargeCauldronBlock.OCTANT).getPrimaryFacing().getOpposite().toYRot())
                         .build());
     }
 }
