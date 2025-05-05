@@ -1,9 +1,6 @@
 package caldera;
 
-import caldera.registry.ModBlockEntityTypes;
-import caldera.registry.ModBlocks;
-import caldera.registry.ModItems;
-import caldera.registry.ModSoundEvents;
+import caldera.registry.*;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
@@ -24,6 +21,8 @@ public class Caldera {
         ModBlockEntityTypes.ENTITY_TYPES.register(modBus);
         ModItems.ITEMS.register(modBus);
         ModSoundEvents.SOUND_EVENTS.register(modBus);
+
+        modBus.addListener(ModCapabilities::registerCapabilities);
 
         modBus.addListener(CalderaData::gatherData);
     }

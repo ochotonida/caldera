@@ -1,40 +1,64 @@
 package caldera.block.cauldron;
 
+import caldera.block.cauldron.contents.CauldronContents;
+import caldera.block.cauldron.contents.FluidContents;
+import caldera.block.multiblock.MultiblockEntity;
 import caldera.registry.ModBlockEntityTypes;
-import caldera.registry.ModBlocks;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.items.IItemHandler;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
-
-public class CauldronBlockEntity extends BlockEntity {
+public class CauldronBlockEntity extends MultiblockEntity<CauldronBlockEntity> implements Cauldron {
 
     public static final BlockEntityTicker<CauldronBlockEntity> TICKER = (level, pos, state, blockEntity) -> blockEntity.tick();
 
+    private CauldronContents contents;
+    @Nullable
+    private final IItemHandler itemHandler;
+    @Nullable
+    private final IFluidHandler fluidHandler;
+
     public CauldronBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntityTypes.LARGE_CAULDRON.get(), pos, state);
+        contents = isController() ? new FluidContents() : null;
+        itemHandler = isController() ? new CauldronItemHandler(this) : null;
+        fluidHandler = isController() ? new CauldronFluidHandler(this) : null;
     }
 
-    @Nullable
-    public CauldronBlockEntity getController() {
-        if (isController()) {
-            return this;
-        }
-        if (getLevel() != null) {
-            return ModBlocks.LARGE_CAULDRON.get().getController(getBlockState(), getBlockPos(), getLevel());
+    public IItemHandler getItemHandler() {
+        return itemHandler;
+    }
+
+    public IFluidHandler getFluidHandler() {
+        return fluidHandler;
+    }
+
+    public void tick() {
+
+    }
+
+    @Override
+    public CauldronContents getContents() {
+        CauldronBlockEntity controller = getController();
+        if (controller != null) {
+            return contents;
         }
         return null;
     }
 
-    public boolean isController() {
-        return getLevel() != null && LargeCauldronBlock.isOrigin(getBlockState());
+    @Override
+    public void setContents(CauldronContents contents) {
+        if (!isController()) {
+            throw new UnsupportedOperationException();
+        }
+        this.contents = contents;
     }
 
+    @Override
     public Vec3 getCenter() {
         CauldronBlockEntity controller = getController();
 
@@ -45,28 +69,5 @@ public class CauldronBlockEntity extends BlockEntity {
         double floorHeight = 4 / 16D;
         BlockPos pos = controller.getBlockPos();
         return new Vec3(pos.getX() + 1, pos.getY() + floorHeight, pos.getZ() + 1);
-    }
-
-    public void tick() {
-
-    }
-
-    public void discardItem(ItemStack stack, Vec3 previousMotion) {
-        if (getLevel() == null) {
-            return;
-        }
-
-        Vec3 motion = previousMotion
-                .multiply(-1, 0, -1)
-                .normalize()
-                .scale(0.2)
-                .add(0, 0.425, 0);
-
-        Vec3 position = getCenter();
-
-        ItemEntity itemEntity = new ItemEntity(getLevel(), position.x(), position.y(), position.z(), stack);
-        itemEntity.setDefaultPickUpDelay();
-        itemEntity.setDeltaMovement(motion);
-        getLevel().addFreshEntity(itemEntity);
     }
 }

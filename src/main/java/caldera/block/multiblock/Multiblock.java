@@ -162,6 +162,10 @@ public abstract class Multiblock<P extends MultiblockPart<P>, O extends Comparab
         return pos.subtract(getOffsetFromOrigin(state));
     }
 
+    public boolean isOrigin(BlockState state) {
+        return state.getBlock().equals(this) && state.getValue(multiblockParts).getRelativePosition().equals(Vec3i.ZERO);
+    }
+
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(getMultiblockParts());

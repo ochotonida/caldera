@@ -7,7 +7,6 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 
 public class CauldronBlockEntityRenderer implements BlockEntityRenderer<CauldronBlockEntity> {
 
-    @SuppressWarnings("unused")
     public CauldronBlockEntityRenderer(BlockEntityRendererProvider.Context context) { }
 
     @Override

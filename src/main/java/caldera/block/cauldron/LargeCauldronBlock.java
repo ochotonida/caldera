@@ -6,7 +6,6 @@ import caldera.block.multiblock.state.OrientationSet;
 import caldera.util.VoxelShapeHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.Vec3i;
 import net.minecraft.util.Unit;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -66,30 +65,6 @@ public class LargeCauldronBlock extends CubeMultiblock<Unit> implements EntityBl
         super(properties);
     }
 
-    @Override
-    protected OrientationSet<Unit> getOrientations() {
-        return OrientationSet.UNIT;
-    }
-
-    @Nullable
-    public CauldronBlockEntity getController(BlockState state, BlockPos pos, Level level) {
-        BlockPos origin = getOrigin(state, pos);
-        BlockState originState = level.getBlockState(origin);
-
-        if (isOrigin(originState)) {
-            BlockEntity blockEntity = level.getBlockEntity(origin);
-            if (blockEntity instanceof CauldronBlockEntity) {
-                return ((CauldronBlockEntity) blockEntity);
-            }
-        }
-
-        return null;
-    }
-
-    public static boolean isOrigin(BlockState state) {
-        return state.getBlock() instanceof LargeCauldronBlock && state.getValue(LargeCauldronBlock.OCTANT).getRelativePosition().equals(Vec3i.ZERO);
-    }
-
     public static boolean isInsideCauldron(BlockState state, Vec3 vector) {
         return isInsideCauldron(state, vector.x(), vector.y(), vector.z());
     }
@@ -118,6 +93,11 @@ public class LargeCauldronBlock extends CubeMultiblock<Unit> implements EntityBl
             return y > floorHeight;
         }
         return true;
+    }
+
+    @Override
+    protected OrientationSet<Unit> getOrientations() {
+        return OrientationSet.UNIT;
     }
 
     @Nullable
