@@ -2,7 +2,6 @@ package caldera.block.cauldron.contents;
 
 import net.minecraft.core.NonNullList;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.items.IItemHandler;
 
 public abstract class CauldronContentsWithInventory implements CauldronContents {
 
@@ -13,8 +12,12 @@ public abstract class CauldronContentsWithInventory implements CauldronContents 
         this.itemInventory.setItems(items);
     }
 
+    protected CauldronContentsWithInventory(CauldronItemInventory itemInventory) {
+        this.itemInventory = itemInventory;
+    }
+
     @Override
-    public IItemHandler getItemHandler() {
+    public CauldronItemInventory getItemHandler() {
         return itemInventory;
     }
 }
